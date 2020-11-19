@@ -1,0 +1,52 @@
+{
+  "name": "sandbox",
+  "version": "0.0.1",
+  "description": "WebGL Sandbox",
+  "main": "build/three.js",
+  "module": "build/three.module.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sermonis/sandbox.git"
+  },
+  "keywords": [
+    "javascript",
+    "js",
+    "3d",
+    "webgl",
+    "three.js",
+    "threejs",
+    "three",
+    "virtual-reality",
+    "augmented-reality",
+    "webgl",
+    "webgl2",
+    "webaudio",
+    "webxr",
+    "canvas",
+    "svg",
+    "html5"
+  ],
+  "files": [
+    "build/three.js",
+    "build/three.min.js",
+    "build/three.module.js",
+    "examples/js",
+    "examples/jsm",
+    "examples/fonts",
+    "package.json",
+    "README.md",
+  ],
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "author": "Alexey Pozdnyakov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sermonis/sandbox/issues"
+  },
+  "homepage": "https://github.com/sermonis/sandbox#readme", 
+}
