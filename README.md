@@ -1,5 +1,5 @@
 ---
-permalink: /tests
+permalink: /tests/
 ---
 
 # sandbox
