@@ -4,8 +4,8 @@
 		<meta charset="utf-8">
 		<title>three.js examples</title>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link rel="shortcut icon" href="libs/three.js/files/favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="libs/three.js/files/main.css">
+		<link rel="shortcut icon" href="./libs/three.js/files/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="./libs/three.js/files/main.css">
 	</head>
 	<body>
 
@@ -38,7 +38,7 @@
 				</div>
 
 				<div id="content">
-					<img id="previewsToggler" src="libs/three.js/examples/files/thumbnails.svg" width="20" height="20" />
+					<img id="previewsToggler" src="./libs/three.js/examples/files/thumbnails.svg" width="20" height="20" />
 				</div>
 			</div>
 
@@ -46,7 +46,7 @@
 
 		<iframe id="viewer" name="viewer" allowfullscreen allowvr onmousewheel=""></iframe>
 
-		<a id="button" target="_blank"><img src="libs/three.js/files/ic_code_black_24dp.svg"></a>
+		<a id="button" target="_blank"><img src="./libs/three.js/files/ic_code_black_24dp.svg"></a>
 
 		<script>
 
@@ -240,9 +240,9 @@
 
 			const template = [
 				'<div class="card">',
-				'	<a href="' + path + '/' + file + '.html" target="viewer">',
+				'	<a href="./' + path + '/' + file + '.html" target="viewer">',
 				'		<div class="cover">',
-				'			<img src="' + path + '/screenshots/' + file + '.jpg" loading="lazy" width="400" />',
+				'			<img src="./' + path + '/screenshots/' + file + '.jpg" loading="lazy" width="400" />',
 				'		</div>',
 				'		<div class="title">' + getName( file ) + '</div>',
 				'	</a>',
