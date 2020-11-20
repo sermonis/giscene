@@ -64,8 +64,6 @@
 
 			const list = await ( await fetch( '../libs/three.js/docs/list.json' ) ).json();
 
-			// console.log( 'list', list );
-
 			const hash = window.location.hash.substring( 1 );
 
 			// Localisation
@@ -249,7 +247,6 @@
 						// Create page links
 
 						const pageURL = pages[ pageName ];
-						// const pageURL = '../libs/three.js/docs/' + pages[ pageName ];
 
 						// Localisation
 
