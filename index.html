@@ -4,8 +4,8 @@
 		<meta charset="utf-8">
 		<title>three.js examples</title>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link rel="shortcut icon" href="./libs/three.js/files/favicon.ico" />
-		<link rel="stylesheet" type="text/css" href="./libs/three.js/files/main.css">
+		<link rel="shortcut icon" href="libs/three.js/files/favicon.ico" />
+		<link rel="stylesheet" type="text/css" href="libs/three.js/files/main.css">
 	</head>
 	<body>
 
@@ -14,7 +14,9 @@
 			<div id="header">
 
 				<!-- <h1 style="font-size: 12px"><a href="https://threejs.org">three.js</a></h1> -->
-				<h1><a href="https://threejs.org" target="_black">three.js</a></h1>
+				<h1>
+					<a href="https://threejs.org" target="_black">three.js</a>
+				</h1>
 
 				<div id="sections">
 					<!-- <a href="libs/three.js/docs/index.html#manual/introduction/Creating-a-scene">docs</a> -->
@@ -38,7 +40,7 @@
 				</div>
 
 				<div id="content">
-					<img id="previewsToggler" src="./libs/three.js/examples/files/thumbnails.svg" width="20" height="20" />
+					<img id="previewsToggler" src="libs/three.js/examples/files/thumbnails.svg" width="20" height="20" />
 				</div>
 			</div>
 
@@ -46,7 +48,9 @@
 
 		<iframe id="viewer" name="viewer" allowfullscreen allowvr onmousewheel=""></iframe>
 
-		<a id="button" target="_blank"><img src="./libs/three.js/files/ic_code_black_24dp.svg"></a>
+		<a id="button" target="_blank">
+			<img src="libs/three.js/files/ic_code_black_24dp.svg">
+		</a>
 
 		<script>
 
@@ -67,6 +71,9 @@
 
 		let selected = null;
 
+		const examplesPath = 'libs/three.js/examples';
+		const samplesPath = 'samples';
+
 		init();
 
 		async function init() {
@@ -76,12 +83,12 @@
 			viewSrcButton.style.display = 'none';
 
 			// TODO: Merge tags.
-			const files = await ( await fetch( 'libs/three.js/examples/files.json' ) ).json();
-			const tags = await ( await fetch( 'libs/three.js/examples/tags.json' ) ).json();
+			const files = await ( await fetch( examplesPath + '/files.json' ) ).json();
+			const tags = await ( await fetch( examplesPath + '/tags.json' ) ).json();
 
 			// TODO: Merge tags.
-			const sampleFiles = await ( await fetch( 'samples/files.json' ) ).json();
-			const sampleTags = await ( await fetch( 'samples/tags.json' ) ).json();
+			const sampleFiles = await ( await fetch( samplesPath + '/files.json' ) ).json();
+			const sampleTags = await ( await fetch( samplesPath + '/tags.json' ) ).json();
 
 			// console.log( 'files', files );
 			// console.log( 'files.keys()', Object.keys( files ) );
@@ -108,11 +115,11 @@
 
 					const file = section[ i ];
 
-					const link = createLink( file );
+					const link = createLink( file, examplesPath );
 					container.appendChild( link );
 
 					links[ file ] = link;
-					validRedirects.set( file, file + '.html' );
+					validRedirects.set( file, examplesPath + '/' + file + '.html' );
 
 				}
 
@@ -131,11 +138,11 @@
 
 					const file = section[ i ];
 
-					const link = createLink( file, 'samples' );
+					const link = createLink( file, samplesPath );
 					container.appendChild( link );
 
 					links[ file ] = link;
-					validRedirects.set( file, 'samples/' + file + '.html' );
+					validRedirects.set( file, samplesPath + '/' + file + '.html' );
 
 				}
 
@@ -148,6 +155,8 @@
 				const file = window.location.hash.substring( 1 );
 
 				// use a predefined map of redirects to avoid untrusted URL redirection due to user-provided value
+
+				console.log( validRedirects )
 
 				if ( validRedirects.has( file ) === true ) {
 
@@ -235,14 +244,11 @@
 
 		function createLink( file, path ) {
 
-			path = path || 'libs/three.js/examples';
-			// source = path ? 'samples' : 'libs/three.js/examples';
-
 			const template = [
 				'<div class="card">',
-				'	<a href="./' + path + '/' + file + '.html" target="viewer">',
+				'	<a href="' + path + '/' + file + '.html" target="viewer">',
 				'		<div class="cover">',
-				'			<img src="./' + path + '/screenshots/' + file + '.jpg" loading="lazy" width="400" />',
+				'			<img src="' + path + '/screenshots/' + file + '.jpg" loading="lazy" width="400" />',
 				'		</div>',
 				'		<div class="title">' + getName( file ) + '</div>',
 				'	</a>',
@@ -265,8 +271,6 @@
 
 		function selectFile( file, path ) {
 
-			path = path || 'libs/three.js/examples';
-
 			if ( selected !== null ) links[ selected ].classList.remove( 'selected' );
 
 			links[ file ].classList.add( 'selected' );
@@ -280,8 +284,6 @@
 
 			// Reveal "View source" button and set attributes to this example
 			viewSrcButton.style.display = '';
-			// viewSrcButton.href = 'https://github.com/mrdoob/three.js/blob/master/examples/' + selected + '.html';
-			// viewSrcButton.href = 'https://github.com/sermonis/sandbox/blob/master/samples/' + selected + '.html';
 			viewSrcButton.href = 'https://github.com/sermonis/sandbox/blob/master/' + path + '/' + selected + '.html';
 			viewSrcButton.title = 'View source code for ' + getName( selected ) + ' on GitHub';
 
