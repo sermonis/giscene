@@ -1,7 +1,3 @@
----
-permalink: /tests/
----
-
 # sandbox
 
 ## DEV Examples
