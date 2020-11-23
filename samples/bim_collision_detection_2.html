@@ -110,19 +110,15 @@
             // Init GUI.
             setGUI();
 
+            // Init Stats.
+            setStats();
+
             // EVENTS
             THREEx.WindowResize( renderer, camera );
             THREEx.FullScreen.bindKey( { charCode : 'm'.charCodeAt( 0 ) } );
 
             // CONTROLS
-            controls = new OrbitControls( camera, renderer.domElement );
-
-            // STATS
-            stats = new Stats();
-            stats.domElement.style.position = 'absolute';
-            stats.domElement.style.bottom = '0px';
-            stats.domElement.style.zIndex = 100;
-            document.body.appendChild( stats.domElement );
+            controls = new OrbitControls( camera, renderer.domElement );            
 
             // LIGHT
             var light = new THREE.PointLight( 0xffffff );
@@ -279,6 +275,16 @@
         function render() {
 
         	renderer.render( scene, camera );
+
+        }
+
+        function setStats () {
+
+            stats = new Stats();
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.bottom = '0px';
+            stats.domElement.style.zIndex = 100;
+            document.body.appendChild( stats.domElement );
 
         }
 
