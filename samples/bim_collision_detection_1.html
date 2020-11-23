@@ -2,42 +2,63 @@
 <html lang="en">
 
     <head>
-        <title>BIM - Collision detection - 1</title>
+
+        <title>BIM - Collision Detection - 1</title>
         <meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
         <style>
+
             body {
                 /* background-color: #cce0ff; */
                 /* color: #000; */
             }
+
             a {
                 color: #f00;
             }
+
         </style>
+
     </head>
 
     <body>
 
         <div id="container"></div>
-    	<div id="info">
-    		<a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Basic collision detection based on each vertex checking.
-    	</div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Basic collision detection based on each vertex checking.
+            </div>
+
+            <div>
+                Up/Down arrow: move in global Z direction. Left/Right arrow: move in global X direction. A/D: rotate left/right.
+            </div>
+
+            <div id="message"></div>
+
+        </div>
 
     </body>
+
     <script type="module">
 
         import * as THREE from '../libs/three.js/build/three.module.js';
         import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+
+        import Snapshot from './jsm/libs/snapshot.module.js';
 
         // Global variables.
-        var renderer;
-        var scene;
-        var camera;
+        let renderer;
+        let scene;
+        let camera;
 
-        var control;
-        var cubes = [];
-        var stats;
+        let control;
+        let cubes = [];
+        let stats;
 
         function init () {
 
@@ -52,6 +73,9 @@
             renderer = new THREE.WebGLRenderer();
             renderer.setClearColor( 0x000000, 1.0 );
             renderer.setSize( window.innerWidth, window.innerHeight );
+
+            // Init GUI.
+            setGUI();
 
             // Create a cube and add to scene.
             const cubeGeometry = new THREE.BoxGeometry( 2, 2, 2 );
@@ -95,12 +119,12 @@
         	// cubeOutlineMesh5.scale.multiplyScalar( 1.05 );
         	// scene.add( cubeOutlineMesh5 );
 
-            const textureLoader = new THREE.TextureLoader();
+            const loader = new THREE.TextureLoader();
             const groundPlane = new THREE.PlaneGeometry( 1000, 1000, 20, 20 );
             const groundMat = new THREE.MeshLambertMaterial( {
 
                 color: 0xffffff,
-                map: textureLoader.load( '../libs/three.js/examples/textures/hardwood2_roughness.jpg' ),
+                map: loader.load( '../libs/three.js/examples/textures/hardwood2_roughness.jpg' ),
 
             } );
 
@@ -145,39 +169,58 @@
             const moveDistance = 0.15;
             const cube = scene.getObjectByName( 'cube' );
 
-            if ( e.keyCode == '37' ) {
+            switch ( e.keyCode ) {
 
-                // left arrow
-                cube.position.x -= moveDistance;
+                case 37:
 
-            } else if ( e.keyCode == '38' ) {
+                    // Arrow left (move left).
+                    cube.position.x -= moveDistance;
 
-                // up arrow
-                cube.position.z -= moveDistance;
+                    break;
 
-            } else if ( e.keyCode == '39' ) {
+                case 38:
+                case 87:
 
-                // right arrow
-                cube.position.x += moveDistance;
+                    // Arrow up, W (move forward).
+                    cube.position.z -= moveDistance;
 
-            } else if ( e.keyCode == '40' ) {
+                    break;
 
-                // down arrow
-                cube.position.z += moveDistance;
+                case 39:
 
-            } else if ( e.keyCode == '65' ) {
+                    // Arrow right (move right).
+                    cube.position.x += moveDistance;
 
-                cube.rotation.y -= moveDistance;
+                    break;
 
-            } else if ( e.keyCode == '83' ) {
+                case 40:
+                case 83:
 
-                cube.rotation.y += moveDistance;
+                    // Arrow down, S (move backward).
+                    cube.position.z += moveDistance;
+
+                    break;
+
+                case 65:
+
+                    // A (rotate right).
+                    cube.rotation.y -= moveDistance;
+
+                    break;
+
+                case 68:
+
+                    // D (rotate left).
+                    cube.rotation.y += moveDistance;
+
 
             }
 
         }
 
         function checkCollision () {
+
+            clearText();
 
             cubes.forEach( function ( cube ) {
 
@@ -200,7 +243,9 @@
 
                 if ( collisionResults.length > 0 && collisionResults[ 0 ].distance < directionVector.length() ) {
 
-                    console.log( collisionResults[ 0 ].object.name );
+                    // console.log( collisionResults[ 0 ].object.name );
+                    appendText(' Hit ');
+
                     collisionResults[ 0 ].object.material.transparent = true;
                     collisionResults[ 0 ].object.material.opacity = 0.4;
 
@@ -210,7 +255,7 @@
 
         }
 
-        function render() {
+        function render () {
 
             renderer.render( scene, camera );
 
@@ -224,6 +269,50 @@
         // Calls the init function when the window is done loading.
         window.onload = init;
         window.addEventListener( 'keydown', moveCube );
+
+        function clearText () {
+
+            document.getElementById( 'message' ).innerHTML = '..........';
+
+        }
+
+        function appendText ( txt ) {
+
+            document.getElementById( 'message' ).innerHTML += txt;
+
+        }
+
+        function setGUI () {
+
+            // GUI params.
+        	const params = {
+
+                // Snapshot width.
+                width: 400,
+
+                // Snapshot height.
+                height: 250,
+
+                // Download snapshot.
+                getSnapshot: function () {
+
+                    const snapshot = new Snapshot( params.width, params.height ).capture( scene, camera );
+
+                },
+
+            };
+
+            const gui = new GUI();
+
+            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+            snapshotFolder.add( params, 'width', 0, 2200, 50 );
+            snapshotFolder.add( params, 'height', 0, 1329, 50 );
+            snapshotFolder.add( params, 'getSnapshot' );
+
+        	snapshotFolder.open();
+
+        }
 
     </script>
 

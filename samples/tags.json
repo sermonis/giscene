@@ -1,3 +1,4 @@
 {
-	"bim_collision_detection_1": [ "bim", "collision", "intersection", "notatall" ]	
+	"bim_collision_detection_1": [ "bim", "collision", "intersection" ],
+	"bim_collision_detection_1": [ "bim", "collision", "intersection", "keyboard", "fullscreen" ]
 }

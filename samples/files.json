@@ -1,5 +1,6 @@
  {
     "collisions": [
- 		"bim_collision_detection_1"
+ 		"bim_collision_detection_1",
+ 		"bim_collision_detection_2"
  	]
 }
