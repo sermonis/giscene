@@ -296,7 +296,11 @@
                 // Download snapshot.
                 getSnapshot: function () {
 
-                    const snapshot = new Snapshot( params.width, params.height ).capture( scene, camera );
+                    const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                    snapshotRenderer.setSize( params.width, params.height );
+
+                    const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                    snapshotRenderer.dispose();
 
                 },
 

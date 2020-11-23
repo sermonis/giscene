@@ -1,11 +1,15 @@
-const Snapshot = function ( renderer ) {
+import { WebGLRenderer } from 'three';
 
-    console.log( renderer )
+const Snapshot = function ( width, height ) {
 
-    if ( renderer === undefined ) console.warn( 'Snapshot: The parameter "renderer" is now mandatory.' );
+    if ( width === undefined ) console.warn( 'Snapshot: The first parameter "width" is now mandatory.' );
+    if ( height === undefined ) console.warn( 'Snapshot: The second parameter "height" is now mandatory.' );
 
-    // Snapshot renderer.
-    this.renderer = renderer;
+    // Snapshot width.
+    this.width = width;
+
+    // Snapshot height.
+    this.height = height;
 
     // Internals.
     const scope = this;
@@ -13,17 +17,18 @@ const Snapshot = function ( renderer ) {
     // This method is exposed.
     this.capture = function ( scene, camera ) {
 
-        if ( scene === undefined ) console.warn( 'Snapshot: The second parameter "scene" is now mandatory.' );
+        if ( scene === undefined ) console.warn( 'Snapshot: The first parameter "scene" is now mandatory.' );
         if ( camera === undefined ) console.warn( 'Snapshot: The second parameter "camera" is now mandatory.' );
 
-        // console.log( scope )
-        // console.log( scope.renderer )
+        const snapshot = new WebGLRenderer( { antialias: true } );
+        snapshot.setSize( scope.width, scope.height );
 
-        const canvas = scope.renderer.domElement;
-        scope.renderer.render( scene, camera );
+        const canvas = snapshot.domElement;
+        snapshot.render( scene, camera );
 
         canvas.toBlob( ( blob ) => {
 
+            snapshot.dispose();
             _saveBlob( blob, `snapshot-${ canvas.width }x${ canvas.height }.jpg`);
 
         } );
