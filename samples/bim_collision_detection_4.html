@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>BIM - Collision Detection - 4</title>
+
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+        <link type="text/css" rel="stylesheet" href="main.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
+
+        <script src="js/libs/threex/threex.colliders/threex.collider.js"></script>
+        <script src="js/libs/threex/threex.colliders/threex.collidersystem.js"></script>
+        <script src="js/libs/threex/threex.colliders/threex.colliderhelper.js"></script>
+
+        <style></style>
+
+    </head>
+
+    <body>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Collision detection with Box3 (Axis-aligned minimum bounding box or call it AABB).
+            </div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <!--
+        <ul>
+            <li>Received event change the object's bounding box:</li>
+            <li>&nbsp;</li>
+            <li>Event <strong>initial state</strong> : set color to green</li>
+            <li>Event <strong>contactEnter</strong> : set color to red</li>
+            <li>Event <strong>contactExit</strong> : set color to green</li>
+            <li>Event <strong>contactRemoved</strong> : set color to blue</li>
+            <li>Event <strong>contactStay</strong> : increase line width</li>
+        </ul>
+    -->
+
+    <script type="module">
+
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+        import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
+
+        // ---------------------------------------------------------------------------
+
+        var renderer = new THREE.WebGLRenderer();
+    	renderer.setSize( window.innerWidth, window.innerHeight );
+    	document.body.appendChild( renderer.domElement );
+
+    	var onRenderFunctions = [];
+    	var scene = new THREE.Scene();
+    	var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
+    	camera.position.z = 8;
+
+    	// Init camera controls.
+    	var controls = new OrbitControls( camera, renderer.domElement )
+    	onRenderFunctions.push( function () {
+
+    		controls.update();
+
+    	} )
+
+        var stats;
+
+        // Init GUI.
+        setGUI();
+
+        // Init Stats.
+        setStats();
+
+
+        var colliderSystem = new THREEx.ColliderSystem();
+
+        onRenderFunctions.push( function () {
+
+    		// Build colliders. Here you use your own data structure,
+    		// threex.colliders.js doesn`t care.
+    		var colliders = [];
+    		scene.traverse( function( object3d ) {
+
+    			var collider = object3d.userData.collider;
+    			if( collider === undefined ) return;
+
+    			colliders.push( collider );
+
+    		} );
+
+    		// Update the colliderSystem.
+    		colliderSystem.computeAndNotify( colliders );
+
+    	} );
+
+    	// Build all objects.
+    	;( function () {
+
+    		// Without objectReuseEnabled.
+    		buildRow( new THREE.Vector3( -3.5, 1.2, 0 ), -1.5,-0.5, true );
+    		buildRow( new THREE.Vector3( 0.0, 1.2, 0 ), -1.5, 1.5, true );
+    		buildRow( new THREE.Vector3( 3.5, 1.2, 0 ),  0.5, 1.5, true );
+
+    		// Without objectReuseEnabled to trigger contactRemoved.
+    		buildRow( new THREE.Vector3( -3.5, -1.2, 0 ), -1.5,-0.5, false );
+    		buildRow( new THREE.Vector3( 0.0, -1.2, 0 ), -1.5, 1.5, false );
+    		buildRow( new THREE.Vector3( 3.5, -1.2, 0 ),  0.5, 1.5, false );
+
+            return;
+
+    		function buildRow ( position, startX, endX, objectReuseEnabled ) {
+
+                // Build static object.
+    			var object3d = createObject3d();
+    			addObject3D( object3d );
+    			object3d.position.copy( position );
+
+    			// Build moving object.
+    			var object3d = createObject3d();
+    			object3d.position.copy( position );
+    			addObject3D( object3d );
+
+    			object3d.position.x	+= startX;
+    			// object3d.position.y += 0.3;
+
+    			// Make it move.
+    			onRenderFunctions.push( function ( delta ) {
+
+    				// Update object position.
+    				var speed = ( endX - startX ) / 3;
+    				object3d.position.x	+= delta * speed;
+
+    				// Detect if the object MUST be reset.
+    				if( object3d.position.x >= position.x + endX ) {
+
+                        if( objectReuseEnabled === false ) {
+
+    						removeObject3D( object3d );
+    						object3d = createObject3d();
+    						addObject3D( object3d );
+
+    					}
+
+    					object3d.position.copy( position );
+    					object3d.position.x	+= startX;
+
+    				}
+
+    			} );
+
+    		}
+
+    	} ) ();
+
+    	// Update all object3d.
+    	onRenderFunctions.push( function ( delta ) {
+
+    		var objects	= [];
+
+    		// Traverse the scene and update object with colliders.
+    		scene.traverse( function ( object3d ) {
+
+    			if ( object3d.userData.collider === undefined )	return;
+    			objects.push( object3d );
+
+    		} );
+
+    		// Traverse the scene and update object with colliders.
+    		objects.forEach( function ( object3d ) {
+
+    			updateObject3D( object3d, delta );
+
+    		} );
+
+    	} );
+
+    	function updateObject3D ( object3d, delta ) {
+
+            // Make it move.
+    		var velocity = object3d.userData.velocity;
+    		var movement = velocity.clone().multiplyScalar( delta );
+
+    		object3d.position.add( movement );
+
+    		// Update the collider.
+    		var collider = object3d.userData.collider;
+    		collider.update();
+
+    		// Update the helper.
+    		var helper	= object3d.userData.helper;
+    		helper.update();
+
+    	}
+
+    	function addObject3D ( object3d ) {
+
+    		// Add the object to the scene.
+    		scene.add(object3d)
+
+    		// Log to debug.
+    		// console.log( 'objectAdded', object3d );
+
+    		// Add the helper.
+    		var helper = object3d.userData.helper;
+    		scene.add( helper );
+
+    	}
+
+    	function removeObject3D ( object3d ) {
+
+    		// Log to debug.
+    		// console.log( 'objectRemoved', object3d );
+
+    		// Add the object to the scene.
+    		scene.remove( object3d );
+
+    		// Remove helper.
+    		var helper = object3d.userData.helper;
+    		scene.remove( helper );
+
+    	}
+
+    	function createObject3d () {
+
+    		// Create mesh.
+    		var geometry = new THREE.SphereGeometry( 0.5, 32, 16 );
+    		var material = new THREE.MeshNormalMaterial();
+    		var object3d = new THREE.Mesh( geometry, material );
+
+    		// Set initial velocity.
+    		object3d.userData.velocity = new THREE.Vector3();
+
+    		// Init collider.
+    		var collider = THREEx.Collider.createFromObject3d( object3d );
+    		object3d.userData.collider = collider;
+
+    		// Init collider helper.
+    		var helper = new THREEx.ColliderHelper( collider );
+    		object3d.userData.helper = helper;
+    		helper.material.color.set( 'green' );
+
+    		// Event binding for colliders.
+    		collider.addEventListener( 'contactEnter', function ( otherCollider ) {
+
+                helper.material.color.set( 'red' );
+    			helper.material.wireframeLinewidth = 1;
+
+    		} );
+
+    		collider.addEventListener( 'contactExit', function ( otherCollider ) {
+
+    			helper.material.color.set( 'green' );
+    			helper.material.wireframeLinewidth = 1;
+
+    		} );
+
+    		collider.addEventListener( 'contactRemoved', function ( otherColliderId ) {
+
+    			helper.material.color.set( 'blue' );
+    			helper.material.wireframeLinewidth = 1;
+
+    		} );
+
+    		collider.addEventListener( 'contactStay', function ( otherCollider ) {
+
+                // helper.material.color.set( 'yellow' );
+                helper.material.wireframeLinewidth = 3;
+
+    		} );
+
+    		// Return the just built object.
+    		return object3d;
+    	}
+
+    	// Render the scene.
+    	onRenderFunctions.push( function () {
+
+    		renderer.render( scene, camera );
+
+    	} );
+
+    	// Loop runner.
+    	var lastTimeMsec = null;
+    	requestAnimationFrame( function animate ( nowMsec ) {
+
+    		// Keep looping.
+    		requestAnimationFrame( animate );
+
+    		// Measure time.
+    		lastTimeMsec = lastTimeMsec || nowMsec - ( 1000 / 60 );
+    		var deltaMsec = Math.min( 200, nowMsec - lastTimeMsec );
+
+            lastTimeMsec = nowMsec;
+
+    		// Call each update function.
+    		onRenderFunctions.forEach( function ( fn ) {
+
+    			fn( deltaMsec / 1000, nowMsec / 1000 );
+
+    		} );
+
+            stats.update();
+
+    	} );
+
+        // ---------------------------------------------------------------------------
+
+        function clearText () {
+
+            document.getElementById( 'message' ).innerHTML = '..........';
+
+        }
+
+        function appendText ( txt ) {
+
+            document.getElementById( 'message' ).innerHTML += txt;
+
+        }
+
+        function setText ( eventName, nameA, nameB ) {
+
+            document.getElementById( 'message' ).innerHTML = eventName + ': '
+                + nameA
+                + ' ' + 'with' + ' '
+                + nameB;
+
+        }
+
+        // ---------------------------------------------------------------------------
+
+        function setStats () {
+
+            stats = new Stats();
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.bottom = '0px';
+            stats.domElement.style.zIndex = 100;
+            document.body.appendChild( stats.domElement );
+
+        }
+
+        function setGUI () {
+
+            // GUI params.
+        	const params = {
+
+                // Snapshot width.
+                width: 400,
+
+                // Snapshot height.
+                height: 250,
+
+                // Download snapshot.
+                takeShot: function () {
+
+                    const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                    snapshotRenderer.setSize( params.width, params.height );
+
+                    const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                    snapshotRenderer.dispose();
+
+                },
+
+            };
+
+            const gui = new GUI();
+
+            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+            snapshotFolder.add( params, 'width', 0, 2200, 50 );
+            snapshotFolder.add( params, 'height', 0, 1329, 50 );
+            snapshotFolder.add( params, 'takeShot' );
+
+        	snapshotFolder.open();
+
+            gui.close();
+
+        }
+
+    </script>
+
+</html>

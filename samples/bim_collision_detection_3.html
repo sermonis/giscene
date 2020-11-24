@@ -9,22 +9,13 @@
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+        <link type="text/css" rel="stylesheet" href="main.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
 
         <script src="js/libs/threex/threex.colliders/threex.collider.js"></script>
         <script src="js/libs/threex/threex.colliders/threex.collidersystem.js"></script>
         <script src="js/libs/threex/threex.colliders/threex.colliderhelper.js"></script>
-
-        <style>
-
-            canvas {
-
-                display: block;
-
-            }
-
-        </style>
 
     </head>
 
@@ -54,7 +45,7 @@
 
         // ---------------------------------------------------------------------------
 
-    	var onRenderFcts = [];
+    	var onRenderFunctions = [];
     	var scene = new THREE.Scene();
 
         var camera	= new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
@@ -74,7 +65,7 @@
     	var colliders = [];
 
     	// Compute and notify events to all colliders.
-    	onRenderFcts.push( function () {
+    	onRenderFunctions.push( function () {
 
     		colliderSystem.computeAndNotify( colliders );
 
@@ -98,7 +89,7 @@
         	mesh.rotation.z = Math.PI / 4;
 
         	// Make it move.
-        	onRenderFcts.push( function ( delta ) {
+        	onRenderFunctions.push( function ( delta ) {
 
         		mesh.position.x	-= 0.5 * delta;
         		mesh.rotation.z	+= Math.PI * 2 * delta * 0.1;
@@ -115,14 +106,14 @@
 
         		var angle = 0;
 
-        		onRenderFcts.push( function ( delta ) {
+        		onRenderFunctions.push( function ( delta ) {
 
         			angle += Math.PI * 2 * delta * 0.1;
         			mesh.scale.y = 0.5 + 0.3 * Math.sin( angle );
 
         		} );
 
-        	} )();
+        	} ) ();
 
         	// Compute collider shape from mesh.geometry.vertices.
         	var box3 = new THREE.Box3();
@@ -133,7 +124,7 @@
         	colliders.push( collider );
 
             // colliderSystem.add( collider );
-        	onRenderFcts.push( function ( delta ) {
+        	onRenderFunctions.push( function ( delta ) {
 
         		collider.update();
 
@@ -161,13 +152,13 @@
 
         	scene.add( helper );
 
-            onRenderFcts.push( function ( delta ) {
+            onRenderFunctions.push( function ( delta ) {
 
         		helper.update();
 
         	} );
 
-        } )();
+        } ) ();
 
     	// Add second object and make it move.
         ;( function () {
@@ -185,7 +176,7 @@
         	mesh.position.y = -0.8;
 
         	// Make it move.
-        	onRenderFcts.push( function ( delta ) {
+        	onRenderFunctions.push( function ( delta ) {
 
         		mesh.position.x	+= 0.5 * delta;
         		// mesh.rotation.z	+= Math.PI * 2 *delta * 0.1;
@@ -202,14 +193,14 @@
 
         		var angle = 0;
 
-                onRenderFcts.push( function ( delta ) {
+                onRenderFunctions.push( function ( delta ) {
 
         			angle += Math.PI * 2 * delta * 0.1;
         			mesh.scale.y = 1.0 + 0.5 * Math.sin( angle );
 
         		} );
 
-        	} )();
+        	} ) ();
 
         	// Init collider.
         	var collider = THREEx.Collider.createFromObject3d( mesh );
@@ -217,7 +208,7 @@
         	colliders.push( collider );
 
         	// colliderSystem.add( collider );
-        	onRenderFcts.push( function( delta ) {
+        	onRenderFunctions.push( function( delta ) {
 
         		collider.update();
 
@@ -245,13 +236,13 @@
 
         	scene.add( helper );
 
-        	onRenderFcts.push( function( delta ) {
+        	onRenderFunctions.push( function( delta ) {
 
         		helper.update();
 
         	} );
 
-        } )();
+        } ) ();
 
     	// Camera Controls.
     	var mouse = { x : 0, y : 0 };
@@ -263,7 +254,7 @@
 
     	}, false );
 
-    	onRenderFcts.push( function ( delta, now ) {
+    	onRenderFunctions.push( function ( delta, now ) {
 
     		camera.position.x += ( ( mouse.x * 2 ) - camera.position.x ) * ( delta * 3 );
     		camera.position.y += ( ( mouse.y * 2 ) - camera.position.y ) * ( delta * 3 );
@@ -272,7 +263,7 @@
     	} );
 
     	// Render the scene.
-        onRenderFcts.push( function () {
+        onRenderFunctions.push( function () {
 
     		renderer.render( scene, camera );
 
@@ -302,9 +293,9 @@
             lastTimeMsec = nowMsec;
 
             // Call each update function.
-    		onRenderFcts.forEach( function ( onRenderFct ) {
+    		onRenderFunctions.forEach( function ( fn ) {
 
-    			onRenderFct( deltaMsec / 1000, nowMsec / 1000 );
+    			fn( deltaMsec / 1000, nowMsec / 1000 );
 
     		} );
 
