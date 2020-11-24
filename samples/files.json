@@ -6,6 +6,7 @@
  		"bim_collision_detection_4"
  	],
     "controls": [
- 		"bim_controls_firstperson_1"
+ 		"bim_controls_firstperson_1",
+ 		"bim_controls_firstperson_2"
  	]
 }
