@@ -118,7 +118,7 @@
             THREEx.FullScreen.bindKey( { charCode : 'm'.charCodeAt( 0 ) } );
 
             // CONTROLS
-            controls = new OrbitControls( camera, renderer.domElement );            
+            controls = new OrbitControls( camera, renderer.domElement );
 
             // LIGHT
             var light = new THREE.PointLight( 0xffffff );
@@ -300,7 +300,7 @@
                 height: 250,
 
                 // Download snapshot.
-                getSnapshot: function () {
+                takeShot: function () {
 
                     const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
                     snapshotRenderer.setSize( params.width, params.height );
@@ -318,9 +318,11 @@
 
             snapshotFolder.add( params, 'width', 0, 2200, 50 );
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
-            snapshotFolder.add( params, 'getSnapshot' );
+            snapshotFolder.add( params, 'takeShot' );
 
         	snapshotFolder.open();
+
+            gui.close();
 
         }
 

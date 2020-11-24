@@ -37,19 +37,25 @@ THREEx.ColliderBox3Helper	= function( collider ){
 	/**
 	 * make the helper match the collider shape. used the .updatedBox3
 	 */
-	this.update	= function(){
-		var box3	= collider.updatedBox3
-		this.scale.copy( box3.size() )
-		this.position.copy( box3.center() )
+	this.update	= function () {
+
+		var box3 = collider.updatedBox3;
+
+		this.scale.copy( box3.getSize( new THREE.Vector3() ) );
+		this.position.copy( box3.getCenter( new THREE.Vector3() ) );
+
 	}
 
 	/**
 	 * free webgl memory
 	 */
-	this.dispose	= function(){
-		geometry.dispose()
-		material.dispose()
+	this.dispose = function () {
+
+		geometry.dispose();
+		material.dispose();
+
 	}
+
 }
 
 THREEx.ColliderBox3Helper.prototype = Object.create( THREE.Mesh.prototype );

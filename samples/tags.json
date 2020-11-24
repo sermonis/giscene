@@ -1,5 +1,6 @@
 {
 	"bim_collision_detection_1": [ "bim", "collision", "intersection" ],
 	"bim_collision_detection_2": [ "bim", "collision", "intersection", "keyboard", "fullscreen", "threex" ],
+	"bim_collision_detection_3": [ "bim", "collision", "intersection", "threex" ],
 	"bim_controls_firstperson_1": [ "bim", "collision", "intersection", "controls", "firstperson", "fps" ]
 }

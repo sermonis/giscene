@@ -1,7 +1,8 @@
  {
     "collisions": [
  		"bim_collision_detection_1",
- 		"bim_collision_detection_2"
+ 		"bim_collision_detection_2",
+ 		"bim_collision_detection_3"
  	],
     "controls": [
  		"bim_controls_firstperson_1"

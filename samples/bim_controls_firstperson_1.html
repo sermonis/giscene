@@ -376,7 +376,7 @@ animate();
                 height: 250,
 
                 // Download snapshot.
-                getSnapshot: function () {
+                takeShot: function () {
 
                     const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
                     snapshotRenderer.setSize( params.width, params.height );
@@ -394,9 +394,11 @@ animate();
 
             snapshotFolder.add( params, 'width', 0, 2200, 50 );
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
-            snapshotFolder.add( params, 'getSnapshot' );
+            snapshotFolder.add( params, 'takeShot' );
 
         	snapshotFolder.open();
+
+            gui.close();
 
         }
 

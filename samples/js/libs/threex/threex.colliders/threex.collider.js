@@ -73,10 +73,12 @@ THREEx.Collider.createFromObject3d	= function(object3d, hint){
 		box3.setFromObject( object3d );
 
 		// cancel the effect of object3d.position
-		var center	= box3.center()
+		var center = box3.getCenter( new THREE.Vector3() );		
 		center.sub(object3d.position)
+
 		// cancel the effect of object3d.scale
-		var size	= box3.size()
+		var size = box3.getSize( new THREE.Vector3() );
+
 		size.divide(object3d.scale)
 		// update box3
 		box3.setFromCenterAndSize(center, size)
@@ -186,7 +188,7 @@ THREEx.ColliderBox3.prototype.collideWith	= function(otherCollider){
 THREEx.ColliderBox3.prototype.collideWithBox3	= function(otherCollider){
 	console.assert( otherCollider instanceof THREEx.ColliderBox3 )
 
-	var doCollide	= this.updatedBox3.isIntersectionBox(otherCollider.updatedBox3)
+	var doCollide	= this.updatedBox3.intersectsBox(otherCollider.updatedBox3)
 
 	return doCollide ? true : false
 }
