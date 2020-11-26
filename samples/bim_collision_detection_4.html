@@ -57,12 +57,27 @@
 
         // ---------------------------------------------------------------------------
 
+        const path = '../libs/three.js/examples/textures/cube/MilkyWay/';
+        const urls = [
+
+            path + 'dark-s_px.jpg', path + 'dark-s_nx.jpg',
+            path + 'dark-s_py.jpg', path + 'dark-s_ny.jpg',
+            path + 'dark-s_pz.jpg', path + 'dark-s_nz.jpg' 
+
+        ];
+
+        const textureCube = new THREE.CubeTextureLoader().load( urls );
+        textureCube.encoding = THREE.sRGBEncoding;
+
+        var scene = new THREE.Scene();
+        scene.background = textureCube;
+
         var renderer = new THREE.WebGLRenderer();
     	renderer.setSize( window.innerWidth, window.innerHeight );
     	document.body.appendChild( renderer.domElement );
 
     	var onRenderFunctions = [];
-    	var scene = new THREE.Scene();
+
     	var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.01, 1000 );
     	camera.position.z = 8;
 

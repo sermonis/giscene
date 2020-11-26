@@ -15,10 +15,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.js"></script>
         <script src="https://threejs.org/examples/js/renderers/Projector.js"></script>
 
-        <!-- <script src="js/libs/threex/threex.colliders/threex.collider.js"></script>
-        <script src="js/libs/threex/threex.colliders/threex.collidersystem.js"></script>
-        <script src="js/libs/threex/threex.colliders/threex.colliderhelper.js"></script> -->
-
         <style></style>
 
     </head>
@@ -39,12 +35,16 @@
 
         </div>
 
-        <div id="blocker">
+        <div id="blocker" class="blocker">
 
-            <div id="instructions">
-                <span id="instructions__heading">Click to play</span>
-                <br />
-                (W,A,S,D = Move, SPACE = Jump, MOUSE = Look, CLICK = Shoot)
+            <div id="instructions" class="blocker__instructions">
+
+                <div class="blocker__hero">
+
+                    <div class="blocker__heading">Click to play</div>
+                    <div class="blocker__text">(W,A,S,D = Move, SPACE = Jump, MOUSE = Look, CLICK = Shoot)</div>
+
+                </div>
             </div>
 
         </div>

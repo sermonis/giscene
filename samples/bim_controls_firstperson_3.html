@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>BIM - Controls - FistPerson - 3</title>
+
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+        <link type="text/css" rel="stylesheet" href="main.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
+
+        <style>
+
+            a {
+
+                color: #f00;
+
+            }
+
+            body {
+
+                color: grey;
+
+            }
+
+            .timertext {
+
+                font-size: 30px;
+                margin-left: 20px;
+                display: inline-block;
+                color: white;
+                z-index: 10000;
+
+            }
+
+            #timer {
+
+                position: absolute;
+                bottom:5px;
+                left:0px;
+                width:100%;
+
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Collision detection with <a href="https://github.com/schteppe/cannon.js" target="_blank" rel="noopener noreferrer">canon.js</a> physics engine.
+            </div>
+
+            <div>
+                (W, A, S, D = Move, SPACE = Jump, SPACEx2 = Double Jump, MOUSE = Look around, C = Crouch, SHIFT = Walk)
+            </div>
+
+            <div id="message"></div>
+
+        </div>
+
+        <div id="blocker" class="blocker">
+
+            <div id="instructions" class="blocker__instructions">
+
+                <div class="blocker__hero">
+
+                    <div class="blocker__heading">Click to play</div>
+                    <div class="blocker__text">(W, A, S, D = Move, SPACE = Jump, SPACEx2 = Double Jump, MOUSE = Look around, C = Crouch, SHIFT = Walk)</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="timer">
+
+            <span class="timertext">Timer -</span>
+            <span class="timertext" id="minutes"></span>
+            <span class="timertext" id="break">:</span>
+            <span class="timertext" id="seconds"></span>
+
+        </div>
+
+        <!-- <script type="application/x-glsl" id="sky-vertex">
+
+            varying vec2 vUV;
+
+            void main () {
+
+                vUV = uv;
+                vec4 pos = vec4( position, 1 );
+                gl_Position = projectionMatrix * modelViewMatrix * pos;
+
+            }
+
+        </script> -->
+
+        <!-- <script type="application/x-glsl" id="sky-fragment">
+
+            uniform sampler2D texture;
+            varying vec2 vUV;
+
+            void main () {
+
+                vec4 sample = texture2D( texture, vUV );
+                gl_FragColor = vec4( sample.xyz, sample.w );
+
+            }
+
+        </script> -->
+
+        <script src="bim_controls_firstperson_3/FPSControls.js"></script>
+
+        <!-- TODO: lock/unlock - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html -->
+        <script src="bim_controls_firstperson_3/pointerlock.js"></script>
+        <!-- <script src="bim_controls_firstperson_3/example.js"></script> -->
+
+    </body>
+
+    <!--
+        A 3D platformer game made with Three.js. The aim of the game is to the get to
+        the top of the crates, at which point they will back to their rightful place on
+        the moons surface in an orderly fashion.
+    -->
+
+    <script type="module">
+
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+        // ---------------------------------------------------------------------------
+
+        var stats;
+
+        /**
+         * @author mrdoob / http://mrdoob.com/
+         * @author schteppe / https://github.com/schteppe
+         */
+        // var PointerLockControls = function ( camera, cannonBody ) {
+        //
+        //     var eyeYPos = 2; // eyes are 2 meters above the ground
+        //     var velocityFactor = 0.2;
+        //     var jumpVelocity = 20;
+        //     var scope = this;
+        //
+        //     var pitchObject = new THREE.Object3D();
+        //     pitchObject.add( camera );
+        //
+        //     var yawObject = new THREE.Object3D();
+        //     yawObject.position.y = 2;
+        //     yawObject.add( pitchObject );
+        //
+        //     var quat = new THREE.Quaternion();
+        //
+        //     var moveForward = false;
+        //     var moveBackward = false;
+        //     var moveLeft = false;
+        //     var moveRight = false;
+        //
+        //     var canJump = false;
+        //
+        //     var contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
+        //     var upAxis = new CANNON.Vec3(0,1,0);
+        //     cannonBody.addEventListener("collide",function(e){
+        //         var contact = e.contact;
+        //
+        //         // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
+        //         // We do not yet know which one is which! Let's check.
+        //         if(contact.bi.id == cannonBody.id)  // bi is the player body, flip the contact normal
+        //             contact.ni.negate(contactNormal);
+        //         else
+        //             contactNormal.copy(contact.ni); // bi is something else. Keep the normal as it is
+        //
+        //         // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat in the up direction.
+        //         if(contactNormal.dot(upAxis) > 0.5) // Use a "good" threshold value between 0 and 1 here!
+        //             canJump = true;
+        //     });
+        //
+        //     var velocity = cannonBody.velocity;
+        //
+        //     var PI_2 = Math.PI / 2;
+        //
+        //     var onMouseMove = function ( event ) {
+        //
+        //         if ( scope.enabled === false ) return;
+        //
+        //         var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+        //         var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+        //
+        //         yawObject.rotation.y -= movementX * 0.002;
+        //         pitchObject.rotation.x -= movementY * 0.002;
+        //
+        //         pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+        //     };
+        //
+        //     var onKeyDown = function ( event ) {
+        //
+        //         switch ( event.keyCode ) {
+        //
+        //             case 38: // up
+        //             case 87: // w
+        //                 moveForward = true;
+        //                 break;
+        //
+        //             case 37: // left
+        //             case 65: // a
+        //                 moveLeft = true; break;
+        //
+        //             case 40: // down
+        //             case 83: // s
+        //                 moveBackward = true;
+        //                 break;
+        //
+        //             case 39: // right
+        //             case 68: // d
+        //                 moveRight = true;
+        //                 break;
+        //
+        //             case 32: // space
+        //                 if ( canJump === true ){
+        //                     velocity.y = jumpVelocity;
+        //                 }
+        //                 canJump = false;
+        //                 break;
+        //         }
+        //
+        //     };
+        //
+        //     var onKeyUp = function ( event ) {
+        //
+        //         switch( event.keyCode ) {
+        //
+        //             case 38: // up
+        //             case 87: // w
+        //                 moveForward = false;
+        //                 break;
+        //
+        //             case 37: // left
+        //             case 65: // a
+        //                 moveLeft = false;
+        //                 break;
+        //
+        //             case 40: // down
+        //             case 83: // a
+        //                 moveBackward = false;
+        //                 break;
+        //
+        //             case 39: // right
+        //             case 68: // d
+        //                 moveRight = false;
+        //                 break;
+        //
+        //         }
+        //
+        //     };
+        //
+        //     document.addEventListener( 'mousemove', onMouseMove, false );
+        //     document.addEventListener( 'keydown', onKeyDown, false );
+        //     document.addEventListener( 'keyup', onKeyUp, false );
+        //
+        //     this.enabled = false;
+        //
+        //     this.getObject = function () {
+        //         return yawObject;
+        //     };
+        //
+        //     this.getDirection = function(targetVec){
+        //         targetVec.set(0,0,-1);
+        //         quat.multiplyVector3(targetVec);
+        //     }
+        //
+        //     // Moves the camera to the Cannon.js object position and adds velocity to the object if the run key is down
+        //     var inputVelocity = new THREE.Vector3();
+        //     var euler = new THREE.Euler();
+        //     this.update = function ( delta ) {
+        //
+        //         if ( scope.enabled === false ) return;
+        //
+        //         delta *= 0.1;
+        //
+        //         inputVelocity.set(0,0,0);
+        //
+        //         if ( moveForward ){
+        //             inputVelocity.z = -velocityFactor * delta;
+        //         }
+        //         if ( moveBackward ){
+        //             inputVelocity.z = velocityFactor * delta;
+        //         }
+        //
+        //         if ( moveLeft ){
+        //             inputVelocity.x = -velocityFactor * delta;
+        //         }
+        //         if ( moveRight ){
+        //             inputVelocity.x = velocityFactor * delta;
+        //         }
+        //
+        //         // Convert velocity to world coordinates
+        //         euler.x = pitchObject.rotation.x;
+        //         euler.y = yawObject.rotation.y;
+        //         euler.order = "XYZ";
+        //         quat.setFromEuler(euler);
+        //         inputVelocity.applyQuaternion(quat);
+        //         //quat.multiplyVector3(inputVelocity);
+        //
+        //         // Add to the object
+        //         velocity.x += inputVelocity.x;
+        //         velocity.z += inputVelocity.z;
+        //
+        //         yawObject.position.copy(cannonBody.position);
+        //     };
+        // };
+
+        var camera, scene, renderer;
+    	var geometry, material, mesh;
+    	var controls;
+    	var boxes = [];
+    	var objects = [];
+
+    	// var WON = false;
+    	var timer;
+        var fog = 100;
+
+        const FOV = Math.atan( 3 / 4 ); // in radians
+        const FOV_DEGREES = FOV * 360 / ( Math.PI * 2 ); // Math.atan( 3 / 4 ) in degrees.
+
+    	init();
+    	animate();
+
+    	var prevTime = performance.now();
+    	var velocity = new THREE.Vector3();
+
+    	function init () {
+
+    		initialiseTimer();
+    		eventHandlers();
+
+    		scene = new THREE.Scene();
+    		scene.fog = new THREE.Fog( 0xffffff, 0, fog + 1000 );
+    		// scene.fog = new THREE.Fog( new THREE.Color( '#26C6DA' ), 0, fog + 1000 );
+
+    		// Sky
+    		// var pwd = window.location.href.substring( 0, window.location.href.indexOf( '/' ) );
+    		var sky = new THREE.SphereGeometry( 8000, 32, 32 ); // radius, widthSegments, heightSegments
+
+    		var skyBox = new THREE.Mesh( sky );
+    		skyBox.scale.set( -1, 1, 1 );
+    		skyBox.rotation.order = 'XZY';
+    		skyBox.renderDepth = 1000.0;
+
+    		scene.add( skyBox );
+
+    		// Floor
+    		var floorHeight = 7000;
+    		geometry = new THREE.SphereGeometry( floorHeight, 10, 6, 0, ( Math.PI * 2 ), 0, 0.8 );
+    		geometry.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, -floorHeight, 0 ) );
+
+    		var material = new THREE.MeshLambertMaterial();
+
+    		var floorMesh = new THREE.Mesh( geometry, material );
+    		objects.push( floorMesh );
+    		scene.add( floorMesh  );
+
+    		// Boxes
+    		var boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
+            var textureLoader = new THREE.TextureLoader();
+
+    		var boxTexture1 = textureLoader.load( 'textures/block1.jpg' );
+    		var boxTexture2 = textureLoader.load( 'textures/block2.jpg' );
+    		var boxTexture3 = textureLoader.load( 'textures/block3.jpg' );
+    		var boxTexture4 = textureLoader.load( 'textures/block4.jpg' );
+
+    		var boxMaterial1 = new THREE.MeshBasicMaterial( { map: boxTexture1, reflectivity: 0.8 } );
+    		var boxMaterial2 = new THREE.MeshBasicMaterial( { map: boxTexture2, reflectivity: 0.8 } );
+    		var boxMaterial3 = new THREE.MeshBasicMaterial( { map: boxTexture3, reflectivity: 0.8 } );
+    		var boxMaterial4 = new THREE.MeshBasicMaterial( { map: boxTexture4, reflectivity: 0.8 } );
+
+            var items = [ boxMaterial1, boxMaterial2, boxMaterial3, boxMaterial4 ];
+    		var boxZ;
+
+            for ( var i = 0; i < 850; i ++ ) {
+
+    			var boxmesh = new THREE.Mesh( boxGeometry, items[ Math.floor( Math.random() * items.length ) ] );
+
+    			boxZ = 50;
+
+    			boxmesh.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
+    			boxmesh.position.y = Math.floor( Math.random() * 20 ) * boxZ + 10;
+    			boxmesh.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+
+    			boxes.push( boxmesh );
+    			objects.push( boxmesh );
+    			scene.add( boxmesh );
+
+    		}
+
+            camera = new THREE.PerspectiveCamera( 80, window.innerWidth / window.innerHeight, 1, 9000 );
+            // camera = new THREE.PerspectiveCamera( FOV_DEGREES, window.innerWidth / window.innerHeight, 1, 1e21 );
+
+            // controls = new THREE.PlatformerControls( camera, 100, 30, true, objects );
+            controls = new THREE.FPSControls( camera, 100, 30, true, objects );
+    		scene.add( controls.getPlayer() );
+
+    		renderer = new THREE.WebGLRenderer( { antialias: true } );
+    		renderer.setClearColor( 0xffffff );
+    		renderer.setPixelRatio( window.devicePixelRatio );
+    		renderer.setSize( window.innerWidth, window.innerHeight );
+
+            // Init GUI.
+            setGUI();
+
+            // Init Stats.
+            setStats();
+
+    		ScreenOverlay( controls ); //
+    		document.body.appendChild( renderer.domElement );
+
+    	}
+
+    	function animate () {
+
+    		renderer.setAnimationLoop( animate );
+
+    		if ( controls.enabled ) {
+
+                controls.updateControls();
+
+    		}
+
+    		renderer.render( scene, camera );
+
+            stats.update();
+
+    	}
+
+    	function randomTexture ( maxTextures ) {
+
+    		return Math.floor( Math.random() * maxTextures ) + 1;
+
+    	}
+
+    	function initialiseTimer () {
+
+    		var sec = 0;
+
+    		function pad ( val ) {
+
+                return val > 9 ? val : '0' + val;
+
+            }
+
+    		timer = setInterval( function () {
+
+    			document.getElementById( 'seconds' ).innerHTML = String( pad( ++sec % 60 ) );
+    			document.getElementById( 'minutes' ).innerHTML = String( pad( parseInt( sec / 60, 10 ) ) );
+
+    		}, 1000 );
+
+    	}
+
+    	function eventHandlers () {
+
+    		// Keyboard press handlers.
+    		var onKeyDown = function ( event ) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                handleKeyInteraction( event.keyCode, true );
+
+            };
+
+            var onKeyUp = function ( event ) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                handleKeyInteraction( event.keyCode, false );
+
+            };
+
+            document.addEventListener( 'keydown', onKeyDown, false );
+    		document.addEventListener( 'keyup', onKeyUp, false );
+
+    		// Resize Event
+    		window.addEventListener( 'resize', onWindowResize, false );
+
+    	}
+
+    	// HANDLE KEY INTERACTION
+    	function handleKeyInteraction ( keyCode, boolean ) {
+
+    		var isKeyDown = boolean;
+
+    		switch ( keyCode ) {
+
+    			case 38: // up
+    			case 87: // w
+
+                    controls.movements.forward = boolean;
+
+                    break;
+
+    			case 40: // down
+    			case 83: // s
+
+                    controls.movements.backward = boolean;
+
+                    break;
+
+    			case 37: // left
+    			case 65: // a
+
+                    controls.movements.left = boolean;
+
+                    break;
+
+    			case 39: // right
+    			case 68: // d
+
+                    controls.movements.right = boolean;
+
+                    break;
+
+    			case 32: // space
+
+                    if ( !isKeyDown ) {
+
+    					controls.jump();
+
+    				}
+
+    				break;
+
+                case 16: // shift
+
+                    controls.walk( boolean );
+
+                    break;
+
+                case 67: // crouch (CTRL + W etc destroys tab in Chrome!)
+
+                    controls.crouch( boolean );
+
+    		}
+
+    	}
+
+    	function onWindowResize () {
+
+    		camera.aspect = window.innerWidth / window.innerHeight;
+    		camera.updateProjectionMatrix();
+
+    		renderer.setSize( window.innerWidth, window.innerHeight );
+
+    	}
+
+    	function fallingBoxes (cube, pos, delay ) {
+
+            // console.log(cube,pos,delay)
+    		setTimeout( function() {
+
+                cube.position.setY( pos );
+
+            }, delay );
+
+    	}
+
+
+        // ---------------------------------------------------------------------------
+
+        function setStats () {
+
+            stats = new Stats();
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.bottom = '0px';
+            stats.domElement.style.zIndex = 100;
+            document.body.appendChild( stats.domElement );
+
+        }
+
+        function setGUI () {
+
+            // GUI params.
+        	const params = {
+
+                // Snapshot width.
+                width: 400,
+
+                // Snapshot height.
+                height: 250,
+
+                // Download snapshot.
+                takeShot: function () {
+
+                    const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                    snapshotRenderer.setSize( params.width, params.height );
+
+                    const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                    snapshotRenderer.dispose();
+
+                },
+
+            };
+
+            const gui = new GUI();
+
+            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+            snapshotFolder.add( params, 'width', 0, 2200, 50 );
+            snapshotFolder.add( params, 'height', 0, 1329, 50 );
+            snapshotFolder.add( params, 'takeShot' );
+
+        	snapshotFolder.open();
+
+            gui.close();
+
+        }
+
+    </script>
+
+</html>
