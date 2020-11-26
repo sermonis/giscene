@@ -1,9 +1,16 @@
  {
-    "collisions": [
+	"scene": [
+  		"bim_scene_boilerplate"
+  	],
+	"collisions": [
  		"bim_collision_detection_1",
  		"bim_collision_detection_2",
  		"bim_collision_detection_3",
  		"bim_collision_detection_4"
+ 	],
+    "collisions / bounding": [
+ 		"bim_bounding_volumes",
+ 		"bim_bounding_hierarchy"
  	],
     "controls": [
  		"bim_controls_firstperson_1",
@@ -11,6 +18,6 @@
  		"bim_controls_firstperson_3"
  	],
     "meshes": [
- 		"bim_stairs_1"		
+ 		"bim_stairs_1"
  	]
 }
