@@ -163,9 +163,17 @@
 
 					} );
 
+					const geometry = new THREE.BoxGeometry( 50, 50, 50 );
+			        const material = new THREE.MeshBasicMaterial( { color: new THREE.Color('red'), wireframe: false } );
+			        const mesh = new THREE.Mesh( geometry, material );
+
+					mesh.position.y = 25;
+					mesh.castShadow = true;
+
 		            game.player.object = new THREE.Object3D();
 					game.scene.add( game.player.object );
-					game.player.object.add( object );
+					// game.player.object.add( object );
+					game.player.object.add( mesh );
 					game.animations.Idle = object.animations[ 0 ];
 
 		            game.loadNextAnim( loader );
