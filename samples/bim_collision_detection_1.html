@@ -241,6 +241,9 @@
                 const ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
                 const collisionResults = ray.intersectObjects( cubes );
 
+				// scene.add( new THREE.ArrowHelper( ray.ray.direction, ray.ray.origin, 300, 0xff0000 ) );
+				// scene.add( new THREE.ArrowHelper( ray.ray.direction, cube.position, 300, 0xff0000 ) );
+
                 if ( collisionResults.length > 0 && collisionResults[ 0 ].distance < directionVector.length() ) {
 
                     // console.log( collisionResults[ 0 ].object.name );

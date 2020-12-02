@@ -288,68 +288,103 @@ document.addEventListener('keyup', e => {
 
 // 5. PLAYER COLLISIONS
 const raycaster = new THREE.Raycaster();
-function abstractedPlayerCollision(xCorner, zCorner, direction) {
-  const start = camera.position.clone().add(new THREE.Vector3(xCorner * PLAYER_RADIUS,
-    0, zCorner * PLAYER_RADIUS));
-  raycaster.set(start, direction.normalize());
-  const [intersection] = raycaster.intersectObjects(collideables);
-  return intersection || null;
+
+function abstractedPlayerCollision( xCorner, zCorner, direction ) {
+
+	const start = camera.position.clone().add( new THREE.Vector3( xCorner * PLAYER_RADIUS, 0, zCorner * PLAYER_RADIUS ) );
+
+	raycaster.set( start, direction.normalize() );
+
+	const [ intersection ] = raycaster.intersectObjects( collideables );
+
+	return intersection || null;
+
 }
-function collideAxis(velocity, isX) {
-  if (velocity !== 0) {
-    const sign = Math.sign(velocity);
-    const leftIntersection = abstractedPlayerCollision(isX ? 0 : -1,
-      isX ? -1 : 0, new THREE.Vector3(isX ? velocity : 0, 0, isX ? 0 : velocity));
-    const rightIntersection = abstractedPlayerCollision(isX ? 0 : 1,
-      isX ? 1 : 0, new THREE.Vector3(isX ? velocity : 0, 0, isX ? 0 : velocity));
-    const intersection = leftIntersection && rightIntersection
-      ? (leftIntersection.distance < rightIntersection.distance
-        ? leftIntersection : rightIntersection) : leftIntersection
-          || rightIntersection;
-    if (intersection && intersection.distance <= Math.abs(velocity) + PLAYER_RADIUS) {
-      const axisName = isX ? 'x' : 'z';
-      return intersection.point[axisName] - camera.position[axisName] - sign * PLAYER_RADIUS;
-    }
-  }
-  return velocity;
+
+function collideAxis( velocity, isX ) {
+
+	if ( velocity !== 0 ) {
+
+		const sign = Math.sign( velocity );
+
+		const leftIntersection = abstractedPlayerCollision( isX ? 0 : -1, isX ? -1 : 0, new THREE.Vector3( isX ? velocity : 0, 0, isX ? 0 : velocity ) );
+		const rightIntersection = abstractedPlayerCollision( isX ? 0 : 1, isX ? 1 : 0, new THREE.Vector3( isX ? velocity : 0, 0, isX ? 0 : velocity ) );
+
+		const intersection = leftIntersection && rightIntersection
+			? ( leftIntersection.distance < rightIntersection.distance ? leftIntersection : rightIntersection )
+			: leftIntersection || rightIntersection;
+
+		if ( intersection && ( intersection.distance <= Math.abs( velocity ) + PLAYER_RADIUS ) ) {
+
+			const axisName = isX ? 'x' : 'z';
+			return intersection.point[ axisName ] - camera.position[ axisName ] - sign * PLAYER_RADIUS;
+
+		}
+
+	}
+
+	// console.log( velocity )
+
+	return velocity;
+
 }
 
 const PLAYER_RADIUS = 1;
 const PLAYER_SPEED = 0.2;
+
 let speedBoost = 1;
+
 function animate() {
 
-  // requestAnimationFrame(animate);
-  renderer.setAnimationLoop( animate );
+	renderer.setAnimationLoop( animate );
 
-  // 6. MOVEMENT
-  const dx = Math.sin(camera.rotation.y);
-  const dz = Math.cos(camera.rotation.y);
-  speedBoost += ((keys.shift ? 20 : 1) - speedBoost) / 50;
-  let xv = 0, zv = 0;
-  if (keys.up) {
-    xv -= dx * PLAYER_SPEED * speedBoost;
-    zv -= dz * PLAYER_SPEED * speedBoost;
-  }
-  if (keys.down) {
-    xv += dx * PLAYER_SPEED * speedBoost;
-    zv += dz * PLAYER_SPEED * speedBoost;
-  }
-  if (keys.left) {
-    xv -= dz * PLAYER_SPEED * speedBoost;
-    zv += dx * PLAYER_SPEED * speedBoost;
-  }
-  if (keys.right) {
-    xv += dz * PLAYER_SPEED * speedBoost;
-    zv -= dx * PLAYER_SPEED * speedBoost;
-  }
-  camera.position.x += collideAxis(xv, true);
-  camera.position.z += collideAxis(zv, false);
+	// 6. MOVEMENT
+	const dx = Math.sin( camera.rotation.y );
+	const dz = Math.cos( camera.rotation.y );
 
-  stats.update();
+	speedBoost += ( ( keys.shift ? 20 : 1 ) - speedBoost ) / 50;
 
-  renderer.render(scene, camera);
+	let xv = 0, zv = 0;
+
+	if ( keys.up ) {
+
+		xv -= dx * PLAYER_SPEED * speedBoost;
+		zv -= dz * PLAYER_SPEED * speedBoost;
+
+	}
+
+	if ( keys.down ) {
+
+		xv += dx * PLAYER_SPEED * speedBoost;
+		zv += dz * PLAYER_SPEED * speedBoost;
+
+	}
+
+	if ( keys.left ) {
+
+		xv -= dz * PLAYER_SPEED * speedBoost;
+		zv += dx * PLAYER_SPEED * speedBoost;
+
+	}
+
+	if ( keys.right ) {
+
+		xv += dz * PLAYER_SPEED * speedBoost;
+		zv -= dx * PLAYER_SPEED * speedBoost;
+
+	}
+
+	camera.position.x += collideAxis( xv, true );
+	camera.position.z += collideAxis( zv, false );
+
+	// console.log( camera.position.x, camera.position.z );
+
+	stats.update();
+
+	renderer.render( scene, camera );
+
 }
+
 animate();
 
         // --------------------------------------------------------------

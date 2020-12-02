@@ -1,9 +1,13 @@
 {
 	"bim_scene_boilerplate": [ "bim", "scene" ],
+	"bim_camera_viewport_quad": [ "bim", "camera", "multicamera" ],
 	"bim_collision_detection_1": [ "bim", "collision", "intersection" ],
 	"bim_collision_detection_2": [ "bim", "collision", "intersection", "keyboard", "fullscreen", "threex" ],
 	"bim_collision_detection_3": [ "bim", "collision", "intersection", "threex" ],
 	"bim_collision_detection_4": [ "bim", "collision", "intersection", "threex" ],
+	"bim_collision_detection_5": [ "bim", "collision", "intersection", "stairs" ],
+	"bim_collision_detection_6": [ "bim", "collision", "intersection", "stairs" ],
+	"bim_collision_detection_7": [ "bim", "collision", "intersection", "stairs" ],
 	"bim_bounding_volumes": [ "bim", "collision", "intersection", "bbox", "bounding", "bv" ],
 	"bim_bounding_hierarchy": [ "bim", "collision", "intersection", "bbox", "bounding", "hierarchy", "bvh" ],
 	"bim_controls_firstperson_1": [ "bim", "collision", "intersection", "controls", "firstperson", "fps" ],

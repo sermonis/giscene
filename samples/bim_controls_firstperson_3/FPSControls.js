@@ -13,9 +13,10 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 	var pitchObject = new THREE.Object3D();
 	pitchObject.add( camera );
 
-	var yawObject = new THREE.Object3D();
-	yawObject.position.y = playerHeight;
-	yawObject.add( pitchObject );
+	// Represents the human player of the game.
+	const player = new THREE.Object3D();
+	player.position.y = playerHeight;
+	player.add( pitchObject );
 
     const PI05 = Math.PI / 2;
 
@@ -26,7 +27,7 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-		yawObject.rotation.y -= movementX * 0.002;
+		player.rotation.y -= movementX * 0.002;
 		pitchObject.rotation.x -= movementY * 0.002;
 
 		pitchObject.rotation.x = Math.max( -PI05, Math.min( PI05, pitchObject.rotation.x ) );
@@ -45,7 +46,7 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 
 	scope.getPlayer = function () {
 
-		return yawObject;
+		return player;
 
 	};
 
@@ -64,7 +65,7 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 
 		return function( v ) {
 
-			rotation.set( pitchObject.rotation.x, yawObject.rotation.y, 0 );
+			rotation.set( pitchObject.rotation.x, player.rotation.y, 0 );
 
 			v.copy( direction ).applyEuler( rotation );
 
@@ -77,7 +78,7 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 	// FPS Controls Additions.
 	scope.updatePlayerHeight = function ( height ) {
 
-		yawObject.position.y = height;
+		player.position.y = height;
 
 	};
 
@@ -178,7 +179,7 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 
 	scope.doubleJump = doubleJump;
 	scope.baseHeight = 0; // The minimum plane height.
-	scope.mass = mass || 100;
+	scope.mass = mass || 80;
 	scope.originalMass = mass;
 	scope.walkingSpeed = 3000; // Higher = slower
 	scope.speed = 900; // Movement speed.
@@ -350,7 +351,6 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 			if ( scope.movements.backward && !scope.movements.locks.backward ) scope.velocity.z += 400.0 * scope.delta;
 			if ( scope.movements.left && !scope.movements.locks.left ) scope.velocity.x -= 400.0 * scope.delta;
 			if ( scope.movements.right && !scope.movements.locks.right ) scope.velocity.x += 400.0 * scope.delta;
-
 
 			// Velocity translations.
 			scope.getPlayer().translateX( scope.velocity.x * scope.delta );

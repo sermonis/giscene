@@ -362,13 +362,13 @@
     		// Floor
     		var floorHeight = 7000;
     		geometry = new THREE.SphereGeometry( floorHeight, 10, 6, 0, ( Math.PI * 2 ), 0, 0.8 );
-    		geometry.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, -floorHeight, 0 ) );
+    		geometry.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, - floorHeight, 0 ) );
 
     		var material = new THREE.MeshLambertMaterial();
 
     		var floorMesh = new THREE.Mesh( geometry, material );
     		objects.push( floorMesh );
-    		scene.add( floorMesh  );
+    		scene.add( floorMesh );
 
     		// Boxes
     		var boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
@@ -499,6 +499,8 @@
     	// HANDLE KEY INTERACTION
     	function handleKeyInteraction ( keyCode, boolean ) {
 
+			console.log(keyCode)
+
     		var isKeyDown = boolean;
 
     		switch ( keyCode ) {
@@ -564,16 +566,16 @@
 
     	}
 
-    	function fallingBoxes (cube, pos, delay ) {
-
-            // console.log(cube,pos,delay)
-    		setTimeout( function() {
-
-                cube.position.setY( pos );
-
-            }, delay );
-
-    	}
+    	// function fallingBoxes (cube, pos, delay ) {
+		//
+        //     // console.log(cube,pos,delay)
+    	// 	setTimeout( function() {
+		//
+        //         cube.position.setY( pos );
+		//
+        //     }, delay );
+		//
+    	// }
 
 
         // ---------------------------------------------------------------------------
@@ -581,9 +583,11 @@
         function setStats () {
 
             stats = new Stats();
+
             stats.domElement.style.position = 'absolute';
             stats.domElement.style.bottom = '0px';
             stats.domElement.style.zIndex = 100;
+			
             document.body.appendChild( stats.domElement );
 
         }

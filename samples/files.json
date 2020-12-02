@@ -2,11 +2,17 @@
 	"scene": [
   		"bim_scene_boilerplate"
   	],
+	"camera": [
+  		"bim_camera_viewport_quad"
+  	],
 	"collisions": [
  		"bim_collision_detection_1",
  		"bim_collision_detection_2",
  		"bim_collision_detection_3",
- 		"bim_collision_detection_4"
+ 		"bim_collision_detection_4",
+ 		"bim_collision_detection_5",
+ 		"bim_collision_detection_6",
+ 		"bim_collision_detection_7"
  	],
     "collisions / bounding": [
  		"bim_bounding_volumes",

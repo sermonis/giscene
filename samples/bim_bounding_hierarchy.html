@@ -8,18 +8,7 @@
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
 
-        <style>
-
-            body {
-                /* background-color: #cce0ff; */
-                /* color: #000; */
-            }
-
-            a {
-                /* color: #f00; */
-            }
-
-        </style>
+        <style></style>
 
     </head>
 
@@ -30,7 +19,7 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Visualizes a bounding volume hierarchy (BVH) generated for the torus knot mesh. It can be used to speed up
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Visualizes a bounding volume hierarchy (BVH) generated for the torus knot mesh. <br/>It can be used to speed up
 			various computational tasks like ray intersection tests.
             </div>
 
@@ -50,7 +39,6 @@
 		import Snapshot from './jsm/libs/snapshot.module.js';
 
         import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
-	    import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
 
 		import * as YUKA from '../libs/yuka/build/yuka.module.js';
 		import { createBVHHelper } from './jsm/libs/yuka/BVHHelper.js';
@@ -182,12 +170,6 @@
 			camera.updateProjectionMatrix();
 
 			renderer.setSize( window.innerWidth, window.innerHeight );
-
-		}
-
-		function onTransitionEnd( event ) {
-
-			event.target.remove();
 
 		}
 
