@@ -28,8 +28,8 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
 		player.rotation.y -= movementX * 0.002;
-		pitchObject.rotation.x -= movementY * 0.002;
 
+		pitchObject.rotation.x -= movementY * 0.002;
 		pitchObject.rotation.x = Math.max( -PI05, Math.min( PI05, pitchObject.rotation.x ) );
 
 	};
@@ -60,10 +60,10 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 	scope.getDirection = function () {
 
 		// Assumes the camera itself is not rotated.
-		var direction = new THREE.Vector3( 0, 0, - 1 );
+		var direction = new THREE.Vector3( 0, 0, -1 );
 		var rotation = new THREE.Euler( 0, 0, 0, 'YXZ' );
 
-		return function( v ) {
+		return function ( v ) {
 
 			rotation.set( pitchObject.rotation.x, player.rotation.y, 0 );
 

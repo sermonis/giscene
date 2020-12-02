@@ -207,6 +207,8 @@
 
 		                } );
 
+						// console.log( game.joystick )
+
 						delete game.anims;
 						game.action = 'Idle';
 						game.animate();
@@ -220,54 +222,9 @@
 		    createColliders() {
 
 		        this.colliders = [];
-
-				// game.setObstacles();
 				game.setLevel();
 
 		    }
-
-			// setObstacles() {
-			//
-			// 	const geometry = new THREE.BoxGeometry( 500, 400, 500 );
-		    //     const material = new THREE.MeshBasicMaterial( { color: 0x222222, wireframe: true } );
-			//
-		    //     for ( let x =- 5000; x < 5000; x += 1000 ) {
-			//
-		    //         for ( let z =- 5000; z < 5000; z += 1000 ) {
-			//
-		    //             if ( x == 0 && z == 0 ) {
-			//
-			// 				continue;
-			//
-			// 			}
-			//
-		    //             const box = new THREE.Mesh( geometry, material );
-		    //             box.position.set( x, 250, z );
-			//
-			// 			this.scene.add( box );
-		    //             this.colliders.push( box );
-			//
-		    //         }
-			//
-		    //     }
-			//
-		    //     const geometry2 = new THREE.BoxGeometry( 1000, 40, 1000 );
-		    //     const stage = new THREE.Mesh( geometry2, material );
-		    //     stage.position.set( 0, 20, 0 );
-		    //     this.colliders.push( stage );
-		    //     this.scene.add( stage );
-			//
-			// 	const stage2 = new THREE.Mesh( geometry2, material );
-		    //     stage2.position.set( 60, 40, -60 );
-		    //     this.colliders.push( stage2 );
-		    //     this.scene.add( stage2 );
-			//
-			// 	const stage3 = new THREE.Mesh( geometry2, material );
-		    //     stage3.position.set( 120, 60, -120 );
-		    //     this.colliders.push( stage3 );
-		    //     this.scene.add( stage3 );
-			//
-			// }
 
 			setLevel() {
 
@@ -337,6 +294,8 @@
 
 				let dir = new THREE.Vector3();
 				this.player.object.getWorldDirection( dir );
+
+				// console.log(this.player.move)
 
 				if ( this.player.move.forward < 0 ) {
 

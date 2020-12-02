@@ -72,7 +72,7 @@
 		function init() {
 
 			setScene();
-			setGround();
+			// setGround();
 			setHelpers();
 			setCamera();
 			setLights();
@@ -197,6 +197,7 @@
 			// controls.update();
 
 			controls = new PointerLockControls( camera, document.body );
+			// controls = new OrbitControls( camera, document.body );
 
 			// const blocker = document.getElementById( 'blocker' );
 			// const instructions = document.getElementById( 'instructions' );
@@ -291,7 +292,8 @@
 				gltf.scene.rotation.y = Math.PI;
 
 				// gltf.scene.position.set( 0, 40, 0 );
-				gltf.scene.position.set( 0, 20, 0 );
+				// gltf.scene.position.set( 0, 20, 0 );
+				gltf.scene.scale.multiplyScalar( 10 );
 
 				let level;
 
@@ -300,8 +302,10 @@
 					object.matrixAutoUpdate = false;
 					object.updateMatrix();
 
+					object.receiveShadow = true;
+
 					obstacles.push( object );
-					console.log( object );
+					// console.log( object );
 
 					// if ( object.name == 'mesh_1' ) {
 					//
@@ -366,10 +370,24 @@
 			if ( controls.isLocked === true ) {
 
 				raycaster.ray.origin.copy( controls.getObject().position );
-				raycaster.ray.origin.y -= 10;
+				// raycaster.ray.origin.y -= 10;
 
 				// const intersections = raycaster.intersectObjects( objects );
 				const intersections = raycaster.intersectObjects( obstacles );
+
+				// --------------------------------------------------------------
+				// if ( intersections.length > 0 ) {
+				//
+				// 	scene.add( new THREE.ArrowHelper( raycaster.ray.direction, raycaster.ray.origin, 300, 0xff0000 ) );
+				//
+				// 	if ( intersections[ 0 ].distance < 50 ) {
+				//
+				// 		// controls.getObject().translateX( 100 - intersections[ 0 ].distance );
+				//
+				// 	}
+				//
+				// }
+				// --------------------------------------------------------------
 
 				const onObject = intersections.length > 0;
 
