@@ -12,7 +12,9 @@
  		"bim_collision_detection_4",
  		"bim_collision_detection_5",
  		"bim_collision_detection_6",
- 		"bim_collision_detection_7"
+ 		"bim_collision_detection_7",
+ 		"bim_collision_detection_8",
+ 		"bim_collision_detection_9"
  	],
     "collisions / bounding": [
  		"bim_bounding_volumes",

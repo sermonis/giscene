@@ -295,6 +295,8 @@ function abstractedPlayerCollision( xCorner, zCorner, direction ) {
 
 	raycaster.set( start, direction.normalize() );
 
+	// scene.add( new THREE.ArrowHelper( raycaster.ray.direction, raycaster.ray.origin, 100, 0xff0000 ) );
+
 	const [ intersection ] = raycaster.intersectObjects( collideables );
 
 	return intersection || null;

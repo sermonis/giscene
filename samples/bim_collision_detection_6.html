@@ -301,7 +301,13 @@
 					object.updateMatrix();
 
 					obstacles.push( object );
-					// console.log( object )
+					console.log( object );
+
+					// if ( object.name == 'mesh_1' ) {
+					//
+					// 	scene.add( object );
+					//
+					// }
 
 					// Debug.
 					// object.castShadow = true;
@@ -393,9 +399,7 @@
 
 				controls.getObject().position.y += ( velocity.y * delta ); // new behavior
 
-				console.log( velocity.y, controls.getObject().position.y )
-
-				73149@mail.ru
+				// console.log( velocity.y, controls.getObject().position.y )
 
 				// if ( controls.getObject().position.y < 10 ) {
 				//

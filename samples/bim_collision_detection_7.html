@@ -19,7 +19,7 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates different types of auto-generated bounding volumes.
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - TODO: Description.
             </div>
 
             <div></div>
@@ -164,6 +164,66 @@
 			scene.add( sphere );
 
 		}
+
+		function moveObject ( e ) {
+
+            const moveDistance = 0.15;
+            const head = scene.getObjectByName( 'head' );
+            const origin = head.position.clone();
+
+            switch ( e.keyCode ) {
+
+                case 37:
+
+                    // Arrow left (move left).
+                    head.position.x -= moveDistance;
+
+                    break;
+
+                case 38:
+                case 87:
+
+                    // Arrow up, W (move forward).
+                    head.position.z -= moveDistance;
+
+                    break;
+
+                case 39:
+
+                    // Arrow right (move right).
+                    head.position.x += moveDistance;
+
+                    break;
+
+                case 40:
+                case 83:
+
+                    // Arrow down, S (move backward).
+                    head.position.z += moveDistance;
+
+                    break;
+
+                case 65:
+
+                    // A (rotate right).
+                    head.rotation.y -= moveDistance;
+
+                    break;
+
+                case 68:
+
+                    // D (rotate left).
+                    head.rotation.y += moveDistance;
+
+
+            }
+
+			// scene.add( new THREE.ArrowHelper( ray.ray.direction, cube.position, 300, 0xff0000 ) );
+			// scene.add( new THREE.ArrowHelper( head.position.clone(), origin, 300, 0xff0000 ) );
+
+        }
+
+		window.addEventListener( 'keydown', moveObject );
 
 		function onWindowResize() {
 
