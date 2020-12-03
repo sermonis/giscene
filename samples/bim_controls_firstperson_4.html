@@ -394,7 +394,7 @@
     	// HANDLE KEY INTERACTION
     	function handleKeyInteraction ( keyCode, boolean ) {
 
-			console.log(keyCode)
+			// console.log(keyCode)
 
     		var isKeyDown = boolean;
 
@@ -507,7 +507,7 @@
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
             snapshotFolder.add( params, 'takeShot' ).name( 'Take a shot' );
 
-        	snapshotFolder.open();
+        	snapshotFolder.close();
 
             gui.close();
 
