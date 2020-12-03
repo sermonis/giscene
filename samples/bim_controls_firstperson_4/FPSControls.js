@@ -294,7 +294,8 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 				scope.velocity.y = Math.max( 0, scope.velocity.y );
 				scope.jumps = 0;
 
-				if ( scope.intersections.downstairs[ 0 ].distance < ( playerHeight / 2 ) ) {
+				// if ( scope.intersections.downstairs[ 0 ].distance < ( playerHeight / 2 ) ) {
+				if ( scope.intersections.downstairs[ 0 ].distance < ( playerHeight * 0.7 ) ) {
 					// alert('!!!!!!!!')
 					// scope.velocity.y += 0.1 * scope.delta;
 					scope.velocity.y += 1000 * scope.delta;
