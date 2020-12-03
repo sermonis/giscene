@@ -62,10 +62,10 @@
 
         </div>
 
-        <script src="bim_controls_firstperson_3/FPSControls.js"></script>
+        <script src="bim_controls_firstperson_4/FPSControls.js"></script>
 
         <!-- TODO: lock/unlock - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html -->
-        <script src="bim_controls_firstperson_3/pointerlock.js"></script>
+        <script src="bim_controls_firstperson_4/pointerlock.js"></script>
         <!-- <script src="bim_controls_firstperson_3/example.js"></script> -->
 
     </body>
@@ -77,6 +77,8 @@
     -->
 
     <script type="module">
+
+		import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
 
         import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
         import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
@@ -115,10 +117,6 @@
 
 			//
 
-			setGround();
-
-			//
-
 			setLights();
 
 			//
@@ -127,15 +125,18 @@
 
 			//
 
-			setObstacles();
-
-			//
-
 			setRenderer();
 
 			//
 
 			setControls();
+
+			//
+
+			// setGround();
+
+			// setObstacles();
+			setLevel();
 
 			//
 
@@ -156,26 +157,6 @@
 			scene = new THREE.Scene();
 			scene.background = new THREE.Color( 0xa0a0a0 );
 			scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
-
-		}
-
-		function setGround () {
-
-			const geometry = new THREE.PlaneBufferGeometry( 5000, 5000 );
-			const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
-
-			const ground = new THREE.Mesh( geometry, material );
-			ground.rotation.x = - Math.PI / 2;
-			ground.matrixAutoUpdate = false;
-			ground.receiveShadow = true;
-			ground.updateMatrix();
-			objects.push( ground );
-			scene.add( ground );
-
-			const grid = new THREE.GridHelper( 4000, 100, 0x000000, 0x000000 );
-			grid.material.opacity = 0.2;
-			grid.material.transparent = true;
-			scene.add( grid );
 
 		}
 
@@ -232,6 +213,26 @@
 
 		}
 
+		function setGround () {
+
+			const geometry = new THREE.PlaneBufferGeometry( 5000, 5000 );
+			const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
+
+			const ground = new THREE.Mesh( geometry, material );
+			ground.rotation.x = - Math.PI / 2;
+			ground.matrixAutoUpdate = false;
+			ground.receiveShadow = true;
+			ground.updateMatrix();
+			objects.push( ground );
+			scene.add( ground );
+
+			const grid = new THREE.GridHelper( 4000, 100, 0x000000, 0x000000 );
+			grid.material.opacity = 0.2;
+			grid.material.transparent = true;
+			scene.add( grid );
+
+		}
+
 		function setObstacles () {
 
 			// Boxes
@@ -274,6 +275,68 @@
     			scene.add( boxmesh );
 
     		}
+
+		}
+
+		function setLevel () {
+
+			const glTFLoader = new GLTFLoader();
+			glTFLoader.load( 'models/gltf/level.glb', ( gltf ) => {
+
+				gltf.scene.matrixAutoUpdate = false;
+				gltf.scene.updateMatrix();
+
+				gltf.scene.rotation.y = Math.PI;
+				gltf.scene.scale.multiplyScalar( 12 );
+
+				// gltf.scene.position.set( 0, 40, 0 );
+				gltf.scene.position.set( 0, 20, 0 );
+
+				// add object to scene
+				scene.add( gltf.scene );
+
+				let level;
+
+				gltf.scene.traverse( ( object ) => {
+
+					object.matrixAutoUpdate = false;
+					object.updateMatrix();
+
+					object.receiveShadow = true;
+
+					// obstacles.push( object );
+					// this.colliders.push( object );
+					objects.push( object );
+					// console.log( object );
+
+					// if ( object.name == 'mesh_1' ) {
+					//
+					// 	scene.add( object );
+					//
+					// }
+
+					// Debug.
+					// object.castShadow = true;
+
+					if ( object.isMesh ) level = object;
+
+					// Debug.
+					if ( object.material ) {
+
+						//
+						// console.log( object.material )
+						// console.log( object.material.side )
+						// console.log( object.material.shadowSide )
+
+						object.material.side = THREE.DoubleSide;
+
+					}
+
+				} );
+
+				level.castShadow = true;
+
+			} );
 
 		}
 
@@ -398,17 +461,6 @@
 
     	}
 
-    	// function fallingBoxes (cube, pos, delay ) {
-		//
-        //     // console.log(cube,pos,delay)
-    	// 	setTimeout( function() {
-		//
-        //         cube.position.setY( pos );
-		//
-        //     }, delay );
-		//
-    	// }
-
         // ---------------------------------------------------------------------------
 
         function setStats () {
@@ -453,7 +505,7 @@
 
             snapshotFolder.add( params, 'width', 0, 2200, 50 );
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
-            snapshotFolder.add( params, 'takeShot' );
+            snapshotFolder.add( params, 'takeShot' ).name( 'Take a shot' );
 
         	snapshotFolder.open();
 
