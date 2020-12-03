@@ -176,6 +176,7 @@
 			}
 
 			updateFilter( files, tags );
+			updateFilter( sampleFiles, sampleTags );
 
 			// Events
 
@@ -199,6 +200,7 @@
 
 				filterInput.value = '';
 				updateFilter( files, tags );
+				updateFilter( sampleFiles, sampleTags );
 				panel.classList.remove( 'searchFocused' );
 
 			};
@@ -206,6 +208,7 @@
 			filterInput.addEventListener( 'input', function () {
 
 				updateFilter( files, tags );
+				updateFilter( sampleFiles, sampleTags );
 
 			} );
 
