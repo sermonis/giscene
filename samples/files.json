@@ -23,7 +23,8 @@
     "controls": [
  		"bim_controls_firstperson_1",
  		"bim_controls_firstperson_2",
- 		"bim_controls_firstperson_3"
+ 		"bim_controls_firstperson_3",
+ 		"bim_controls_firstperson_4"
  	],
     "meshes": [
  		"bim_stairs_1"

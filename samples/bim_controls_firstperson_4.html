@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>BIM - Controls - FistPerson - 4</title>
+
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+        <link type="text/css" rel="stylesheet" href="main.css">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
+
+        <style>
+
+            a {
+
+                color: #f00;
+
+            }
+
+            body {
+
+                color: grey;
+
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Collision detection with <a href="https://github.com/schteppe/cannon.js" target="_blank" rel="noopener noreferrer">canon.js</a> physics engine.
+            </div>
+
+            <div>
+                (W, A, S, D = Move, SPACE = Jump, SPACEx2 = Double Jump, MOUSE = Look around, C = Crouch, SHIFT = Walk)
+            </div>
+
+            <div id="message"></div>
+
+        </div>
+
+        <div id="blocker" class="blocker">
+
+            <div id="instructions" class="blocker__instructions">
+
+                <div class="blocker__hero">
+
+                    <div class="blocker__heading">Click to start</div>
+                    <div class="blocker__text">(W, A, S, D = Move, SPACE = Jump, SPACEx2 = Double Jump, MOUSE = Look around, C = Crouch, SHIFT = Walk)</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <script src="bim_controls_firstperson_3/FPSControls.js"></script>
+
+        <!-- TODO: lock/unlock - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html -->
+        <script src="bim_controls_firstperson_3/pointerlock.js"></script>
+        <!-- <script src="bim_controls_firstperson_3/example.js"></script> -->
+
+    </body>
+
+    <!--
+        A 3D platformer game made with Three.js. The aim of the game is to the get to
+        the top of the crates, at which point they will back to their rightful place on
+        the moons surface in an orderly fashion.
+    -->
+
+    <script type="module">
+
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+        // ---------------------------------------------------------------------------
+
+        var stats;
+
+        var camera, scene, renderer;
+    	var geometry, material, mesh;
+    	var controls;
+    	var boxes = [];
+    	var objects = [];
+
+    	// var WON = false;
+    	// var timer;
+        // var fog = 100;
+
+        const FOV = Math.atan( 3 / 4 ); // in radians
+        const FOV_DEGREES = FOV * 360 / ( Math.PI * 2 ); // Math.atan( 3 / 4 ) in degrees.
+
+    	init();
+    	animate();
+
+    	// var prevTime = performance.now();
+    	// var velocity = new THREE.Vector3();
+
+    	function init () {
+
+    		eventHandlers();
+
+			//
+
+    		setScene();
+
+			//
+
+			setGround();
+
+			//
+
+			setLights();
+
+			//
+
+			setCamera();
+
+			//
+
+			setObstacles();
+
+			//
+
+			setRenderer();
+
+			//
+
+			setControls();
+
+			//
+
+            // Init GUI.
+            setGUI();
+
+            // Init Stats.
+            setStats();
+
+			//
+
+    		ScreenOverlay( controls );
+
+    	}
+
+		function setScene () {
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xa0a0a0 );
+			scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
+
+		}
+
+		function setGround () {
+
+			const geometry = new THREE.PlaneBufferGeometry( 5000, 5000 );
+			const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
+
+			const ground = new THREE.Mesh( geometry, material );
+			ground.rotation.x = - Math.PI / 2;
+			ground.matrixAutoUpdate = false;
+			ground.receiveShadow = true;
+			ground.updateMatrix();
+			objects.push( ground );
+			scene.add( ground );
+
+			const grid = new THREE.GridHelper( 4000, 100, 0x000000, 0x000000 );
+			grid.material.opacity = 0.2;
+			grid.material.transparent = true;
+			scene.add( grid );
+
+		}
+
+		function setLights () {
+
+			const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
+			hemiLight.position.set( 0, 100, 0 );
+			hemiLight.matrixAutoUpdate = false;
+			hemiLight.updateMatrix();
+			scene.add( hemiLight );
+
+			const dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
+			dirLight.position.set( - 40, 50, 50 );
+			dirLight.matrixAutoUpdate = false;
+			dirLight.updateMatrix();
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 25;
+			dirLight.shadow.camera.bottom = - 25;
+			dirLight.shadow.camera.left = - 25;
+			dirLight.shadow.camera.right = 25;
+			dirLight.shadow.camera.near = 1;
+			dirLight.shadow.camera.far = 200;
+			dirLight.shadow.mapSize.x = 2048;
+			dirLight.shadow.mapSize.y = 2048;
+			scene.add( dirLight );
+
+		}
+
+		function setCamera () {
+
+			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 250 );
+			// camera.position.set( 10, 10, 30 );
+            // camera = new THREE.PerspectiveCamera( FOV_DEGREES, window.innerWidth / window.innerHeight, 1, 1e21 );
+
+		}
+
+		function setControls () {
+
+			// controls = new THREE.PlatformerControls( camera, 100, 30, true, objects );
+            controls = new THREE.FPSControls( camera, 100, 30, true, objects );
+    		scene.add( controls.getPlayer() );
+
+		}
+
+		function setRenderer () {
+
+			renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+			document.body.appendChild( renderer.domElement );
+
+		}
+
+		function setObstacles () {
+
+			// Boxes
+    		var boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
+            var textureLoader = new THREE.TextureLoader();
+
+    		var boxTexture1 = textureLoader.load( 'textures/block1.jpg' );
+    		var boxTexture2 = textureLoader.load( 'textures/block2.jpg' );
+    		var boxTexture3 = textureLoader.load( 'textures/block3.jpg' );
+    		var boxTexture4 = textureLoader.load( 'textures/block4.jpg' );
+
+    		// var boxMaterial1 = new THREE.MeshBasicMaterial( { map: boxTexture1, reflectivity: 0.8 } );
+    		// var boxMaterial2 = new THREE.MeshBasicMaterial( { map: boxTexture2, reflectivity: 0.8 } );
+    		// var boxMaterial3 = new THREE.MeshBasicMaterial( { map: boxTexture3, reflectivity: 0.8 } );
+    		// var boxMaterial4 = new THREE.MeshBasicMaterial( { map: boxTexture4, reflectivity: 0.8 } );
+
+			var boxMaterial1 = new THREE.MeshBasicMaterial( { color: new THREE.Color( 'orange' ), reflectivity: 0.8 } );
+			var boxMaterial2 = new THREE.MeshBasicMaterial( { color: new THREE.Color( 'blue' ), reflectivity: 0.8 } );
+			var boxMaterial3 = new THREE.MeshBasicMaterial( { color: new THREE.Color( 'green' ), reflectivity: 0.8 } );
+			var boxMaterial4 = new THREE.MeshBasicMaterial( { color: new THREE.Color( 'grey' ), reflectivity: 0.8 } );
+			var boxMaterial5 = new THREE.MeshBasicMaterial( { color: new THREE.Color( 'purple' ), reflectivity: 0.8 } );
+
+            var items = [ boxMaterial1, boxMaterial2, boxMaterial3, boxMaterial4, boxMaterial5 ];
+    		var boxZ;
+
+            for ( var i = 0; i < 850; i ++ ) {
+
+    			var boxmesh = new THREE.Mesh( boxGeometry, items[ Math.floor( Math.random() * items.length ) ] );
+
+    			boxZ = 50;
+
+    			boxmesh.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
+    			boxmesh.position.y = Math.floor( Math.random() * 20 ) * boxZ + 10;
+    			boxmesh.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+
+				boxmesh.castShadow = true;
+
+    			boxes.push( boxmesh );
+    			objects.push( boxmesh );
+    			scene.add( boxmesh );
+
+    		}
+
+		}
+
+    	function animate () {
+
+    		renderer.setAnimationLoop( animate );
+
+    		if ( controls.enabled ) {
+
+                controls.updateControls();
+
+    		}
+
+    		renderer.render( scene, camera );
+
+            stats.update();
+
+    	}
+
+    	function randomTexture ( maxTextures ) {
+
+    		return Math.floor( Math.random() * maxTextures ) + 1;
+
+    	}
+
+    	function eventHandlers () {
+
+    		// Keyboard press handlers.
+    		var onKeyDown = function ( event ) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                handleKeyInteraction( event.keyCode, true );
+
+            };
+
+            var onKeyUp = function ( event ) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                handleKeyInteraction( event.keyCode, false );
+
+            };
+
+            document.addEventListener( 'keydown', onKeyDown, false );
+    		document.addEventListener( 'keyup', onKeyUp, false );
+
+    		// Resize Event
+    		window.addEventListener( 'resize', onWindowResize, false );
+
+    	}
+
+    	// HANDLE KEY INTERACTION
+    	function handleKeyInteraction ( keyCode, boolean ) {
+
+			console.log(keyCode)
+
+    		var isKeyDown = boolean;
+
+    		switch ( keyCode ) {
+
+    			case 38: // up
+    			case 87: // w
+
+                    controls.movements.forward = boolean;
+
+                    break;
+
+    			case 40: // down
+    			case 83: // s
+
+                    controls.movements.backward = boolean;
+
+                    break;
+
+    			case 37: // left
+    			case 65: // a
+
+                    controls.movements.left = boolean;
+
+                    break;
+
+    			case 39: // right
+    			case 68: // d
+
+                    controls.movements.right = boolean;
+
+                    break;
+
+    			case 32: // space
+
+                    if ( !isKeyDown ) {
+
+    					controls.jump();
+
+    				}
+
+    				break;
+
+                case 16: // shift
+
+                    controls.walk( boolean );
+
+                    break;
+
+                case 67: // crouch (CTRL + W etc destroys tab in Chrome!)
+
+                    controls.crouch( boolean );
+
+    		}
+
+    	}
+
+    	function onWindowResize () {
+
+    		camera.aspect = window.innerWidth / window.innerHeight;
+    		camera.updateProjectionMatrix();
+
+    		renderer.setSize( window.innerWidth, window.innerHeight );
+
+    	}
+
+    	// function fallingBoxes (cube, pos, delay ) {
+		//
+        //     // console.log(cube,pos,delay)
+    	// 	setTimeout( function() {
+		//
+        //         cube.position.setY( pos );
+		//
+        //     }, delay );
+		//
+    	// }
+
+        // ---------------------------------------------------------------------------
+
+        function setStats () {
+
+            stats = new Stats();
+
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.bottom = '0px';
+            stats.domElement.style.zIndex = 100;
+
+            document.body.appendChild( stats.domElement );
+
+        }
+
+        function setGUI () {
+
+            // GUI params.
+        	const params = {
+
+                // Snapshot width.
+                width: 400,
+
+                // Snapshot height.
+                height: 250,
+
+                // Download snapshot.
+                takeShot: function () {
+
+                    const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                    snapshotRenderer.setSize( params.width, params.height );
+
+                    const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                    snapshotRenderer.dispose();
+
+                },
+
+            };
+
+            const gui = new GUI();
+
+            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+            snapshotFolder.add( params, 'width', 0, 2200, 50 );
+            snapshotFolder.add( params, 'height', 0, 1329, 50 );
+            snapshotFolder.add( params, 'takeShot' );
+
+        	snapshotFolder.open();
+
+            gui.close();
+
+        }
+
+    </script>
+
+</html>

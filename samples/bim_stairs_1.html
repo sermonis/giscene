@@ -3,7 +3,7 @@
 
     <head>
 
-        <title>BIM - Collision Detection - 4</title>
+        <title>BIM - Procedural stairs</title>
 
         <meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -20,10 +20,10 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Collision detection with Box3 (Axis-aligned minimum bounding box or call it <a href="https://en.wikipedia.org/wiki/Minimum_bounding_box#Axis-aligned_minimum_bounding_box" target="_blank" rel="noopener noreferrer">AABB</a>).
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Procedural stairs.
             </div>
 
-            <div id="message"></div>
+            <div id="message">Change current stairs generation parameters using controls.</div>
 
         </div>
 
@@ -419,9 +419,9 @@ animate();
 
             snapshotFolder.add( params, 'width', 0, 2200, 50 );
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
-            snapshotFolder.add( params, 'takeShot' );
+            snapshotFolder.add( params, 'takeShot' ).name( 'Take a shot' );
 
-        	snapshotFolder.open();
+        	snapshotFolder.close();
 
             gui.close();
 
