@@ -280,14 +280,14 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 			//
 			// }
 
-			if ( scope.intersections.downstairs.length ) {
-
-				console.log( 'playerHeight', playerHeight )
-				console.log( 'scope.getPlayer().position.y', scope.getPlayer().position.y )
-				console.log( 'scope.playersPosition', scope.playersPosition.y )
-				console.log( 'scope.intersections.downstairs', scope.intersections.downstairs[0].distance )
-
-			}
+			// if ( scope.intersections.downstairs.length ) {
+			//
+			// 	console.log( 'playerHeight', playerHeight )
+			// 	console.log( 'scope.getPlayer().position.y', scope.getPlayer().position.y )
+			// 	console.log( 'scope.playersPosition', scope.playersPosition.y )
+			// 	console.log( 'scope.intersections.downstairs', scope.intersections.downstairs[0].distance )
+			//
+			// }
 
 			if ( scope.isOnObject === true ) {
 
