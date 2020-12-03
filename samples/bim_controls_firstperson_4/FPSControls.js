@@ -1,5 +1,5 @@
 /**
- * @author mrdoob / http://mrdoob.com/
+ *
  */
 
 THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObjects ) {
@@ -37,6 +37,7 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 	scope.dispose = function () {
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
+		// scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
 
 	};
 

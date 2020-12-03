@@ -3,15 +3,13 @@
 
     <head>
 
-        <title>BIM - Controls - FistPerson - 4</title>
+        <title>BIM - Controls - Platformer - 1</title>
 
         <meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
         <link type="text/css" rel="stylesheet" href="main.css">
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
 
         <style>
 
@@ -62,7 +60,7 @@
 
 		<div class="centre-dot"></div>
 
-        <div id="blocker" class="blocker">
+        <!-- <div id="blocker" class="blocker">
 
             <div id="instructions" class="blocker__instructions">
 
@@ -75,21 +73,18 @@
 
             </div>
 
-        </div>
-
-        <script src="bim_controls_firstperson_4/FPSControls.js"></script>
-
-        <!-- TODO: lock/unlock - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html -->
-        <script src="bim_controls_firstperson_4/pointerlock.js"></script>
-        <!-- <script src="bim_controls_firstperson_3/example.js"></script> -->
+        </div> -->
 
     </body>
 
-    <!--
+	<!--
         Description.
     -->
 
     <script type="module">
+
+		import * as THREE from '../libs/three.js/build/three.module.js';
+		import { PlatformerControls } from './bim_controls_platformer_5/PlatformerControls.js';
 
 		import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
 
@@ -122,7 +117,7 @@
 
     	function init () {
 
-    		eventHandlers();
+    		// eventHandlers();
 
 			//
 
@@ -161,7 +156,7 @@
 
 			//
 
-    		ScreenOverlay( controls );
+    		// ScreenOverlay( controls );
 
     	}
 
@@ -208,9 +203,11 @@
 
 		function setControls () {
 
+			controls = new PlatformerControls( camera, renderer.domElement );
+
 			// controls = new THREE.PlatformerControls( camera, 100, 30, true, objects );
-            controls = new THREE.FPSControls( camera, 100, 20, true, objects );
-    		scene.add( controls.getPlayer() );
+            // controls = new THREE.FPSControls( camera, 100, 20, true, objects );
+    		// scene.add( controls.getPlayer() );
 
 		}
 
@@ -357,11 +354,11 @@
 
     		renderer.setAnimationLoop( animate );
 
-    		if ( controls.enabled ) {
-
-                controls.updateControls();
-
-    		}
+    		// if ( controls.enabled ) {
+			//
+            //     controls.updateControls();
+			//
+    		// }
 
     		renderer.render( scene, camera );
 
