@@ -84,8 +84,11 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 
 	scope.raycasters = {
 
-		down: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, -1, 0 ), 0, 20 ),
 		up: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 1, 0 ), 0, 20 ),
+
+		down: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, -1, 0 ), 0, 20 ),
+		downstairs: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, -1, 0 ), 0, 10 ),
+
 		forward: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, 0, -1 ), 0, 15 ),
 		backward: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 15 ),
 		left: new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, 15 ),
@@ -96,7 +99,10 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 		updateRaycasters: function () {
 
 			this.up.ray.origin.copy( scope.playersPosition );
+
 			this.down.ray.origin.copy( scope.playersPosition );
+			this.downstairs.ray.origin.copy( scope.playersPosition );
+
 			this.forward.ray.set( scope.playersPosition, scope.camDir );
 			this.backward.ray.set( scope.playersPosition, scope.camDir.negate() );
 			this.left.ray.set( scope.playersPosition, scope.camDir.applyMatrix4( new THREE.Matrix4().makeRotationY( - ( Math.PI / 2 ) ) ) );
@@ -110,19 +116,25 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 
 	scope.intersections = {
 
-		down:  scope.raycasters.down.intersectObjects( worldObjects ),
-		up:  scope.raycasters.up.intersectObjects( worldObjects ),
+		up: scope.raycasters.up.intersectObjects( worldObjects ),
+
+		down: scope.raycasters.down.intersectObjects( worldObjects ),
+		downstairs: scope.raycasters.down.intersectObjects( worldObjects ),
+
 		forward: scope.raycasters.forward.intersectObjects( worldObjects ),
 		backward: scope.raycasters.backward.intersectObjects( worldObjects ),
 		left: scope.raycasters.left.intersectObjects( worldObjects ),
-		right:  scope.raycasters.right.intersectObjects( worldObjects ),
+		right: scope.raycasters.right.intersectObjects( worldObjects ),
 		rightStrafe: scope.raycasters.rightStrafe.intersectObjects( worldObjects ),
 		leftStrafe: scope.raycasters.leftStrafe.intersectObjects( worldObjects ),
 
 		checkIntersections: function () {
 
-			this.down = scope.raycasters.down.intersectObjects( worldObjects );
 			this.up = scope.raycasters.up.intersectObjects( worldObjects );
+
+			this.down = scope.raycasters.down.intersectObjects( worldObjects );
+			this.downstairs = scope.raycasters.down.intersectObjects( worldObjects );
+
 			this.forward = scope.raycasters.forward.intersectObjects( worldObjects );
 			this.backward = scope.raycasters.backward.intersectObjects( worldObjects );
 			this.left = scope.raycasters.left.intersectObjects( worldObjects );
@@ -259,17 +271,47 @@ THREE.FPSControls = function ( camera, mass, playerHeight, doubleJump, worldObje
 
 			// console.log( scope.intersections.down.length, scope.intersections.down )
 
+			// if ( scope.intersections.down.length ) {
+			//
+			// 	console.log( 'playerHeight', playerHeight )
+			// 	console.log( 'scope.getPlayer().position.y', scope.getPlayer().position.y )
+			// 	console.log( 'scope.playersPosition', scope.playersPosition.y )
+			// 	console.log( 'scope.intersections.down', scope.intersections.down[0].distance )
+			//
+			// }
+
+			if ( scope.intersections.downstairs.length ) {
+
+				console.log( 'playerHeight', playerHeight )
+				console.log( 'scope.getPlayer().position.y', scope.getPlayer().position.y )
+				console.log( 'scope.playersPosition', scope.playersPosition.y )
+				console.log( 'scope.intersections.downstairs', scope.intersections.downstairs[0].distance )
+
+			}
+
 			if ( scope.isOnObject === true ) {
 
 				scope.velocity.y = Math.max( 0, scope.velocity.y );
 				scope.jumps = 0;
 
+				if ( scope.intersections.downstairs[ 0 ].distance < playerHeight ) {
+					// alert('!!!!!!!!')
+					// scope.velocity.y += 0.1 * scope.delta;
+					scope.velocity.y += 1000 * scope.delta;
+
+				}
+
+				// this.scene.add( new THREE.ArrowHelper( scope.raycasters.down.ray.direction, scope.raycasters.down.ray.origin, 300, 0xff0000 ) );
+
+				// scope.getPlayer().position.y += 0.1;
+				// scope.velocity.y += 0.1;
+
 				// If we start to fall through an object
-				// if ( ( this.getPlayer().position.y < playerHeight ) &&
-				// 	 scope.downwardsIntersection &&
-				// 	 scope.downwardsIntersection[0].distance < (playerHeight / 2) ) {
+				// if ( ( scope.getPlayer().position.y < playerHeight ) &&
+				// 	 scope.intersections.down &&
+				// 	 scope.intersections.down[0].distance < (playerHeight / 2) ) {
 				//
-				// 	 this.getPlayer().position.y += 0.1;
+				// 	 scope.getPlayer().position.y += 0.1;
 				// }
 
 			} else {
