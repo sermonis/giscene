@@ -212,7 +212,11 @@
 
 			// controls = new THREE.PlatformerControls( camera, 100, 30, true, objects );
             // controls = new THREE.FPSControls( camera, 100, 20, true, objects );
-            controls = new FPSControls( camera, renderer.domElement, 100, 20, true, objects );
+
+			controls = new FPSControls( camera, renderer.domElement, 100, 20, true, objects );
+            // controls.obstacles = objects; // colliders
+            controls.setObstacles( objects ); // colliders, obstacles
+
     		scene.add( controls.getPlayer() );
 
 		}

@@ -14,6 +14,12 @@ import {
 
 const PI05 = Math.PI / 2;
 
+let halfHeight;
+let fullHeight;
+let crouchSmoothing;
+let smoothedHeight;
+let crouched = false;
+
 /**
 *
 * TODO: Rename.
@@ -29,7 +35,8 @@ const PI05 = Math.PI / 2;
 * TODO: Move along the walls.
 * @see https://sermonis.github.io/sandbox/?q=bim#bim_controls_firstperson_1
 */
-const FPSControls = function ( object, domElement, mass, playerHeight, doubleJump, worldObjects ) {
+// const FPSControls = function ( object, domElement, mass, playerHeight, doubleJump, worldObjects ) {
+const FPSControls = function ( object, domElement ) {
 
 	// API
 
@@ -38,17 +45,22 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 	this.speed = 800; // Movement speed.
 	this.velocity = new Vector3( 1, 1, 1 );
 
-	this.mass = mass || 80; // 100
+	// this.mass = mass || 80; // 100
+	this.mass = 80; // 100
 	this.originalMass = this.mass;
 
-	this.playerHeight = playerHeight; // 20
+	// this.playerHeight = playerHeight; // 20
+	this.playerHeight = 20; // 20
 	this.baseHeight = 0; // The minimum plane height.
 
-	this.doubleJump = doubleJump || true; // true
-	this.worldObjects = worldObjects; // objects
+	// this.doubleJump = doubleJump || true; // true
+	this.doubleJump = true; // true
+	// this.worldObjects = worldObjects; // objects
+	this.obstacles = []; // colliders
+	this.worldObjects = this.obstacles; // TODO: Remove.
 
 	this.mouseInvert = true;
-	this.mouseSensitivity = 15;
+	this.mouseSensitivity = 20;
 
 	//
 
@@ -66,18 +78,18 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 
 	//
 
-	var scope = this;
+	const scope = this;
 
 	//
 
 	object.rotation.set( 0, 0, 0 );
 
-	var pitchObject = new Object3D();
+	const pitchObject = new Object3D();
 	pitchObject.add( object );
 
 	// Represents the human player of the game.
 	const player = new Object3D();
-	player.position.y = playerHeight;
+	player.position.y = scope.playerHeight;
 	player.add( pitchObject );
 
 	// scope.worldObjects = worldObjects;
@@ -195,31 +207,31 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 
 	scope.intersections = {
 
-		up: scope.raycasters.up.intersectObjects( worldObjects ),
+		up: scope.raycasters.up.intersectObjects( scope.worldObjects ),
 
-		down: scope.raycasters.down.intersectObjects( worldObjects ),
-		downstairs: scope.raycasters.down.intersectObjects( worldObjects ),
+		down: scope.raycasters.down.intersectObjects( scope.worldObjects ),
+		downstairs: scope.raycasters.down.intersectObjects( scope.worldObjects ),
 
-		forward: scope.raycasters.forward.intersectObjects( worldObjects ),
-		backward: scope.raycasters.backward.intersectObjects( worldObjects ),
-		left: scope.raycasters.left.intersectObjects( worldObjects ),
-		right: scope.raycasters.right.intersectObjects( worldObjects ),
-		rightStrafe: scope.raycasters.rightStrafe.intersectObjects( worldObjects ),
-		leftStrafe: scope.raycasters.leftStrafe.intersectObjects( worldObjects ),
+		forward: scope.raycasters.forward.intersectObjects( scope.worldObjects ),
+		backward: scope.raycasters.backward.intersectObjects( scope.worldObjects ),
+		left: scope.raycasters.left.intersectObjects( scope.worldObjects ),
+		right: scope.raycasters.right.intersectObjects( scope.worldObjects ),
+		rightStrafe: scope.raycasters.rightStrafe.intersectObjects( scope.worldObjects ),
+		leftStrafe: scope.raycasters.leftStrafe.intersectObjects( scope.worldObjects ),
 
 		checkIntersections: function () {
 
-			this.up = scope.raycasters.up.intersectObjects( worldObjects );
+			this.up = scope.raycasters.up.intersectObjects( scope.worldObjects );
 
-			this.down = scope.raycasters.down.intersectObjects( worldObjects );
-			this.downstairs = scope.raycasters.down.intersectObjects( worldObjects );
+			this.down = scope.raycasters.down.intersectObjects( scope.worldObjects );
+			this.downstairs = scope.raycasters.down.intersectObjects( scope.worldObjects );
 
-			this.forward = scope.raycasters.forward.intersectObjects( worldObjects );
-			this.backward = scope.raycasters.backward.intersectObjects( worldObjects );
-			this.left = scope.raycasters.left.intersectObjects( worldObjects );
-			this.right = scope.raycasters.right.intersectObjects( worldObjects );
-			this.rightStrafe = scope.raycasters.rightStrafe.intersectObjects( worldObjects );
-			this.leftStrafe = scope.raycasters.leftStrafe.intersectObjects( worldObjects );
+			this.forward = scope.raycasters.forward.intersectObjects( scope.worldObjects );
+			this.backward = scope.raycasters.backward.intersectObjects( scope.worldObjects );
+			this.left = scope.raycasters.left.intersectObjects( scope.worldObjects );
+			this.right = scope.raycasters.right.intersectObjects( scope.worldObjects );
+			this.rightStrafe = scope.raycasters.rightStrafe.intersectObjects( scope.worldObjects );
+			this.leftStrafe = scope.raycasters.leftStrafe.intersectObjects( scope.worldObjects );
 
 		}
 
@@ -284,11 +296,11 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 	// // Crouched.
 	// scope.crouching = false;
 
-	var halfHeight;
-	var fullHeight;
-	var crouchSmoothing;
-	var smoothedHeight;
-	var crouched = false;
+	// var halfHeight;
+	// var fullHeight;
+	// var crouchSmoothing;
+	// var smoothedHeight;
+	// var crouched = false;
 
 	// Jump Variables.
 	// scope.jumping = false;
@@ -317,6 +329,14 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 		scope.worldObjects = worldObjects;
 
 	};
+
+	// TODO: Remove updateWorldObjects.
+	scope.setObstacles = function ( objects ) {
+
+		// scope.obstacles = objects; // colliders
+		scope.updateWorldObjects( objects );
+
+	}
 
 	scope.updateControls = function () {
 
@@ -374,7 +394,7 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 				scope.jumps = 0;
 
 				// if ( scope.intersections.downstairs[ 0 ].distance < ( playerHeight / 2 ) ) {
-				if ( scope.intersections.downstairs[ 0 ].distance < ( playerHeight * 0.7 ) ) {
+				if ( scope.intersections.downstairs[ 0 ].distance < ( scope.playerHeight * 0.7 ) ) {
 					// alert('!!!!!!!!')
 					// scope.velocity.y += 0.1 * scope.delta;
 					scope.velocity.y += 1000 * scope.delta;
@@ -404,8 +424,8 @@ const FPSControls = function ( object, domElement, mass, playerHeight, doubleJum
 			if ( !crouched && scope.isOnObject ) {
 
 				// console.log( 'Not Crouched' );
-				halfHeight = scope.getPlayer().position.y - ( playerHeight * 0.2 );
-				fullHeight = scope.getPlayer().position.y + ( playerHeight * 0.2 );
+				halfHeight = scope.getPlayer().position.y - ( scope.playerHeight * 0.2 );
+				fullHeight = scope.getPlayer().position.y + ( scope.playerHeight * 0.2 );
 
 			}
 
