@@ -11,7 +11,7 @@
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
         <link type="text/css" rel="stylesheet" href="main.css">
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script>
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r122/three.min.js"></script> -->
 
         <style>
 
@@ -77,7 +77,7 @@
 
         </div>
 
-        <script src="bim_controls_firstperson_4/FPSControls.js"></script>
+        <!-- <script src="bim_controls_firstperson_4/FPSControls.js"></script> -->
 
         <!-- TODO: lock/unlock - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html -->
         <script src="bim_controls_firstperson_4/pointerlock.js"></script>
@@ -91,6 +91,8 @@
 
     <script type="module">
 
+		import * as THREE from '../libs/three.js/build/three.module.js';
+		import { FPSControls } from './bim_controls_firstperson_4/FPSControls.module.js';
 		import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
 
         import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
@@ -121,8 +123,6 @@
     	// var velocity = new THREE.Vector3();
 
     	function init () {
-
-    		eventHandlers();
 
 			//
 
@@ -160,6 +160,8 @@
             setStats();
 
 			//
+
+			setEventHandlers();
 
     		ScreenOverlay( controls );
 
@@ -209,7 +211,8 @@
 		function setControls () {
 
 			// controls = new THREE.PlatformerControls( camera, 100, 30, true, objects );
-            controls = new THREE.FPSControls( camera, 100, 20, true, objects );
+            // controls = new THREE.FPSControls( camera, 100, 20, true, objects );
+            controls = new FPSControls( camera, renderer.domElement, 100, 20, true, objects );
     		scene.add( controls.getPlayer() );
 
 		}
@@ -375,7 +378,7 @@
 
     	}
 
-    	function eventHandlers () {
+    	function setEventHandlers () {
 
     		// Keyboard press handlers.
     		var onKeyDown = function ( event ) {
@@ -395,6 +398,59 @@
                 handleKeyInteraction( event.keyCode, false );
 
             };
+
+			// var onContextMenu = function ( event ) {
+			//
+			// 	event.preventDefault();
+			// 	event.stopPropagation();
+			//
+			// 	// console.log( 'onContextMenu', event );
+			// 	alert( 'onContextMenu' );
+			//
+			// }
+
+			var onMouseDown = function ( event ) {
+
+				// event.preventDefault();
+				// event.stopPropagation();
+
+				// console.log( 'onMouseDown', event );
+				// console.log( 'e.ctrlKey', event.ctrlKey );
+				// console.log( 'e.buttons', event.buttons );
+				// alert( 'onMouseDown' );
+
+				if ( event.button == 2 ) {
+
+					controls.movements.forward = true;
+
+				}
+
+			}
+
+			var onMouseUp = function ( event ) {
+
+				// event.preventDefault();
+				// event.stopPropagation();
+
+				// console.log( 'onMouseUp', event );
+				// console.log( 'e.ctrlKey', event.ctrlKey );
+				// console.log( 'e.buttons', event.buttons );
+				// alert( 'onMouseDown' );
+
+				if ( event.button == 2 ) {
+
+					controls.movements.forward = false;
+
+				}
+
+			}
+
+			// renderer.domElement.addEventListener( 'contextmenu', onContextMenu, false );
+			// renderer.domElement.addEventListener( 'mousedown', onMouseDown, false );
+
+			// document.addEventListener( 'contextmenu', onContextMenu, false );
+			document.addEventListener( 'mousedown', onMouseDown, false );
+			document.addEventListener( 'mouseup', onMouseUp, false );
 
             document.addEventListener( 'keydown', onKeyDown, false );
     		document.addEventListener( 'keyup', onKeyUp, false );
