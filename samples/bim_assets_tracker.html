@@ -38,6 +38,7 @@
 
         import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
 		import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
+		import Disposer from './bim_assets_tracker/Disposer.js';
 
         import Snapshot from './jsm/libs/snapshot.module.js';
 
@@ -266,12 +267,39 @@
                     // alert('Load model');
 					loadLevel()
 
+					scene.add( new THREE.AxesHelper( 300 ) );
+					scene.add( new THREE.GridHelper( 300, 20 ) );
+
                 },
 
                 //
                 unloadModel: function () {
 
-                    alert('Unload model');
+                    // alert('Unload model');
+					// const disposer = new Disposer( scene );
+					// const disposer = new Disposer( new THREE.Object3D() );
+					// const disposer = new Disposer( scene, renderer );
+					// disposer.disposeOnCascade( scene );
+					// disposer.dispose( scene ).then( result => {
+					// new Disposer( scene, renderer ).dispose( scene ).then( result => {
+
+					// const disposer = new Disposer( scene, renderer );
+					// disposer.dispose( scene ).then( result => {
+
+					// renderer.renderLists.dispose();
+					// console.log( renderer.info.memory )
+
+					new Disposer( scene, renderer ).dispose( scene ).then( result => {
+
+						// console.log(result)
+						// renderer.dispose();
+						renderer.renderLists.dispose();
+						console.log( renderer.info.memory )
+						// renderer.dispose();
+						// console.log( renderer.info.memory )
+
+					// } ).catch( e => console.error(e) );
+					} );
 
                 },
 
@@ -285,13 +313,15 @@
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
             snapshotFolder.add( params, 'takeShot' ).name( 'Take shot' );
 
-        	snapshotFolder.open();
+        	snapshotFolder.close();
 
 			const assetsTrackerFolder = gui.addFolder( 'AssetsTracker' );
 			assetsTrackerFolder.add( params, 'loadModel' ).name( 'Load model' );
 			assetsTrackerFolder.add( params, 'unloadModel' ).name( 'Unload model' );
 
-            gui.close();
+			assetsTrackerFolder.open();
+
+            gui.open();
 
         }
 
