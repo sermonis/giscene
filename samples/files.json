@@ -27,6 +27,9 @@
  		"bim_controls_firstperson_4",
  		"bim_controls_platformer_1"
  	],
+    "assets": [
+ 		"bim_assets_tracker"
+ 	],
     "meshes": [
  		"bim_stairs_1"
  	]

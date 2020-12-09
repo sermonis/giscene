@@ -3,7 +3,7 @@
 
     <head>
 
-        <title>BIM - Scene Boilerplate</title>
+        <title>BIM - Assets Tracker</title>
         <meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
@@ -19,7 +19,7 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates different types of auto-generated bounding volumes.
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Assets Tracker.
             </div>
 
             <div></div>
@@ -37,13 +37,13 @@
         import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
 
         import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
-	    // import { GLTFLoader } from '../../lib/GLTFLoader.module.js';
+		import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
 
         import Snapshot from './jsm/libs/snapshot.module.js';
 
         // ---------------------------------------------------------------------------
 
-		let renderer, scene, camera, helper, stats;
+		let renderer, scene, camera, controls, helper, stats;
 
 		const points = [];
 
@@ -56,6 +56,8 @@
         init();
 		tune();
         animate();
+
+		// loadLevel();
 
 		function init() {
 
@@ -128,7 +130,7 @@
 
 			window.addEventListener( 'resize', onWindowResize, false );
 
-			const controls = new OrbitControls( camera, renderer.domElement );
+			controls = new OrbitControls( camera, renderer.domElement );
 			controls.enablePan = false;
 			controls.minDistance = 10;
 			controls.maxDistance = 50;
@@ -154,10 +156,73 @@
 
 		function animate() {
 
-			requestAnimationFrame( animate );
+			renderer.setAnimationLoop( animate );
 			renderer.render( scene, camera );
 
 			stats.update();
+
+		}
+
+		function loadLevel () {
+
+			const glTFLoader = new GLTFLoader();
+			glTFLoader.load( 'models/gltf/level.glb', ( gltf ) => {
+
+				gltf.scene.matrixAutoUpdate = false;
+				gltf.scene.updateMatrix();
+
+				// gltf.scene.rotation.y = Math.PI;
+				gltf.scene.scale.multiplyScalar( 0.3 );
+
+				// gltf.scene.position.set( 0, 40, 0 );
+				// gltf.scene.position.set( 0, 20, 0 );
+
+				// add object to scene
+				scene.add( gltf.scene );
+
+				// let level;
+
+				gltf.scene.traverse( ( object ) => {
+
+					object.matrixAutoUpdate = false;
+					object.updateMatrix();
+
+					object.receiveShadow = true;
+					object.castShadow = true;
+
+					// obstacles.push( object );
+					// this.colliders.push( object );
+					// if ( object.isMesh ) objects.push( object );
+					// console.log( object );
+
+					// if ( object.name == 'mesh_1' ) {
+					//
+					// 	scene.add( object );
+					//
+					// }
+
+					// Debug.
+					// object.castShadow = true;
+
+					// if ( object.isMesh ) level = object;
+
+					// Debug.
+					if ( object.material ) {
+
+						//
+						// console.log( object.material )
+						// console.log( object.material.side )
+						// console.log( object.material.shadowSide )
+
+						object.material.side = THREE.DoubleSide;
+
+					}
+
+				} );
+
+				// level.castShadow = true;
+
+			} );
 
 		}
 
@@ -195,6 +260,21 @@
 
                 },
 
+                //
+                loadModel: function () {
+
+                    // alert('Load model');
+					loadLevel()
+
+                },
+
+                //
+                unloadModel: function () {
+
+                    alert('Unload model');
+
+                },
+
             };
 
             const gui = new GUI();
@@ -203,9 +283,13 @@
 
             snapshotFolder.add( params, 'width', 0, 2200, 50 );
             snapshotFolder.add( params, 'height', 0, 1329, 50 );
-            snapshotFolder.add( params, 'takeShot' );
+            snapshotFolder.add( params, 'takeShot' ).name( 'Take shot' );
 
         	snapshotFolder.open();
+
+			const assetsTrackerFolder = gui.addFolder( 'AssetsTracker' );
+			assetsTrackerFolder.add( params, 'loadModel' ).name( 'Load model' );
+			assetsTrackerFolder.add( params, 'unloadModel' ).name( 'Unload model' );
 
             gui.close();
 
