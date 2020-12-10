@@ -3,7 +3,7 @@
 
     <head>
 
-        <title>BIM - Assets Tracker</title>
+        <title>BIM - Assets Manager</title>
         <meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
@@ -19,7 +19,7 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Assets Tracker.
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Assets Manager.
             </div>
 
             <div></div>
@@ -241,6 +241,8 @@
 
         function setGUI () {
 
+			const gui = new GUI();
+
             // GUI params.
         	const params = {
 
@@ -261,19 +263,12 @@
 
                 },
 
-                //
-                loadModel: function () {
-
-                    // alert('Load model');
-					loadLevel()
-
-					scene.add( new THREE.AxesHelper( 300 ) );
-					scene.add( new THREE.GridHelper( 300, 20 ) );
-
-                },
+				showGridHelper: false,
+				showAxesHelper: false,
+				showModel: false,
 
                 //
-                unloadModel: function () {
+                disposeAll: () => {
 
                     // alert('Unload model');
 					// const disposer = new Disposer( scene );
@@ -284,28 +279,42 @@
 					// new Disposer( scene, renderer ).dispose( scene ).then( result => {
 
 					// const disposer = new Disposer( scene, renderer );
+					// console.log( disposer.traverse( scene ) )
+					// console.log( disposer.#traverse( scene ) )
+					// console.log( disposer.remove( scene ) )
+					// console.log( disposer.#remove( scene ) )
+					// console.log( disposer.dispose( scene ) )
 					// disposer.dispose( scene ).then( result => {
 
 					// renderer.renderLists.dispose();
-					// console.log( renderer.info.memory )
+					console.log( renderer.info.memory )
 
 					new Disposer( scene, renderer ).dispose( scene ).then( result => {
+					// new Disposer( scene, renderer ).dispose( ).then( result => {
+					// new Disposer( scene, renderer ).dispose( 'sdfsdf' ).then( result => {
 
-						// console.log(result)
+						console.log(result)
 						// renderer.dispose();
+
 						renderer.renderLists.dispose();
 						console.log( renderer.info.memory )
+
 						// renderer.dispose();
 						// console.log( renderer.info.memory )
 
-					// } ).catch( e => console.error(e) );
-					} );
+						params.showModel = false;
+						gui.updateDisplay();
+						console.log( 'gui', gui )
+						console.log( 'params', params )
+
+					} ).catch( e => console.error(e) );
+					// } );
 
                 },
 
             };
 
-            const gui = new GUI();
+            // const gui = new GUI();
 
             const snapshotFolder = gui.addFolder( 'Snapshot' );
 
@@ -315,9 +324,69 @@
 
         	snapshotFolder.close();
 
-			const assetsTrackerFolder = gui.addFolder( 'AssetsTracker' );
-			assetsTrackerFolder.add( params, 'loadModel' ).name( 'Load model' );
-			assetsTrackerFolder.add( params, 'unloadModel' ).name( 'Unload model' );
+			const assetsTrackerFolder = gui.addFolder( 'Assets Manager' );
+
+			const showGridHelper = assetsTrackerFolder.add( params, 'showGridHelper' ).name( 'GridHelper' );
+			const showAxesHelper = assetsTrackerFolder.add( params, 'showAxesHelper' ).name( 'AxesHelper' );
+			const showModel = assetsTrackerFolder.add( params, 'showModel' ).name( 'Model' );
+
+			// assetsTrackerFolder.add( params, 'loadModel' ).name( 'Load model' );
+			assetsTrackerFolder.add( params, 'disposeAll' ).name( 'Dispose All' );
+
+			showGridHelper.onChange( value => {
+
+				if ( value ) {
+
+					// scene.add( new THREE.AxesHelper( 300 ) );
+					scene.add( new THREE.GridHelper( 300, 20 ) );
+
+				} else {
+
+					// scene.remove( new THREE.AxesHelper( 300 ) );
+
+				}
+
+				// console.log( 'showGrid', value );
+				// text.slider2 = 0; // this doesn't work
+
+			} );
+
+			showAxesHelper.onChange( value => {
+
+				if ( value ) {
+
+					scene.add( new THREE.AxesHelper( 300 ) );
+					// scene.add( new THREE.GridHelper( 300, 20 ) );
+
+				} else {
+
+					// scene.remove( new THREE.AxesHelper( 300 ) );
+
+				}
+
+				// console.log( 'showGrid', value );
+				// text.slider2 = 0; // this doesn't work
+
+			} );
+
+			showModel.onChange( value => {
+
+				if ( value ) {
+
+					// scene.add( new THREE.AxesHelper( 300 ) );
+					// scene.add( new THREE.GridHelper( 300, 20 ) );
+					loadLevel();
+
+				} else {
+
+					// scene.remove( new THREE.AxesHelper( 300 ) );
+
+				}
+
+				// console.log( 'showGrid', value );
+				// text.slider2 = 0; // this doesn't work
+
+			} );
 
 			assetsTrackerFolder.open();
 

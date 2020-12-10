@@ -30,6 +30,9 @@
     "assets": [
  		"bim_assets_tracker"
  	],
+    "viewer": [
+ 		"bim_viewer_forge"
+ 	],
     "meshes": [
  		"bim_stairs_1"
  	]

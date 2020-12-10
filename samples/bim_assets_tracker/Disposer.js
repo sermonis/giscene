@@ -1,75 +1,29 @@
-//
-// const THREE = require("three-full");
-//
-// var Disposer = function(){};
-//
-// Disposer.prototype.constructor = Disposer;
-//
-// Disposer.prototype.disposeOnCascade = (function(){
-//     function disposeNode(node){
-//         if (node instanceof THREE.Mesh)
-//         {
-//             if (node.geometry)
-//             {
-//                 node.geometry.dispose();
-//             }
-//
-//             if (node.material)
-//             {
-//                 if (node.material && node.material.materials)
-//                 {
-//                     for(var i=0;i<node.material.materials.length; ++i){
-//                         mtrl = node.material.materials[i];
-//                         if (mtrl.map)           mtrl.map.dispose();
-//                         if (mtrl.lightMap)      mtrl.lightMap.dispose();
-//                         if (mtrl.bumpMap)       mtrl.bumpMap.dispose();
-//                         if (mtrl.normalMap)     mtrl.normalMap.dispose();
-//                         if (mtrl.specularMap)   mtrl.specularMap.dispose();
-//                         if (mtrl.envMap)        mtrl.envMap.dispose();
-//
-//                         mtrl.dispose();    // disposes any programs associated with the material
-//                     }
-//                 }
-//                 else
-//                 {
-//                     if (node.material.map)          node.material.map.dispose();
-//                     if (node.material.lightMap)     node.material.lightMap.dispose();
-//                     if (node.material.bumpMap)      node.material.bumpMap.dispose();
-//                     if (node.material.normalMap)    node.material.normalMap.dispose();
-//                     if (node.material.specularMap)  node.material.specularMap.dispose();
-//                     if (node.material.envMap)       node.material.envMap.dispose();
-//
-//                     node.material.dispose ();   // disposes any programs associated with the material
-//                 }
-//             }
-//         }
-//     }   // disposeNode
-//
-//     function disposeHierarchy (node, callback){
-//         for (var i = node.children.length-1; i>=0; i--){
-//             var child = node.children[i];
-//             disposeHierarchy (child, callback);
-//             callback (child);
-//         }
-//     }
-//
-//     return function(o){
-//         disposeHierarchy(o, disposeNode);
-//     };
-//
-// })();
-//
-// THREE.Disposer = Disposer;
-//
-// module.exports = Disposer;
-
 // import { Mesh, Object3D } from 'three';
 import {
 
 	Mesh, Light, Object3D,
-	MeshFaceMaterial, MultiMaterial, // MeshFaceMaterial & MultiMaterial - Removed
+	// MeshFaceMaterial, MultiMaterial, // MeshFaceMaterial & MultiMaterial - Removed
 
 } from '../../../libs/three.js/build/three.module.js';
+
+const MATERIAL_MAPS = [
+
+	'alphaMap',
+	'aoMap',
+	'bumpMap',
+	'displacementMap',
+	'emissiveMap',
+	'envMap',
+	'glossinessMap',
+	'gradientMap',
+	'lightMap',
+	'map',
+	'metalnessMap',
+	'normalMap',
+	'roughnessMap',
+	'specularMap'
+
+];
 
 // AssetsDisposer
 export default class Disposer {
@@ -82,7 +36,17 @@ export default class Disposer {
 
 	// scope = this;
 
-	constructor ( object, renderer ) {
+	// scope = this;
+
+	// const _this = this,
+
+	// constructor ( object, renderer, options ) {
+	constructor ( parameters ) {
+
+		// var scope = this;
+		// const _this = this;
+		// scope.parameters = parameters || {};
+		this.parameters = parameters || {};
 
 		// console.log( object )
 
@@ -103,78 +67,93 @@ export default class Disposer {
 
 		// console.log( object )
 
-		this.name = 'THREE.Disposer';
-		this.version = '0.0.1';
+		// scope.name = 'THREE.Disposer';
+		// scope.version = '0.0.1';
 
-		this.scene = object;
-		this.renderer = renderer;
+		// this.name = 'THREE.Disposer';
+		// this.version = '0.0.1';
 
-		console.log( renderer )
+		// _this.name = 'THREE.Disposer';
+		// _this.version = '0.0.1';
+
+		// this.scene = object;
+		// this.renderer = renderer;
+
+		// console.log( renderer )
 
 		// return this;
 
 	}
 
-	dispose ( node ) { // root
-
-		// if ( this.scene === undefined ) return;
-
-		// if ( node instanceof Object3D === false ) {
-		//
-		// 	console.warn( '!Object3d' );
-		// 	// return;
-		//
-		// }
-
-		// node = node || this.scene;
-		//
-		// // this.disposeHierarchy( node, this.disposeNode.bind( this ) );
-		// this.disposeHierarchy( node, this.disposeNode );
-
-		// console.log( this.renderer.info )
-		const memory = JSON.stringify(this.renderer.info.memory);
-		console.log( memory )
+	// public
+	dispose ( root ) {
 
 		return new Promise ( async ( resolve, reject ) => {
 
-			// node = node || this.scene;
-			await this._disposeHierarchy( node, this._disposeNode );
+			if ( !root ) {
 
-			// this.scene.dispose();
-			// this.scene.dispose();
+				console.error( 'THREE.Disposer: Root node argument is required.' );
+				reject( root );
 
-			// console.log( this.scene )
+			} else if ( root instanceof Object3D === false ) {
 
-			// console.log( this.renderer.info.memory )
+				console.error( 'THREE.Disposer: Root node is not an instance of THREE.Object3D.' );
+				reject( root );
 
-			// throw('##############')
+			} else {
 
-			resolve( 'Disposed!' );
+				// console.log( '_this.name', _this.name );
 
-			// reject('##############')
-			// reject()
+				await this.#traverseNode( root, this.#disposeNode );
+				resolve( 'Disposed!' );
+
+			}
 
 		} );
 
 	}
 
-	_disposeHierarchy ( node, callback ) {
+	// protected
+	#traverseNode ( node, callback ) {
 
-		// TODO: node.traverse( function (node) {
-		for ( let i = node.children.length - 1; i >= 0; i-- ) {
+		// if ( node ) {
 
-			const child = node.children[ i ];
-            this._disposeHierarchy( child, callback );
+			for ( let i = 0, l = node.children.length; i < l; i ++ ) {
 
-			// console.log(this)
-            // callback.call( child ).bind(this);
-            callback.call( this, child );
+				const child = node.children[ i ];
 
-        }
+	            this.#traverseNode( child, callback );
+
+	            callback.call( this, child );
+
+	        }
+
+		// }
+
+		// for ( let i = 0, l = node.children.length; i < l; i ++ ) {
+		//
+		// 	const child = node.children[ i ];
+		//
+        //     this.#traverseNode( child, callback );
+		//
+        //     callback.call( this, child );
+		//
+        // }
+
+		// node.traverse( child => {
+		//
+		// 	this.#disposeNode( child );
+		// 	// ( child.isScene === false ) && this.#disposeNode( child );
+		//
+		// 	callback.call( this, child );
+		//
+		// } );
 
     }
 
-	_disposeNode ( node ) {
+	// protected
+	// #remove ( node ) {
+	#disposeNode ( node ) {
 
 		// console.log( 'disposeNode', 'this', that );
 		console.log( node );
@@ -198,14 +177,7 @@ export default class Disposer {
 		//
 		// };
 
-		// TODO: Texture
-		// https://jsfiddle.net/x7Le8pda/
-		// texture.dispose();
-
-		// if ( node instanceof Mesh ) { // .isMesh
-		if ( node.isMesh ) { // .isMesh
-
-			// console.log( 'MESH', node )
+		const disposeGeometry = ( node ) => {
 
 			// TODO: BufferGeometry
 			// https://github.com/mrdoob/three.js/pull/12464#issuecomment-518616514
@@ -215,88 +187,80 @@ export default class Disposer {
                 node.geometry.dispose();
             }
 
-            if ( node.material ) {
+		}
 
-				// console.log( node.material )
+		const disposeMaterial = ( node ) => {
 
-				// glTF texture types. `envMap` is deliberately omitted, as it's used internally
-				// by the loader but not part of the glTF format.
-				// const MAP_NAMES = [
-				//   'map',
-				//   'aoMap',
-				//   'emissiveMap',
-				//   'glossinessMap',
-				//   'metalnessMap',
-				//   'normalMap',
-				//   'roughnessMap',
-				//   'specularMap',
-				// ];
+			if ( node.material ) {
 
-                // if ( node.material && node.material.materials ) { // ???
-                // TODO: MeshFaceMaterial & MultiMaterial - Removed
-                // TODO: Check if material is array and thats it.
-                if ( node.material && ( node.material instanceof MeshFaceMaterial || node.material instanceof MultiMaterial ) ) { // ???
+				// Cast to array.
+				const materials = Array.isArray( node.material )
+					? node.material
+					: [ node.material ];
 
-                    for ( let i = 0; i < node.material.materials.length; ++i ) {
-					// TODO: check perfomance: node.material.materials.forEach( ( material, idx ) {
-					// TODO: https://stackoverflow.com/a/45383375
+				// Dispose material maps.
+				materials.forEach( material => {
 
-                        const material = node.material.materials[ i ];
+					MATERIAL_MAPS.forEach( name => {
 
-                        if ( material.map )				material.map.dispose();
-                        if ( material.lightMap )		material.lightMap.dispose();
-                        if ( material.bumpMap )			material.bumpMap.dispose();
-                        if ( material.normalMap )		material.normalMap.dispose();
-                        if ( material.specularMap )		material.specularMap.dispose();
-                        if ( material.envMap )			material.envMap.dispose();
-						if ( material.alphaMap )		material.alphaMap.dispose();
-						if ( material.aoMap )			material.aoMap.dispose();
-						if ( material.displacementMap )	material.displacementMap.dispose();
-						if ( material.emissiveMap )		material.emissiveMap.dispose();
-						if ( material.gradientMap )		material.gradientMap.dispose();
-						if ( material.metalnessMap )	material.metalnessMap.dispose();
-						if ( material.roughnessMap )	material.roughnessMap.dispose();
+						material[ name ] && material[ name ].dispose();
 
-                        material.dispose();    // disposes any programs associated with the material
+					} );
 
-                    }
+				} );
 
-                } else {
-
-                    if ( node.material.map )          node.material.map.dispose();
-                    if ( node.material.lightMap )     node.material.lightMap.dispose();
-                    if ( node.material.bumpMap )      node.material.bumpMap.dispose();
-                    if ( node.material.normalMap )    node.material.normalMap.dispose();
-                    if ( node.material.specularMap )  node.material.specularMap.dispose();
-                    if ( node.material.envMap )       node.material.envMap.dispose();
-
-                    node.material.dispose();   // disposes any programs associated with the material
-
-                }
-
-				// // dispose textures
-			   // traverseMaterials( this.content, (material) => {
-			   //
-				//  MAP_NAMES.forEach( (map) => {
-			   //
-				//    if (material[ map ]) material[ map ].dispose();
-			   //
-				//  } );
-			   //
-			   // } );
-
-			   // https://github.com/donmccurdy/three-gltf-viewer/blob/master/src/viewer.js
-
-			   // function traverseMaterials (object, callback) {
-				//   object.traverse((node) => {
-				//     if (!node.isMesh) return;
-				//     const materials = Array.isArray(node.material)
-				//       ? node.material
-				//       : [node.material];
-				//     materials.forEach(callback);
-				//   });
+				// Dispose material.
+				node.material.dispose();
 
             }
+
+		}
+
+		// TODO: Texture
+		// https://jsfiddle.net/x7Le8pda/
+		// texture.dispose();
+
+		// if ( node instanceof Mesh ) { // .isMesh
+		// if ( node.isMesh ) { // .isMesh
+		if ( node.isObject3D ) { // .isObject3D
+
+			// console.log( 'MESH', node )
+
+			// node.visible = false;
+
+			// // TODO: BufferGeometry
+			// // https://github.com/mrdoob/three.js/pull/12464#issuecomment-518616514
+			// // https://github.com/mrdoob/three.js/pull/12464
+            // if ( node.geometry ) {
+			//
+            //     node.geometry.dispose();
+            // }
+			//
+            // if ( node.material ) {
+			//
+			// 	// Cast to array.
+			// 	const materials = Array.isArray( node.material )
+			// 		? node.material
+			// 		: [ node.material ];
+			//
+			// 	// Dispose material maps.
+			// 	materials.forEach( material => {
+			//
+			// 		MATERIAL_MAPS.forEach( name => {
+			//
+			// 			material[ name ] && material[ name ].dispose();
+			//
+			// 		} );
+			//
+			// 	} );
+			//
+			// 	// Dispose material.
+			// 	node.material.dispose();
+			//
+            // }
+
+			disposeGeometry( node );
+			disposeMaterial( node );
 
 			// node.parent.remove( node );
 
@@ -317,6 +281,49 @@ export default class Disposer {
 		// type: "AxesHelper"
 		// isLine: true
 		// isLineSegments
+
+		// if ( node.isLineSegments ) {
+		//
+		// 	if ( node.geometry ) {
+		//
+        //         node.geometry.dispose();
+        //     }
+		//
+		// 	if ( node.material ) {
+		//
+		// 		// Cast to array.
+		// 		const materials = Array.isArray( node.material )
+		// 			? node.material
+		// 			: [ node.material ];
+		//
+		// 		// Dispose material maps.
+		// 		materials.forEach( material => {
+		//
+		// 			MATERIAL_MAPS.forEach( name => {
+		//
+		// 				material[ name ] && material[ name ].dispose();
+		//
+		// 			} );
+		//
+		// 		} );
+		//
+		// 		// Dispose material.
+		// 		node.material.dispose();
+		//
+        //     }
+		//
+		// 	// console.log( 'node.parent', node.parent );
+		// 	//
+		// 	// if (node.parent.isScene === false) {
+		// 	//
+		// 	// 	node.parent.remove( node );
+		// 	//
+		// 	// }
+		// 	// console.log( 'node.parent.children', node.parent.children );
+		// 	// node.parent.remove( node );
+		// 	// console.log( 'node.parent.children', node.parent.children );
+		//
+		// }
 
 		// https://habr.com/ru/post/521470/
 		// else if (node.constructor.name === "Object3D") {
@@ -362,8 +369,33 @@ export default class Disposer {
 
 		// console.log( 'node.parent', node.parent )
 
-		node.parent && node.parent.remove( node );
+		// node.parent && node.parent.remove( node );
 		// node = undefined; // TODO: Check.
+
+		// if ( node.parent )
+		if ( node.isScene === false ) { // node.isScene === false
+
+			node.parent.remove( node );
+			node = undefined;
+
+		} else {
+
+			node.children = [];
+
+		}
+
+		// this.scene.remove(node)
+
+		// console.log( 'node.children', node.children );
+		// console.log( 'node.isScene', node.isScene );
+		// node.children = [];
+		// node = undefined;
+
+		// if ( node.isScene === undefined ) { // node.isScene === false
+		//
+		// 	this.scene.remove(node)
+		//
+		// }
 
     }   // disposeNode
 
