@@ -67,11 +67,14 @@
 
     <script type="module">
 
+		/**
+		 * Initialize Viewer.
+		 * Viewer component based on Autodesk.Viewing.Viewer3D with added UI.
+		 *
+		 * @see https://forge.autodesk.com/en/docs/viewer/v7/developers_guide/viewer_basics/initialization/
+		 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/
+		 */
 		const container = document.getElementById( 'container' );
-
-		// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/
-		// const viewer = new Autodesk.Viewing.Private.GuiViewer3D( container );
-		// const viewer = new Autodesk.Viewing.GuiViewer3D( container );
 		const viewer = new Autodesk.Viewing.Viewer3D( container );
 
 		// https://forge.autodesk.com/en/docs/viewer/v7/reference/Extensions/ViewCubeUi/
@@ -102,26 +105,17 @@
 		//
 		// } );
 
-// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#setprofile-profile-override
-// 		const profileSettings = {
-//    name: "mySettings",
-//    settings: {
-//        ambientShadows: false,
-//        groundShadows: true
-//    }
-//    extensions: {
-//        load: [],   // Extension IDs
-//        unload: []  // Extension IDs
-//    }
-// }
-// const profile = new Autodesk.Viewing.Profile(profileSettings);
-// viewer.setProfile(profile);
-
-
+		// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/#initializer-options-callback
 		const options = {
 
 			'env' : 'Local',
+
 			'document' : '/models/svf/shaver/0.svf',
+			// 'document': '/models/svf/small-revit-sample-house-2/Resource/____/3D/3D.svf',
+
+			// 'document' : '/models/svf/13avt_park/Resource/0.svf',
+			// 'document' : '/models/svf/13avt_park/Resource/model.sdb',
+			// 'document' : '/models/svf/13avt_park/Resource/Модель/{3D} 17318/{3D}.svf',
 
 			// 'document' : '/models/svf/210 King/Resource/3D_View/_3D_ 1583181/_3D_.svf',
 
@@ -137,300 +131,65 @@
 
 		};
 
-
 		Autodesk.Viewing.Initializer( options, onInitialized );
-				//
+
 		function onInitialized () {
 
 			// viewer.initialize();
-			// viewer = new Autodesk.Viewing.ViewingApplication( container );
-			// viewer.registerViewer( viewer.k3D, Autodesk.Viewing.Viewer3D );
-			viewer.start( options.document, options, (e) => {
+			viewer.start( options.document, options, ( e ) => {
 
-				viewer.fitToView( true );
+				// console.log( e )
 
-				console.log( e )
-				// console.log( e.getInstanceTree() )
-				// viewer.getObjectTree( (tree) => {
-				//
-				// 	console.log(tree)
-				// 	// https://stackoverflow.com/questions/41558468/how-to-get-the-model-object-tree-of-2d-drawing
-				// 	tree.enumNodeChildren(
-				//         tree.getRootId(),
-				//         function (dbId) {
-				//             // Work with dbId
-				// 			console.log(dbId)
-				//         },
-				//         true
-				//     );
-				//
-				// } );
+				viewer.getObjectTree( ( tree ) => {
+
+					console.log( tree )
+
+					// https://stackoverflow.com/questions/41558468/how-to-get-the-model-object-tree-of-2d-drawing
+					tree.enumNodeChildren( tree.getRootId(), function ( dbId ) {
+
+						// Work with dbId.
+						console.log( dbId );
+
+					}, true	);
+
+				} );
 
 			} );
 
-			// dev@sermonis.ru
-			// autodesk-57
-
-			// viewer.fitToView( true );
-
-			// console.log(viewer.toolbar);
-
-			// viewer.forEachExtension( function ( name ) {
-			//
-			// 	console.log(name)
-			//
-			// } )
-
-			// https://forge.autodesk.com/en/docs/viewer/v7/change_history/changelog_v7/migration_guide_v6_to_v7/
-// 			Autodesk.Viewing.onToolbarCreated = function(toolbar) {
-//
-			//   alert('TODO: customize Viewer toolbar');
-			// };
-
-			// console.log( viewer.getAllModels() );
-
-			// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#getobjecttree-onsuccesscallback-onerrorcallback
-			// viewer.getObjectTree( function onSuccessCallback (e) {
-			//
-			// 	console.log(e)
-			//
-			// }, function onErrorCallback () {} );
-			//
-			// console.log( viewer.getObjectTree() )
-
-
 		};
-
-		// console.log( viewer.getObjectTree() )
-
-		// viewer.addEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function ( event ) {
-		//
-		// 	// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
-        //     viewer.fitToView( true );
-		// 	console.log( viewer.getObjectTree( () => {}, () => {} ) )
-		//
-		// } );
 
 		viewer.addEventListener( Autodesk.Viewing.SELECTION_CHANGED_EVENT, function ( e ) {
 
 			// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
-            // viewer.fitToView( true );
 			console.log( 'SELECTION_CHANGED_EVENT', e );
 
-			viewer.loadExtension( 'Autodesk.PropertiesManager' ).then( ( ext ) => {
-
-				// ext.load()
-				ext.activate()
-
-			} );
+			// viewer.loadExtension( 'Autodesk.PropertiesManager' ).then( ( ext ) => {
+			//
+			// 	ext.load();
+			// 	ext.unload();
+			// 	ext.activate();
+			//
+			// } );
 
 		} );
 
 		// https://forge.autodesk.com/en/docs/viewer/v7/developers_guide/viewer_basics/events/
 
 
+		viewer.addEventListener ( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function ( e ) {
 
-		// viewer.addEventListener ( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function ( event ) {
-		//
-		// 	// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
-        //     viewer.fitToView( true );
-		//
-        //     // setTimeout ( function () {
-		// 	//
-		// 	// 	viewer.autocam.setHomeViewFrom ( viewer.navigation.getCamera () );
-		// 	//
-		// 	// }, 1000 );
-		//
-		// } );
+			// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
+			console.log( 'GEOMETRY_LOADED_EVENT', e );
 
-        // import * as THREE from '../libs/three.js/build/three.module.js';
-        // import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
-        // import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
-		//
-        // import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
-	    // // import { GLTFLoader } from '../../lib/GLTFLoader.module.js';
-		//
-        // import Snapshot from './jsm/libs/snapshot.module.js';
+			viewer.fitToView( true );
 
-        // ---------------------------------------------------------------------------
+            // setTimeout ( function () {
+			//
+			// 	viewer.autocam.setHomeViewFrom ( viewer.navigation.getCamera () );
+			//
+			// }, 1000 );
 
-		// let renderer, scene, camera, helper, stats;
-		//
-		// const points = [];
-		//
-		// const params = {
-		//
-		// 	boundingVolume: 'None',
-		//
-		// };
-		//
-        // init();
-		// tune();
-        // animate();
-		//
-		// function init() {
-		//
-		// 	scene = new THREE.Scene();
-		// 	scene.background = new THREE.Color( 0xa0a0a0 );
-		// 	scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
-		//
-		// 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 250 );
-		// 	camera.position.set( 10, 10, 30 );
-		//
-		// 	//
-		//
-		// 	const geometry = new THREE.PlaneBufferGeometry( 500, 500 );
-		// 	const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
-		//
-		// 	const ground = new THREE.Mesh( geometry, material );
-		// 	ground.rotation.x = - Math.PI / 2;
-		// 	ground.matrixAutoUpdate = false;
-		// 	ground.receiveShadow = true;
-		// 	ground.updateMatrix();
-		// 	scene.add( ground );
-		//
-		// 	//
-		//
-		// 	const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
-		// 	hemiLight.position.set( 0, 100, 0 );
-		// 	hemiLight.matrixAutoUpdate = false;
-		// 	hemiLight.updateMatrix();
-		// 	scene.add( hemiLight );
-		//
-		// 	const dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
-		// 	dirLight.position.set( - 40, 50, 50 );
-		// 	dirLight.matrixAutoUpdate = false;
-		// 	dirLight.updateMatrix();
-		// 	dirLight.castShadow = true;
-		// 	dirLight.shadow.camera.top = 25;
-		// 	dirLight.shadow.camera.bottom = - 25;
-		// 	dirLight.shadow.camera.left = - 25;
-		// 	dirLight.shadow.camera.right = 25;
-		// 	dirLight.shadow.camera.near = 1;
-		// 	dirLight.shadow.camera.far = 200;
-		// 	dirLight.shadow.mapSize.x = 2048;
-		// 	dirLight.shadow.mapSize.y = 2048;
-		// 	scene.add( dirLight );
-		//
-		// 	// scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
-		//
-		// 	// MODEL ...
-		//
-		// 	// THREE.LinearEncoding // default
-		// 	// THREE.sRGBEncoding
-		// 	// THREE.GammaEncoding
-		// 	// THREE.RGBEEncoding
-		// 	// THREE.LogLuvEncoding
-		// 	// THREE.RGBM7Encoding
-		// 	// THREE.RGBM16Encoding
-		// 	// THREE.RGBDEncoding
-		// 	// THREE.BasicDepthPacking
-		// 	// THREE.RGBADepthPacking
-		//
-		// 	renderer = new THREE.WebGLRenderer( { antialias: true } );
-		// 	renderer.setPixelRatio( window.devicePixelRatio );
-		// 	renderer.setSize( window.innerWidth, window.innerHeight );
-		// 	renderer.outputEncoding = THREE.sRGBEncoding;
-		// 	renderer.shadowMap.enabled = true;
-		// 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-		// 	document.body.appendChild( renderer.domElement );
-		//
-		// 	//
-		//
-		// 	window.addEventListener( 'resize', onWindowResize, false );
-		//
-		// 	const controls = new OrbitControls( camera, renderer.domElement );
-		// 	controls.enablePan = false;
-		// 	controls.minDistance = 10;
-		// 	controls.maxDistance = 50;
-		// 	controls.target.set( 0.5, 8, 2.5 );
-		// 	controls.update();
-		//
-		// }
-		//
-		// function onWindowResize() {
-		//
-		// 	camera.aspect = window.innerWidth / window.innerHeight;
-		// 	camera.updateProjectionMatrix();
-		//
-		// 	renderer.setSize( window.innerWidth, window.innerHeight );
-		//
-		// }
-		//
-		// function onTransitionEnd( event ) {
-		//
-		// 	event.target.remove();
-		//
-		// }
-		//
-		// function animate() {
-		//
-		// 	requestAnimationFrame( animate );
-		// 	renderer.render( scene, camera );
-		//
-		// 	stats.update();
-		//
-		// }
-		//
-		// // ---------------------------------------------------------------------------
-		//
-		// function tune() {
-		//
-		// 	// Init GUI.
-		// 	setGUI();
-		//
-		// 	// Init Stats.
-		// 	setStats();
-		//
-		// }
-		//
-        // function setGUI () {
-		//
-        //     // GUI params.
-        // 	const params = {
-		//
-        //         // Snapshot width.
-        //         width: 400,
-		//
-        //         // Snapshot height.
-        //         height: 250,
-		//
-        //         // Download snapshot.
-        //         takeShot: function () {
-		//
-        //             const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
-        //             snapshotRenderer.setSize( params.width, params.height );
-		//
-        //             const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
-        //             snapshotRenderer.dispose();
-		//
-        //         },
-		//
-        //     };
-		//
-        //     const gui = new GUI();
-		//
-        //     const snapshotFolder = gui.addFolder( 'Snapshot' );
-		//
-        //     snapshotFolder.add( params, 'width', 0, 2200, 50 );
-        //     snapshotFolder.add( params, 'height', 0, 1329, 50 );
-        //     snapshotFolder.add( params, 'takeShot' );
-		//
-        // 	snapshotFolder.open();
-		//
-        //     gui.close();
-		//
-        // }
-		//
-		// function setStats () {
-		//
-        //     stats = new Stats();
-        //     stats.domElement.style.position = 'absolute';
-        //     stats.domElement.style.bottom = '0px';
-        //     stats.domElement.style.zIndex = 100;
-        //     document.body.appendChild( stats.domElement );
-		//
-        // }
+		} );
 
     </script>
 

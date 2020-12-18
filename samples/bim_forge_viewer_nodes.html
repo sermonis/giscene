@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>BIM - Forge Viewer - Profile</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, initial-scale=1, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+		<link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css?v=v7.*" type="text/css">
+  		<script language="JavaScript" src="https://developer.api.autodesk.com/modelderivative/v2/viewers/viewer3D.min.js?v=v7.*"></script>
+
+        <style>
+
+			#info {
+
+				color: #000;
+				z-index: 1ж
+
+			}
+
+			#info a {
+
+				color: #f00;
+
+			}
+
+			#container {
+
+				width: 100%;
+	            height: 100%;
+	            margin: 0;
+	            background-color: #F0F8FF;
+
+			}
+
+			.adsk-viewing-viewer .property-panel {
+
+				/* top: 0!important;
+			    bottom: 0!important;
+			    left: 600px!important;
+			    width: 300px!important;
+			    height: 100%!important; */
+
+			    /* min-width: 250px;
+			    min-height: 100px; */
+
+			    /* border-color: transparent; */
+
+			}
+
+		</style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Forge Viewer.
+            </div>
+
+            <div>
+				Forge model object tree and selected object properties in console.
+			</div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+		const container = document.getElementById( 'container' );
+		// const viewer = new Autodesk.Viewing.Private.GuiViewer3D( container );
+		const viewer = new Autodesk.Viewing.GuiViewer3D( container );
+
+		/**
+		 * Sets the current UI theme of the viewer.
+		 * Supported values are "light-theme" and "dark-theme",
+		 * which is the default.
+		 *
+		 * @see https://forge.autodesk.com/en/docs/viewer/v6/reference/Viewing/Viewer3D/#settheme-name
+		 * @default dark-theme
+		 */
+		// viewer.setTheme( 'light-theme' );
+		// viewer.setTheme( 'bim-theme' );
+		// viewer.setTheme( 'acs-theme' );
+
+		// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/#initializer-options-callback
+		const options = {
+
+			// env: 'AutodeskProduction',
+            // api: 'derivativeV2',
+			// getAccessToken: getForgeToken,
+
+			'env': 'Local',
+			// 'document' : '/models/svf/shaver/0.svf',
+			'document': '/models/svf/13avt_park/Resource/Модель/{3D} 17318/{3D}.svf',
+
+			// 'document': '/models/svf/dwfx-sample-house/f0224dd3-8767-45c1-ff99-5c9c881b9fee/0.svf', // 3D/2D
+			// 'document': '/models/svf/small-revit-sample-house/Resource/3D_View/_3D_/_3D_.svf', // 3D/2D
+			// 'document': '/models/svf/small-revit-sample-house-2/Resource/____/3D/3D.svf', // 3D/2D
+			// 'document': '/models/svf/air-traffic-control-tower/1/0.svf',
+
+			'language': 'ru',
+
+			/**
+			 * This setting is necessary for Edge Rendering option.
+			 *
+			 * @see https://stackoverflow.com/questions/54932378/forge-viewer-fails-to-display-edges
+			 * @see https://stackoverflow.com/questions/53984588/forge-viewer-failed-to-display-edges-in-settings-for-dwf-dwfx-model
+			 * @see https://github.com/Autodesk-Forge/viewer-react-express-headless/issues/28
+			 */
+			isAEC: true,
+
+		};
+
+		// Get public access token for read only,
+        // using ajax to access route /api/forge/oauth/public in the background
+        function getForgeToken( callback ) {
+
+			// jQuery.ajax({
+            //     url: '/api/forge/oauth/public',
+            //     success: function (res) {
+            //         callback( res.access_token, res.expires_in );
+            //     }
+            // });
+
+			// callback( res.access_token, res.expires_in );
+
+			// fetch( '/api/forge/oauth/public' )
+			// 	.then( response => response.json() )
+			// 	.then( json => {
+			//
+			// 		callback( json.access_token, json.expires_in );
+			//
+			// 	}
+			//
+			// );
+
+			const access_token = 'eyJhbGciOiJIUzI1NiIsImtpZCI6Imp3dF9zeW1tZXRyaWNfa2V5In0.eyJzY29wZSI6WyJ2aWV3YWJsZXM6cmVhZCIsImRhdGE6cmVhZCIsImRhdGE6d3JpdGUiLCJkYXRhOmNyZWF0ZSIsImRhdGE6c2VhcmNoIiwiYnVja2V0OmNyZWF0ZSIsImJ1Y2tldDpyZWFkIiwiYnVja2V0OnVwZGF0ZSIsImJ1Y2tldDpkZWxldGUiXSwiY2xpZW50X2lkIjoiYXQ3aWJVcGdoWkx6Zk5xMWxZdHR6a0FHRFNyVU9BNE8iLCJhdWQiOiJodHRwczovL2F1dG9kZXNrLmNvbS9hdWQvand0ZXhwNjAiLCJqdGkiOiI5d1B2ZXBqcnRoaXR4eElRd2tVRm4xcEpyWTBxcnVUSWdzSlpJZjhLN3h3bVgxVlo1c3RVUmpFZU9jTkxrczN4IiwiZXhwIjoxNjA4MTkzNTE0fQ.3RHeq_jvWXcFP9Kdzno3sw_3X_T56EIScftrUWeP3Xk';
+
+			const expires_in = 3599;
+
+			callback( access_token, expires_in );
+
+        }
+
+		Autodesk.Viewing.Initializer( options, function () {
+
+			// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#waitforloaddone-include
+			// viewer.waitForLoadDone();
+
+			// viewer.initialize();
+			viewer.start( options.document, options );
+
+			// https://stackoverflow.com/questions/49266817/forge-viewer-quality-settings
+			// viewer.setGroundShadow(false);
+			// viewer.setGroundReflection(false);
+			// viewer.setViewType(3);
+
+			// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#setprofile-profile-override
+			const profileSettings = {
+
+				name: 'mySettings',
+
+				// https://forge.autodesk.com/en/docs/viewer/v7/reference/globals/Settings/
+				// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/
+				settings: {
+
+					/**
+					 * Turns edge topology display on/off (where available).
+					 * @default false
+					 */
+					edgeRendering: true,
+
+					/**
+					 * Toggles ground reflection.
+					 * @default false
+					 */
+					groundReflection: true,
+
+					/**
+					 * Sets the view to default (0), orthographic (1),
+					 * perspective (2) or perspective with ortho faces (3).
+					 * @default 0
+					 */
+					viewType: 3,
+
+					/**
+					 * Sets the Light Presets (Environments) for the Viewer.
+					 * @default 1
+					 */
+					lightPreset: 16,
+
+					/**
+					 * Reverse the default direction for camera dolly (zoom) operations.
+					 * @default false
+					 */
+					reverseMouseZoomDir: true,
+
+					/**
+					 * Open property panel when selecting an object (Only for GuiViewer3D).
+					 * @default false
+					 */
+					openPropertiesOnSelect: true,
+
+					// bimWalkNavigatorType: 'default',
+					// bimWalkNavigatorType: 'custom',
+
+				},
+
+				// extensions: {
+				//
+				// 	load: [],   // Extension IDs
+				// 	unload: []  // Extension IDs
+				//
+				// }
+
+			};
+
+			const profile = new Autodesk.Viewing.Profile( profileSettings );
+			viewer.setProfile( profile );
+
+			// viewer.start();
+
+			// Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
+			// var documentId = 'urn:' + 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA';
+			// Autodesk.Viewing.Document.load( documentId );
+
+		} );
+
+		viewer.addEventListener ( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function ( e ) {
+
+			// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
+
+			// Adjust focus.
+			// let _focal = viewer.getFocalLength();
+			// viewer.setFocalLength( _focal );
+
+			// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#fittoview-objectids-model-immediate
+
+			/**
+			 * Fits camera to objects by ID. It fits the entire model if no ID is provided.
+			 * Operation will fit to the model’s bounding box when its object tree is not available.
+			 *
+			 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#fittoview-objectids-model-immediate
+			 */
+			viewer.fitToView( true );
+
+            // setTimeout ( function () {
+			//
+			// 	viewer.autocam.setHomeViewFrom ( viewer.navigation.getCamera () );
+			//
+			// }, 1000 );
+
+		} );
+
+		viewer.addEventListener ( Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, function ( e ) {
+
+			console.log( 'OBJECT_TREE_CREATED_EVENT', e );
+			// console.log( e.model.getIterator().getGeomScenes() );
+			// console.log( e.model.getDocumentNode() );
+
+			// console.log( e.model.getConsolidation() );
+			// console.log( e.model.getFuzzyBox() );
+			// console.log( e.model.getGeometryList() );
+
+			// console.log( e.model.getRoot() );
+			// console.log( e.model.getModelId() );
+
+			console.log( '--------------------------------' );
+			console.log( e.model.getData() );
+			console.log( e.model.getData().instanceTree );
+			console.log( e.model.getInstanceTree() );
+			console.log( '--------------------------------' );
+
+			// var it = e.model.getData().instanceTree;
+			var it = e.model.getInstanceTree();
+			var rootId = it.getRootId();
+
+			var rootNode = {
+			   dbId: rootId,
+			   name: it.getNodeName( rootId )
+			 };
+
+			console.log( 'rootNode', rootNode )
+
+			// e.target.findLayers().then( e => {
+			//
+			// 	console.log(e)
+			//
+			// } )
+
+			// ------------------------------------------------------------------------
+			// ------------------------------------------------------------------------
+			// ------------------------------------------------------------------------
+
+			// https://stackoverflow.com/questions/60779135/instance-of-modelstructurepanel-in-div-outside-the-viewer-gui/60807152#60807152
+			// https://forge.autodesk.com/blog/get-all-dbid-without-enumerating-model-hierarchy
+			function buildModelTree( model ) {
+
+				//builds model tree recursively
+				function _buildModelTreeRec( node ) {
+
+					it.enumNodeChildren( node.dbId, function(childId) {
+
+						node.children = node.children || [];
+
+						var childNode = {
+
+							dbId: childId,
+							name: it.getNodeName( childId )
+
+						};
+
+						node.children.push( childNode );
+
+						_buildModelTreeRec( childNode );
+
+					});
+
+				}
+
+				//get model instance tree and root component
+				// var it = model.getData().instanceTree;
+				var it = model.getInstanceTree();
+
+				var rootId = it.getRootId();
+
+				var rootNode = {
+
+					dbId: rootId,
+					name: it.getNodeName( rootId )
+
+				};
+
+				_buildModelTreeRec( rootNode );
+
+				return rootNode;
+			}
+
+			// var root = buildModelTree( viewer.model );
+			var root = buildModelTree( e.model );
+
+			console.log('root', root)
+
+			// ------------------------------------------------------------------------
+			// ------------------------------------------------------------------------
+			// ------------------------------------------------------------------------
+			// https://forge.autodesk.com/blog/enumerating-leaf-nodes-viewer
+			function getAllLeafComponents(viewer, callback) {
+			    var cbCount = 0; // count pending callbacks
+			    var components = []; // store the results
+			    var tree; // the instance tree
+
+			    function getLeafComponentsRec(parent) {
+			        cbCount++;
+			        if (tree.getChildCount(parent) != 0) {
+			            tree.enumNodeChildren(parent, function (children) {
+			                getLeafComponentsRec(children);
+			            }, false);
+			        } else {
+			            components.push(parent);
+			        }
+			        if (--cbCount == 0) callback(components);
+			    }
+			    viewer.getObjectTree(function (objectTree) {
+			        tree = objectTree;
+			        var allLeafComponents = getLeafComponentsRec(tree.getRootId());
+			    });
+			}
+
+			// getAllLeafComponents(NOP_VIEWER, function (dbIds) {
+			getAllLeafComponents(viewer, function (dbIds) {
+			    console.log('Found ' + dbIds.length + ' leaf nodes');
+			})
+
+			// ---------------------------------------------------------------------------
+			// ---------------------------------------------------------------------------
+			// ---------------------------------------------------------------------------
+
+			// https://forge.autodesk.com/blog/customizing-modelstructurepanel-behavior-forge-viewer
+			// https://stackoverflow.com/questions/41098700/forge-viewer-need-to-hide-all-the-elements-like-in-isolated-view/41103714#41103714
+			// https://stackoverflow.com/questions/50371027/getting-selected-elements-properties-in-forge-viewer-when-more-then-one-model-lo
+			// https://forge.autodesk.com/blog/highlighting-clashes-multi-model
+			// https://github.com/wallabyway/multimodel-demo/blob/24c92a459e81141e5766af27634f772515c4a588/docs/app.js#L89-L90
+			// https://wallabyway.github.io/multimodel-demo/
+
+			// viewer.isolate(node, model)
+			// viewer.isolate( [6744, 7401], e.model );
+			// viewer.hide( [6744, 7401], e.model );
+			// viewer.isolate( [6744], e.model );
+			// console.log( 'OBJECT_TREE_CREATED_EVENT', e.model )
+			viewer.hide( 1, e.model );
+			// viewer.show( 8886, e.model );
+			viewer.show( 8468, e.model );
+
+			viewer.fitToView( 8468 );
+
+		} );
+
+		// https://forge.autodesk.com/blog/highlighting-clashes-multi-model
+		// https://stackoverflow.com/questions/50371027/getting-selected-elements-properties-in-forge-viewer-when-more-then-one-model-lo
+		// https://forge.autodesk.com/blog/controlling-components-selection-viewer
+		viewer.addEventListener( Autodesk.Viewing.SELECTION_CHANGED_EVENT, function ( e ) {
+
+			console.log( 'SELECTION_CHANGED_EVENT', e );
+
+			// console.log(  )
+			viewer.getProperties( e.dbIdArray[0], function onSuccessCallback ( e ) {
+
+				console.log( 'SELECTED', e );
+
+			} );
+
+			// getObjectTree(onSuccessCallback, onErrorCallback)
+
+			// console.log( e.model.getInstanceTree() )
+			console.log( e.model.getPropertyDb() )
+			console.log( viewer.impl.modelQueue().getModels() )
+
+			viewer.getExtension( 'Autodesk.ModelStructure', function (e) {
+
+				console.log(e)
+				console.log(e.getDocument())
+				console.log(e.getModes())
+				console.log(e.getState())
+
+			})
+
+			// viewer.forEachExtension(function (ext) {
+			//
+			// 	// console.log(ext.unload())
+			// 	ext.unload();
+			//
+			// } )
+
+			// viewer.forEachExtension(function (ext) {
+			//
+			// 	console.log(ext.id)
+			//
+			// })
+
+			// console.log( viewer )
+			// console.log( viewer.getPropertyPanel() )
+
+			// viewer.getObjectTree( function onSuccessCallback ( e ) {
+			//
+			// 	console.log( 'TREE', e );
+			//
+			// } );
+
+
+			// var DBids = viewer.impl.selector.getAggregateSelection();
+			// console.log( 'DBids', DBids );
+
+			// viewer.loadExtension( 'Autodesk.PropertiesManager' ).then( ( ext ) => {
+			//
+			// 	// ext.load()
+			// 	ext.activate()
+			//
+			// } );
+
+		} );
+
+    </script>
+
+</html>

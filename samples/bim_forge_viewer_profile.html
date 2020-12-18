@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>BIM - Forge Viewer - Profile</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, initial-scale=1, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+		<link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css?v=v7.*" type="text/css">
+  		<script language="JavaScript" src="https://developer.api.autodesk.com/modelderivative/v2/viewers/viewer3D.min.js?v=v7.*"></script>
+
+        <style>
+
+			#info {
+
+				color: #000;
+				z-index: 1ж
+
+			}
+
+			#info a {
+
+				color: #f00;
+
+			}
+
+			#container {
+
+				width: 100%;
+	            height: 100%;
+	            margin: 0;
+	            background-color: #F0F8FF;
+
+			}
+
+			.adsk-viewing-viewer .property-panel {
+
+				/* top: 0!important;
+			    bottom: 0!important;
+			    left: 600px!important;
+			    width: 300px!important;
+			    height: 100%!important; */
+
+			    /* min-width: 250px;
+			    min-height: 100px; */
+
+			    /* border-color: transparent; */
+
+			}
+
+		</style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Forge Viewer.
+            </div>
+
+            <div>
+				Forge settings profile usage example.
+			</div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+		const container = document.getElementById( 'container' );
+		const viewer = new Autodesk.Viewing.GuiViewer3D( container );
+
+		// https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/#initializer-options-callback
+		const options = {
+
+			'env': 'Local',
+			// 'document' : '/models/svf/shaver/0.svf',
+			// 'document': '/models/svf/13avt_park/Resource/Модель/{3D} 17318/{3D}.svf',
+			'document': '/models/svf/210 King/Resource/3D_View/_3D_ 1583181/_3D_.svf',
+
+			// 'document': '/models/svf/dwfx-sample-house/f0224dd3-8767-45c1-ff99-5c9c881b9fee/0.svf', // 3D/2D
+			// 'document': '/models/svf/small-revit-sample-house/Resource/3D_View/_3D_/_3D_.svf', // 3D/2D
+			// 'document': '/models/svf/small-revit-sample-house-2/Resource/____/3D/3D.svf', // 3D/2D
+			// 'document': '/models/svf/air-traffic-control-tower/1/0.svf',
+
+			'language': 'ru',
+
+			/**
+			 * This setting is necessary for Edge Rendering option.
+			 *
+			 * @see https://stackoverflow.com/questions/54932378/forge-viewer-fails-to-display-edges
+			 * @see https://stackoverflow.com/questions/53984588/forge-viewer-failed-to-display-edges-in-settings-for-dwf-dwfx-model
+			 * @see https://github.com/Autodesk-Forge/viewer-react-express-headless/issues/28
+			 */
+			isAEC: true,
+
+		};
+
+		Autodesk.Viewing.Initializer( options, function () {
+
+			/**
+			 * Wait for models to be completely loaded.
+			 *
+			 * viewer.waitForLoadDone();
+			 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#waitforloaddone-include
+			 */
+
+			// viewer.initialize();
+			viewer.start( options.document, options );
+
+			/**
+			 * @see https://stackoverflow.com/questions/49266817/forge-viewer-quality-settings
+			 *
+			 * viewer.setGroundShadow(false);
+			 * viewer.setGroundReflection(false);
+			 * viewer.setViewType(3);
+			 */
+
+			/**
+			 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#setprofile-profile-override
+			 */
+			const profileSettings = {
+
+				name: 'mySettings',
+
+				/**
+				 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/globals/Settings/
+				 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/
+				 */
+				settings: {
+
+					/**
+					 * Turns edge topology display on/off (where available).
+					 * @default false
+					 */
+					edgeRendering: true,
+
+					/**
+					 * Toggles ground reflection.
+					 * @default false
+					 */
+					groundReflection: true,
+
+					/**
+					 * Sets the view to default (0), orthographic (1),
+					 * perspective (2) or perspective with ortho faces (3).
+					 * @default 0
+					 */
+					viewType: 3,
+
+					/**
+					 * Sets the Light Presets (Environments) for the Viewer.
+					 * @default 1
+					 */
+					lightPreset: 16,
+
+					/**
+					 * Reverse the default direction for camera dolly (zoom) operations.
+					 * @default false
+					 */
+					reverseMouseZoomDir: true,
+
+					/**
+					 * Open property panel when selecting an object (Only for GuiViewer3D).
+					 * @default false
+					 */
+					openPropertiesOnSelect: true,
+
+					// bimWalkNavigatorType: 'default',
+					// bimWalkNavigatorType: 'custom',
+
+				},
+
+				// extensions: {
+				//
+				// 	load: [],   // Extension IDs
+				// 	unload: []  // Extension IDs
+				//
+				// }
+
+			};
+
+			const profile = new Autodesk.Viewing.Profile( profileSettings );
+			viewer.setProfile( profile );
+
+			// Autodesk.Viewing.Document.load(documentId, onDocumentLoadSuccess, onDocumentLoadFailure);
+			// var documentId = 'urn:' + 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA';
+			// Autodesk.Viewing.Document.load( documentId );
+
+		} );
+
+		viewer.addEventListener ( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function ( e ) {
+
+			// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
+
+			/**
+			 * Fits camera to objects by ID. It fits the entire model if no ID is provided.
+			 * Operation will fit to the model’s bounding box when its object tree is not available.
+			 *
+			 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/Viewer3D/#fittoview-objectids-model-immediate
+			 */
+			viewer.fitToView( true );
+
+            // setTimeout ( function () {
+			//
+			// 	viewer.autocam.setHomeViewFrom ( viewer.navigation.getCamera () );
+			//
+			// }, 1000 );
+
+		} );
+
+    </script>
+
+</html>

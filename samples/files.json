@@ -32,7 +32,10 @@
  	],
     "forge": [
  		"bim_forge_viewer_basic",
- 		"bim_forge_viewer_headless"
+ 		"bim_forge_viewer_headless",
+ 		"bim_forge_viewer_profile",
+ 		"bim_forge_viewer_loading",
+ 		"bim_forge_viewer_nodes"
  	],
     "meshes": [
  		"bim_stairs_1"

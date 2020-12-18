@@ -1,0 +1,249 @@
+{
+    "guid": "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA",
+    "owner": "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA",
+    "hasThumbnail": "true",
+    "startedAt": "Wed Dec 16 06:44:59 UTC 2020",
+    "type": "design",
+    "urn": "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA",
+    "success": "100%",
+    "progress": "complete",
+    "region": "US",
+    "status": "success",
+    "children": [
+        {
+            "guid": "aa85aad6-c480-4a35-9cbf-4cf5994a25ba",
+            "hasThumbnail": "true",
+            "role": "viewable",
+            "progress": "complete",
+            "type": "folder",
+            "status": "success",
+            "version": "2.0",
+            "urn": "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA",
+            "inputFileSize": 38670336,
+            "inputFileType": "rvt",
+            "name": "mgt_13avt_1_ac_2020.rvt",
+            "properties": {
+                "Document Information": {
+                    "Наименование проекта": "Наименование проекта",
+                    "Номер проекта": "Номер проекта",
+                    "Разработал": "",
+                    "Адрес проекта": "Адрес проекта",
+                    "Дата утверждения проекта": "Дата",
+                    "Статус проекта": "П",
+                    "Наименование здания": "Наименование здания",
+                    "Заказчик": "Заказчик",
+                    "Название организации": "Название организации",
+                    "Описание организации": "Сведения об организации"
+                }
+            },
+            "success": "100%",
+            "children": [
+                {
+                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/designDescription.json",
+                    "role": "Autodesk.CloudPlatform.DesignDescription",
+                    "mime": "application/json",
+                    "guid": "8f55cfeb-b04c-4364-c9ab-4c88788f0966",
+                    "type": "resource",
+                    "status": "success"
+                },
+                {
+                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/Resource/model.sdb",
+                    "role": "Autodesk.CloudPlatform.PropertyDatabase",
+                    "size": 7208960,
+                    "mime": "application/autodesk-db",
+                    "guid": "6fac95cb-af5d-3e4f-b943-8a7f55847ff1",
+                    "type": "resource",
+                    "status": "success"
+                },
+                {
+                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/Resource/AECModelData.json",
+                    "role": "Autodesk.AEC.ModelData",
+                    "mime": "application/json",
+                    "guid": "a4aac952-a3f4-031c-4113-b2d9ac2d0de6",
+                    "type": "resource",
+                    "status": "success"
+                },
+                {
+                    "guid": "003e55e2-83ea-ac0c-a403-3724fc13a049",
+                    "type": "folder",
+                    "name": "Виды",
+                    "hasThumbnail": "true",
+                    "status": "success",
+                    "progress": "complete",
+                    "success": "100%",
+                    "children": [
+                        {
+                            "guid": "e4c3f0b2-9d34-2e66-f48e-77a69a7c6d61",
+                            "type": "folder",
+                            "name": "Модель",
+                            "hasThumbnail": "true",
+                            "status": "success",
+                            "progress": "complete",
+                            "success": "100%",
+                            "children": [
+                                {
+                                    "guid": "1662ebc1-7a27-38f8-54e1-aa2d63eab166",
+                                    "type": "geometry",
+                                    "role": "3d",
+                                    "name": "{3D}",
+                                    "viewableID": "a5895a71-4441-499d-a634-7c5b3810fb90-000043a6",
+                                    "phaseNames": "Новая конструкция",
+                                    "status": "success",
+                                    "size": 2030787,
+                                    "hasThumbnail": "true",
+                                    "progress": "complete",
+                                    "success": "100%",
+                                    "children": [
+                                        {
+                                            "guid": "a5895a71-4441-499d-a634-7c5b3810fb90-000043a6",
+                                            "type": "view",
+                                            "role": "3d",
+                                            "name": "{3D}",
+                                            "status": "success",
+                                            "progress": "complete",
+                                            "camera": [
+                                                177.08035278320312,
+                                                -85.22242736816406,
+                                                138.72286987304688,
+                                                62.29219055175781,
+                                                29.565731048583984,
+                                                23.934711456298828,
+                                                -0.40824830532073975,
+                                                0.40824830532073975,
+                                                0.8164966106414795,
+                                                1.1207681894302368,
+                                                0,
+                                                1,
+                                                1
+                                            ]
+                                        },
+                                        {
+                                            "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/Resource/Модель/{3D} 17318/{3D}.svf",
+                                            "role": "graphics",
+                                            "size": 1947478,
+                                            "mime": "application/autodesk-svf",
+                                            "guid": "c2301d8b-4ca7-f404-7b34-b343d3b6bb24",
+                                            "type": "resource"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "guid": "3ada6772-67ab-7a6b-adb8-6bf2010be0f6",
+                    "type": "folder",
+                    "name": "Листы",
+                    "hasThumbnail": "true",
+                    "status": "success",
+                    "progress": "complete",
+                    "success": "100%",
+                    "children": [
+                        {
+                            "guid": "6289994a-5203-4b80-bc83-400f49a3bf56-0000b4a1",
+                            "type": "geometry",
+                            "role": "2d",
+                            "name": "000 - Начальный вид",
+                            "viewableID": "6289994a-5203-4b80-bc83-400f49a3bf56-0000b4a1",
+                            "status": "success",
+                            "size": 35342,
+                            "progress": "complete",
+                            "intermediateFile": "output/Resource/Лист/000 - Начальный вид 46241/dwfx/000 - Начальный вид.dwfx",
+                            "properties": {
+                                "Print Setting": {
+                                    "Layout": "Landscape",
+                                    "Paper size": "ISO A4, 210 x 297 mm"
+                                }
+                            },
+                            "hasThumbnail": "true",
+                            "success": "100%",
+                            "order": 0,
+                            "children": [
+                                {
+                                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/b28ec31f-7f70-2926-6407-676558e2b73c_f2d/primaryGraphics.f2d",
+                                    "role": "graphics",
+                                    "size": 35342,
+                                    "mime": "application/autodesk-f2d",
+                                    "guid": "b07775a9-dcf2-4ff3-732a-2e29b2f8a48a",
+                                    "type": "resource",
+                                    "status": "success"
+                                }
+                            ]
+                        },
+                        {
+                            "guid": "b3c6c0cc-7e84-4968-8451-6ac7ad10e8f6-000146cf",
+                            "type": "geometry",
+                            "role": "2d",
+                            "name": "00 - Титул",
+                            "viewableID": "b3c6c0cc-7e84-4968-8451-6ac7ad10e8f6-000146cf",
+                            "status": "success",
+                            "size": 27155,
+                            "progress": "complete",
+                            "intermediateFile": "output/Resource/Лист/00 - Титул 83663/dwfx/00 - Титул.dwfx",
+                            "properties": {
+                                "Print Setting": {
+                                    "Layout": "Landscape",
+                                    "Paper size": "ISO A4, 210 x 297 mm"
+                                }
+                            },
+                            "hasThumbnail": "true",
+                            "success": "100%",
+                            "order": 0,
+                            "children": [
+                                {
+                                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/d04f5512-8e74-89e9-9dcf-39950b7ae533_f2d/primaryGraphics.f2d",
+                                    "role": "graphics",
+                                    "size": 27155,
+                                    "mime": "application/autodesk-f2d",
+                                    "guid": "d499164e-5920-93ab-e5a3-46ead60c23ee",
+                                    "type": "resource",
+                                    "status": "success"
+                                }
+                            ]
+                        },
+                        {
+                            "guid": "b3c6c0cc-7e84-4968-8451-6ac7ad10e8f6-0001523d",
+                            "type": "geometry",
+                            "role": "2d",
+                            "name": "01 - Общие данные",
+                            "viewableID": "b3c6c0cc-7e84-4968-8451-6ac7ad10e8f6-0001523d",
+                            "status": "success",
+                            "size": 54182,
+                            "progress": "complete",
+                            "intermediateFile": "output/Resource/Лист/01 - Общие данные 86589/dwfx/01 - Общие данные.dwfx",
+                            "properties": {
+                                "Print Setting": {
+                                    "Layout": "Landscape",
+                                    "Paper size": "ISO A4, 210 x 297 mm"
+                                }
+                            },
+                            "hasThumbnail": "true",
+                            "success": "100%",
+                            "order": 0,
+                            "children": [
+                                {
+                                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/22f96b5f-d561-7a8f-c8e8-bf807df34746_f2d/primaryGraphics.f2d",
+                                    "role": "graphics",
+                                    "size": 54182,
+                                    "mime": "application/autodesk-f2d",
+                                    "guid": "e6384a4c-a804-6215-688f-6ab321b550e7",
+                                    "type": "resource",
+                                    "status": "success"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bWd0XzEzYXZ0XzFfYWNfMjAyMC9tZ3RfMTNhdnRfMV9hY18yMDIwLnJ2dA/output/Resource/Лист/00 - Титул 83663/titleBlock.json",
+                    "role": "titleBlockJson",
+                    "mime": "application/json",
+                    "guid": "4d30fd54-0844-9569-4dac-10bef8ece079",
+                    "type": "resource",
+                    "status": "success"
+                }
+            ]
+        }
+    ]
+}
