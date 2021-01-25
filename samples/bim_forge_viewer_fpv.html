@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>BIM - Forge Viewer - FPV</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, initial-scale=1, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+		<link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css?v=v7.*" type="text/css">
+  		<script language="JavaScript" src="https://developer.api.autodesk.com/modelderivative/v2/viewers/viewer3D.min.js?v=v7.*"></script>
+
+		<!-- TODO: Rename -> bim_forge_viewer. -->
+		<script language="JavaScript" src="./bim_viewer_forge_extensions/MyAwesomeExtension/my-awesome-extension.js"></script>
+		<!-- <script language="JavaScript" src="./bim_viewer_forge_extensions/BimWalk/BimWalk.js"></script> -->
+
+        <style>
+
+			#info {
+
+				color: #000;
+				z-index: 1;
+
+			}
+
+			#info a {
+
+				color: #f00;
+
+			}
+
+			#container {
+
+				width: 100%;
+	            height: 100%;
+	            margin: 0;
+	            background-color: #F0F8FF;
+
+			}
+
+		</style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Forge Viewer First Person View.
+            </div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+		import './bim_viewer_forge_extensions/BimWalk/BimWalk.js';
+
+		/**
+		 * Initialize Viewer.
+		 *
+		 * @see https://forge.autodesk.com/en/docs/viewer/v7/developers_guide/viewer_basics/initialization/
+		 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/GuiViewer3D/
+		 */
+		const container = document.getElementById( 'container' );
+		const viewer = new Autodesk.Viewing.GuiViewer3D( container, {
+
+			// https://forge.autodesk.com/en/docs/viewer/v7/developers_guide/viewer_basics/extensions/
+			// extensions: [ 'MyAwesomeExtension' ],
+			extensions: [ 'MyAwesomeExtension', 'FPVWalk' ],
+
+		} );
+
+		/**
+		 * Sets the current UI theme of the viewer.
+		 * Supported values are "light-theme" and "dark-theme",
+		 * which is the default.
+		 *
+		 * @see https://forge.autodesk.com/en/docs/viewer/v6/reference/Viewing/Viewer3D/#settheme-name
+		 * @default dark-theme
+		 */
+		viewer.setTheme( 'light-theme' );
+
+		/**
+		 * @see https://forge.autodesk.com/en/docs/viewer/v7/reference/Viewing/#initializer-options-callback
+		 */
+		const options = {
+
+			/**
+			 *
+			 */
+			'env': 'Local',
+
+			/**
+			 *
+			 */
+			'document': '/models/svf/13avt_park/Resource/Модель/{3D} 17318/{3D}.svf',
+
+			/**
+			 *
+			 */
+			'language': 'ru',
+
+			/**
+			 * This setting is necessary for Edge Rendering option.
+			 *
+			 * @see https://stackoverflow.com/questions/54932378/forge-viewer-fails-to-display-edges
+			 * @see https://stackoverflow.com/questions/53984588/forge-viewer-failed-to-display-edges-in-settings-for-dwf-dwfx-model
+			 * @see https://github.com/Autodesk-Forge/viewer-react-express-headless/issues/28
+			 */
+			isAEC: true,
+
+		};
+
+		Autodesk.Viewing.Initializer( options, function () {
+
+			viewer.start( options.document, options );
+
+			// console.log( Autodesk.Viewing.ProfileSettings );
+
+			// const settings = {
+			//
+			// 	name: 'mySettings',
+			//
+			// 	settings: {
+			//
+			// 		viewType: 3,
+			// 		lightPreset: 13,
+			// 		groundReflection: true,
+			//
+			// 	},
+			//
+			// };
+			//
+			// const profile = new Autodesk.Viewing.Profile( settings );
+
+			// const profileSettings = Autodesk.Viewing.ProfileSettings.AEC;
+			// const profileSettings = Autodesk.Viewing.ProfileSettings.Fluent;
+			// const profileSettings = Autodesk.Viewing.ProfileSettings.Navis;
+
+			/**
+			 * @see https://forge.autodesk.com/en/docs/viewer/v7/developers_guide/advanced_options/profiles/
+			 */
+			const profileSettings = Autodesk.Viewing.ProfileSettings.clone( Autodesk.Viewing.ProfileSettings.AEC );
+			profileSettings.settings.lightPreset = 13;
+			profileSettings.settings.viewType = 3;
+			profileSettings.settings.envMapBackground = false;
+			profileSettings.settings.groundReflection = true;
+			profileSettings.settings.reverseMouseZoomDir = true;
+			profileSettings.settings.reverseVerticalLookDirection = true;
+			profileSettings.settings.reverseHorizontalLookDirection = true;
+
+			// console.log( profileSettings.settings );
+			// console.log( Autodesk.Viewing.Extensions );
+			// console.log( Autodesk.Viewing.Extension.BimWalkExtension );
+			// console.log( Autodesk.Viewing.Extension );
+			// console.log( Autodesk.BimWalkExtension );
+			// console.log( Autodesk );
+			// console.log( Autodesk.Extensions );
+			//
+			// const BimWalk = Autodesk.Extensions.hasOwnProperty('Module');
+			// console.log( BimWalk );
+
+			// console.log( profileSettings.settings.viewType );
+
+			// profileSettings.extensions.load.push( 'FPVWalk' );
+			profileSettings.extensions.unload.push( 'Autodesk.Explode' );
+			profileSettings.extensions.unload.push( 'Autodesk.Measure' );
+			profileSettings.extensions.unload.push( 'Autodesk.Section' );
+			profileSettings.extensions.unload.push( 'Autodesk.BimWalk' );
+
+			const profile = new Autodesk.Viewing.Profile( profileSettings );
+
+			viewer.setProfile( profile );
+
+		} );
+
+		viewer.addEventListener ( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function ( event ) {
+
+			// viewer.removeEventListener( Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee );
+            viewer.fitToView( true );
+
+
+
+			viewer.getExtension( 'FPVWalk', ext => {
+
+				console.log( 'FPVWalk', ext );
+				console.log( 'viewer.impl', viewer.impl );
+				ext.activate();
+
+			} );
+
+			// setTimeout( () => {
+			//
+			// 	// NOP_VIEWER.unloadExtension( 'MyAwesomeExtension' );
+			// 	viewer.unloadExtension( 'MyAwesomeExtension' );
+			//
+			// }, 5000 );
+
+			// viewer.autocam.setHomeViewFrom( viewer.navigation.getCamera () );
+
+			// viewer.getExtension( 'Autodesk.BimWalk', extension => {
+			// Autodesk.Viewing.theExtensionManager.getExtension( 'Autodesk.BimWalk', extension => {
+			//
+			// 	console.log( 'bimwalk', extension );
+			//
+			// 	class NavigatorFPV extends extension {
+			//
+			// 		activate() {
+			//
+			// 			// NavigatorSimple.prototype.activate.call(this);
+			// 	        // this.ui.showInfoIcon(false);
+			// 	        // this.viewer.getExtension("Autodesk.ViewCubeUi", function(ext) {
+			// 	        //     ext.displayViewCube(true);
+			// 	        //     ext.displayHomeButton(true);
+			// 	        // });
+			// 	        // this.viewer.impl.disableSelection(true);
+			// 	        // this.viewer.registerContextMenuCallback('Autodesk.BimWalk', this._onContextMenu.bind(this));
+			//
+			// 			alert('NavigatorFPV')
+			//
+			// 	    }
+			//
+			// 	};
+			//
+			// } );
+
+			// console.log( Autodesk.Viewing.ExtensionManager.getRegisteredExtensions() );
+
+		} );
+
+    </script>
+
+</html>

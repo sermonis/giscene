@@ -35,7 +35,8 @@
  		"bim_forge_viewer_headless",
  		"bim_forge_viewer_profile",
  		"bim_forge_viewer_loading",
- 		"bim_forge_viewer_nodes"
+ 		"bim_forge_viewer_nodes",
+ 		"bim_forge_viewer_fpv"
  	],
     "meshes": [
  		"bim_stairs_1"
