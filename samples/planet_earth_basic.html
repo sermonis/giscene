@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>Planet Earth Basic</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+        <style></style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Planet Earth.
+            </div>
+
+            <div></div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+        import * as THREE from '../libs/three.js/build/three.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+
+        import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
+	    // import { GLTFLoader } from '../../lib/GLTFLoader.module.js';
+
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+        // ---------------------------------------------------------------------------
+
+		// let renderer, scene, camera, helper, stats;
+		//
+		// const points = [];
+		//
+		// const params = {
+		//
+		// 	boundingVolume: 'None',
+		//
+		// };
+		//
+        // init();
+		// tune();
+        // animate();
+		//
+		// function init() {
+		//
+		// 	scene = new THREE.Scene();
+		// 	scene.background = new THREE.Color( 0xa0a0a0 );
+		// 	scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
+		//
+		// 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 250 );
+		// 	camera.position.set( 10, 10, 30 );
+		//
+		// 	//
+		//
+		// 	const geometry = new THREE.PlaneBufferGeometry( 500, 500 );
+		// 	const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
+		//
+		// 	const ground = new THREE.Mesh( geometry, material );
+		// 	ground.rotation.x = - Math.PI / 2;
+		// 	ground.matrixAutoUpdate = false;
+		// 	ground.receiveShadow = true;
+		// 	ground.updateMatrix();
+		// 	scene.add( ground );
+		//
+		// 	//
+		//
+		// 	const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
+		// 	hemiLight.position.set( 0, 100, 0 );
+		// 	hemiLight.matrixAutoUpdate = false;
+		// 	hemiLight.updateMatrix();
+		// 	scene.add( hemiLight );
+		//
+		// 	const dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
+		// 	dirLight.position.set( - 40, 50, 50 );
+		// 	dirLight.matrixAutoUpdate = false;
+		// 	dirLight.updateMatrix();
+		// 	dirLight.castShadow = true;
+		// 	dirLight.shadow.camera.top = 25;
+		// 	dirLight.shadow.camera.bottom = - 25;
+		// 	dirLight.shadow.camera.left = - 25;
+		// 	dirLight.shadow.camera.right = 25;
+		// 	dirLight.shadow.camera.near = 1;
+		// 	dirLight.shadow.camera.far = 200;
+		// 	dirLight.shadow.mapSize.x = 2048;
+		// 	dirLight.shadow.mapSize.y = 2048;
+		// 	scene.add( dirLight );
+		//
+		// 	// scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+		//
+		// 	// MODEL ...
+		//
+		// 	// THREE.LinearEncoding // default
+		// 	// THREE.sRGBEncoding
+		// 	// THREE.GammaEncoding
+		// 	// THREE.RGBEEncoding
+		// 	// THREE.LogLuvEncoding
+		// 	// THREE.RGBM7Encoding
+		// 	// THREE.RGBM16Encoding
+		// 	// THREE.RGBDEncoding
+		// 	// THREE.BasicDepthPacking
+		// 	// THREE.RGBADepthPacking
+		//
+		// 	renderer = new THREE.WebGLRenderer( { antialias: true } );
+		// 	renderer.setPixelRatio( window.devicePixelRatio );
+		// 	renderer.setSize( window.innerWidth, window.innerHeight );
+		// 	renderer.outputEncoding = THREE.sRGBEncoding;
+		// 	renderer.shadowMap.enabled = true;
+		// 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		// 	document.body.appendChild( renderer.domElement );
+		//
+		// 	//
+		//
+		// 	window.addEventListener( 'resize', onWindowResize, false );
+		//
+		// 	const controls = new OrbitControls( camera, renderer.domElement );
+		// 	controls.enablePan = false;
+		// 	controls.minDistance = 10;
+		// 	controls.maxDistance = 50;
+		// 	controls.target.set( 0.5, 8, 2.5 );
+		// 	controls.update();
+		//
+		// }
+		//
+		// function onWindowResize() {
+		//
+		// 	camera.aspect = window.innerWidth / window.innerHeight;
+		// 	camera.updateProjectionMatrix();
+		//
+		// 	renderer.setSize( window.innerWidth, window.innerHeight );
+		//
+		// }
+		//
+		// function onTransitionEnd( event ) {
+		//
+		// 	event.target.remove();
+		//
+		// }
+		//
+		// function animate() {
+		//
+		// 	requestAnimationFrame( animate );
+		// 	renderer.render( scene, camera );
+		//
+		// 	stats.update();
+		//
+		// }
+		//
+		// // ---------------------------------------------------------------------------
+		//
+		// function tune() {
+		//
+		// 	// Init GUI.
+		// 	setGUI();
+		//
+		// 	// Init Stats.
+		// 	setStats();
+		//
+		// }
+		//
+        // function setGUI () {
+		//
+        //     // GUI params.
+        // 	const params = {
+		//
+        //         // Snapshot width.
+        //         width: 400,
+		//
+        //         // Snapshot height.
+        //         height: 250,
+		//
+        //         // Download snapshot.
+        //         takeShot: function () {
+		//
+        //             const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+        //             snapshotRenderer.setSize( params.width, params.height );
+		//
+        //             const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+        //             snapshotRenderer.dispose();
+		//
+        //         },
+		//
+        //     };
+		//
+        //     const gui = new GUI();
+		//
+        //     const snapshotFolder = gui.addFolder( 'Snapshot' );
+		//
+        //     snapshotFolder.add( params, 'width', 0, 2200, 50 );
+        //     snapshotFolder.add( params, 'height', 0, 1329, 50 );
+        //     snapshotFolder.add( params, 'takeShot' );
+		//
+        // 	snapshotFolder.open();
+		//
+        //     gui.close();
+		//
+        // }
+		//
+		// function setStats () {
+		//
+        //     stats = new Stats();
+        //     stats.domElement.style.position = 'absolute';
+        //     stats.domElement.style.bottom = '0px';
+        //     stats.domElement.style.zIndex = 100;
+        //     document.body.appendChild( stats.domElement );
+		//
+        // }
+
+		// ---------------------------------------------------------------------
+		// ---------------------------------------------------------------------
+		// ---------------------------------------------------------------------
+		// ---------------------------------------------------------------------
+
+		// Scene, Camera, Renderer.
+		const renderer = new THREE.WebGLRenderer();
+		const scene = new THREE.Scene();
+		const aspect = window.innerWidth / window.innerHeight;
+
+		const camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1500 );
+
+		let cameraRotation = 0;
+		let cameraRotationSpeed = 0.001;
+		let cameraAutoRotation = true;
+
+		const orbitControls = new OrbitControls( camera, renderer.domElement );
+
+		// Lights.
+		const spotLight = new THREE.SpotLight( 0xffffff, 1, 0, 10, 2 );
+
+		// Texture Loader.
+		const textureLoader = new THREE.TextureLoader();
+
+		// Planet Proto.
+		const planetProto = {
+
+			sphere: function ( size ) {
+
+				let sphere = new THREE.SphereGeometry( size, 32, 32 );
+				return sphere;
+
+			},
+
+			material: function ( options ) {
+
+				let material = new THREE.MeshPhongMaterial();
+
+				if ( options ) {
+
+					for ( let property in options ) {
+
+						material[ property ] = options[ property ];
+
+					}
+
+				}
+
+				return material;
+
+			},
+
+			glowMaterial: function ( intensity, fade, color ) {
+
+				// Custom glow shader from https://github.com/stemkoski/stemkoski.github.com/tree/master/Three.js
+				const glowMaterial = new THREE.ShaderMaterial( {
+
+					uniforms: {
+
+						'c': {
+
+							type: 'f',
+							value: intensity,
+
+						},
+
+						'p': {
+
+							type: 'f',
+							value: fade,
+
+						},
+
+						glowColor: {
+
+							type: 'c',
+							value: new THREE.Color( color ),
+
+						},
+
+						viewVector: {
+
+							type: 'v3',
+							value: camera.position,
+
+						},
+
+					},
+
+					vertexShader: `
+					uniform vec3 viewVector;
+					uniform float c;
+					uniform float p;
+					varying float intensity;
+					void main() {
+					vec3 vNormal = normalize( normalMatrix * normal );
+					vec3 vNormel = normalize( normalMatrix * viewVector );
+					intensity = pow( c - dot(vNormal, vNormel), p );
+					gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+					}`
+					,
+
+					fragmentShader: `
+					uniform vec3 glowColor;
+					varying float intensity;
+					void main()
+					{
+					vec3 glow = glowColor * intensity;
+					gl_FragColor = vec4( glow, 1.0 );
+					}`
+					,
+
+					side: THREE.BackSide,
+					blending: THREE.AdditiveBlending,
+					transparent: true,
+
+				} );
+
+				return glowMaterial;
+
+			},
+
+			texture: function ( material, property, uri ) {
+
+				const textureLoader = new THREE.TextureLoader();
+
+				textureLoader.crossOrigin = true;
+
+				textureLoader.load( uri, function ( texture ) {
+
+					material[ property ] = texture;
+					material.needsUpdate = true;
+
+				} );
+
+			},
+
+		};
+
+		const createPlanet = function ( options ) {
+
+			// Create the planet's Surface.
+			const surfaceGeometry = planetProto.sphere( options.surface.size );
+			const surfaceMaterial = planetProto.material( options.surface.material );
+			const surface = new THREE.Mesh( surfaceGeometry, surfaceMaterial );
+
+			// Create the planet's Atmosphere
+			const atmosphereGeometry = planetProto.sphere( options.surface.size + options.atmosphere.size );
+
+			const atmosphereMaterialDefaults = {
+
+				side: THREE.DoubleSide,
+				transparent: true,
+
+			};
+
+			const atmosphereMaterialOptions = Object.assign( atmosphereMaterialDefaults, options.atmosphere.material );
+			const atmosphereMaterial = planetProto.material( atmosphereMaterialOptions );
+			const atmosphere = new THREE.Mesh( atmosphereGeometry, atmosphereMaterial );
+
+			// Create the planet's Atmospheric glow.
+			const atmosphericGlowGeometry = planetProto.sphere( options.surface.size + options.atmosphere.size + options.atmosphere.glow.size );
+			const atmosphericGlowMaterial = planetProto.glowMaterial( options.atmosphere.glow.intensity, options.atmosphere.glow.fade, options.atmosphere.glow.color );
+			const atmosphericGlow = new THREE.Mesh(atmosphericGlowGeometry, atmosphericGlowMaterial);
+
+			// Nest the planet's Surface and Atmosphere into a planet object
+			const planet = new THREE.Object3D();
+
+			surface.name = 'surface';
+			atmosphere.name = 'atmosphere';
+			atmosphericGlow.name = 'atmosphericGlow';
+
+			planet.add( surface );
+			planet.add( atmosphere );
+			planet.add( atmosphericGlow );
+
+			// Load the Surface's textures
+			for ( let textureProperty in options.surface.textures ) {
+
+				planetProto.texture(
+					surfaceMaterial,
+					textureProperty,
+					options.surface.textures[ textureProperty ]
+				);
+
+			}
+
+			// Load the Atmosphere's texture
+			for ( let textureProperty in options.atmosphere.textures ) {
+
+				planetProto.texture(
+					atmosphereMaterial,
+					textureProperty,
+					options.atmosphere.textures[ textureProperty ]
+
+				);
+
+			}
+
+			return planet;
+
+		};
+
+		const earth = createPlanet( {
+
+			surface: {
+
+				size: 0.5,
+
+				material: {
+
+					bumpScale: 0.05,
+					specular: new THREE.Color( 'grey' ),
+					shininess: 10,
+
+				},
+
+				textures: {
+
+					map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthmap1k.jpg',
+					bumpMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthbump1k.jpg',
+					specularMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthspec1k.jpg',
+
+				},
+
+			},
+
+			atmosphere: {
+
+				size: 0.003,
+
+				material: {
+
+					opacity: 0.8,
+					// opacity: 0.0,
+
+				},
+
+				textures: {
+
+					map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmap.jpg',
+					alphaMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmaptrans.jpg',
+
+				},
+
+				glow: {
+
+					size: 0.02,
+					intensity: 0.7,
+					fade: 7,
+					color: 0x93cfef,
+
+				},
+
+			},
+
+		} );
+
+		// Marker Proto.
+		const markerProto = {
+
+			latLongToVector3: function latLongToVector3 ( latitude, longitude, radius, height ) {
+
+				const phi = ( latitude ) * Math.PI / 180;
+				const theta = ( longitude - 180 ) * Math.PI / 180;
+
+				const x = -( radius + height ) * Math.cos( phi ) * Math.cos( theta );
+				const y = ( radius + height ) * Math.sin( phi );
+				const z = ( radius + height ) * Math.cos( phi ) * Math.sin( theta );
+
+				return new THREE.Vector3( x, y, z );
+
+			},
+
+			marker: function marker ( size, color, vector3Position ) {
+
+				const markerGeometry = new THREE.SphereGeometry( size );
+
+				const markerMaterial = new THREE.MeshLambertMaterial( {
+
+					color: color,
+
+				} );
+
+				const markerMesh = new THREE.Mesh( markerGeometry, markerMaterial );
+
+				markerMesh.position.copy( vector3Position );
+
+				return markerMesh;
+
+			},
+
+		};
+
+		// Place Marker.
+		const placeMarker = function ( object, options ) {
+
+			const position = markerProto.latLongToVector3( options.latitude, options.longitude, options.radius, options.height );
+			const marker = markerProto.marker( options.size, options.color, position );
+
+			object.add( marker );
+
+		};
+
+		// Place Marker At Address.
+		const placeMarkerAtAddress = function ( address, color ) {
+
+			const encodedLocation = address.replace( /\s/g, '+' );
+			const request = new XMLHttpRequest();
+
+			request.open( 'GET', 'https://maps.googleapis.com/maps/api/geocode/json?address=' + encodedLocation );
+
+			request.send( null );
+
+			request.onreadystatechange = function () {
+
+				if ( request.readyState == 4 && request.status == 200 ) {
+
+					let result = JSON.parse( request.responseText );
+
+					if ( result.results.length > 0 ) {
+
+						let latitude = result.results[ 0 ].geometry.location.lat;
+						let longitude = result.results[ 0 ].geometry.location.lng;
+
+						placeMarker( earth.getObjectByName( 'surface' ), {
+
+							latitude: latitude,
+							longitude: longitude,
+							radius: 0.5,
+							height: 0,
+							size: 0.01,
+							color: color,
+
+						} );
+
+					}
+
+				}
+
+			};
+
+		};
+
+		// Create Galaxy (sic!))).
+		const galaxyGeometry = new THREE.SphereGeometry( 100, 32, 32 );
+
+		// ------------------------------------
+
+		const galaxyMaterial = new THREE.MeshBasicMaterial( {
+
+			side: THREE.BackSide,
+
+		} );
+
+		const galaxy = new THREE.Mesh( galaxyGeometry, galaxyMaterial );
+
+		// Load Galaxy Textures.
+		textureLoader.crossOrigin = true;
+
+		textureLoader.load( 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/starfield.png', function ( texture ) {
+
+			galaxyMaterial.map = texture;
+			scene.add( galaxy );
+
+		} );
+
+		// const galaxyMaterial = new THREE.MeshBasicMaterial( {
+		//
+		// 	side: THREE.BackSide,
+		// 	color: new THREE.Color( 'black' ),
+		//
+		// } );
+		//
+		// const galaxy = new THREE.Mesh( galaxyGeometry, galaxyMaterial );
+		// scene.add( galaxy );
+
+		// ------------------------------------
+
+		// Scene, Camera, Renderer Configuration.
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		document.body.appendChild( renderer.domElement );
+
+		camera.position.set( 1, 1, 1 );
+		orbitControls.enabled = !cameraAutoRotation;
+
+		scene.add( camera );
+		scene.add( spotLight );
+		scene.add( earth );
+
+		// Light Configurations.
+		spotLight.position.set( 2, 0, 1 );
+
+		// Mesh Configurations.
+		earth.receiveShadow = true;
+		earth.castShadow = true;
+		earth.getObjectByName( 'surface' ).geometry.center();
+
+		// On window resize, adjust camera aspect ratio and renderer size
+		window.addEventListener( 'resize', function () {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		} );
+
+		// Main render function.
+		const render = function () {
+
+			earth.getObjectByName( 'surface' ).rotation.y += 1 / 32 * 0.01;
+			earth.getObjectByName( 'atmosphere' ).rotation.y += 1 / 16 * 0.01;
+
+			if ( cameraAutoRotation ) {
+
+				cameraRotation += cameraRotationSpeed;
+
+				camera.position.y = 0;
+				camera.position.x = 2 * Math.sin( cameraRotation );
+				camera.position.z = 2 * Math.cos( cameraRotation );
+
+				camera.lookAt( earth.position );
+
+			}
+
+			// requestAnimationFrame( render );
+			renderer.setAnimationLoop( render );
+			renderer.render( scene, camera );
+
+		};
+
+		render();
+
+		// dat.gui
+		const gui = new GUI();
+		const guiCamera = gui.addFolder( 'Camera' );
+		const guiSurface = gui.addFolder( 'Surface' );
+		const guiMarkers = guiSurface.addFolder( 'Markers' );
+		const guiAtmosphere = gui.addFolder( 'Atmosphere' );
+		const guiAtmosphericGlow = guiAtmosphere.addFolder( 'Glow' );
+
+		// dat.gui controls object
+		const cameraControls = new function() {
+
+			this.speed = cameraRotationSpeed;
+			this.orbitControls = !cameraAutoRotation;
+
+		};
+
+		const surfaceControls = new function () {
+
+			this.rotation = 0;
+			this.bumpScale = 0.05;
+			this.shininess = 10;
+
+		};
+
+		const markersControls = new function () {
+
+			this.address = '';
+			this.color = 0xff0000;
+
+			this.placeMarker = function () {
+
+				placeMarkerAtAddress( this.address, this.color );
+
+			};
+
+		}
+
+		const atmosphereControls = new function () {
+
+			this.opacity = 0.8;
+
+		};
+
+		const atmosphericGlowControls = new function () {
+
+			this.intensity = 0.7;
+			this.fade = 7;
+			this.color = 0x93cfef;
+
+		};
+
+		// dat.gui controls
+		guiCamera.add( cameraControls, 'speed', 0, 0.1 ).step( 0.001 ).onChange( function ( value ) {
+
+			cameraRotationSpeed = value;
+
+		} );
+
+		guiCamera.add( cameraControls, 'orbitControls' ).onChange( function ( value ) {
+
+			cameraAutoRotation = !value;
+			orbitControls.enabled = value;
+
+		} );
+
+		guiSurface.add( surfaceControls, 'rotation', 0, 6 ).onChange( function ( value ) {
+
+			earth.getObjectByName( 'surface' ).rotation.y = value;
+
+		} );
+
+		guiSurface.add( surfaceControls, 'bumpScale', 0, 1 ).step( 0.01 ).onChange( function ( value ) {
+
+			earth.getObjectByName( 'surface' ).material.bumpScale = value;
+
+		} );
+
+		guiSurface.add( surfaceControls, 'shininess', 0, 30 ).onChange( function ( value ) {
+
+			earth.getObjectByName( 'surface' ).material.shininess = value;
+
+		} );
+
+		guiMarkers.add( markersControls, 'address' );
+		guiMarkers.addColor( markersControls, 'color' );
+		guiMarkers.add( markersControls, 'placeMarker' );
+
+		guiAtmosphere.add( atmosphereControls, 'opacity', 0, 1 ).onChange( function ( value ) {
+
+			earth.getObjectByName( 'atmosphere' ).material.opacity = value;
+
+		} );
+
+		guiAtmosphericGlow.add( atmosphericGlowControls, 'intensity', 0, 1 ).onChange( function ( value ) {
+
+			earth.getObjectByName( 'atmosphericGlow' ).material.uniforms[ 'c' ].value = value;
+
+		} );
+
+		guiAtmosphericGlow.add( atmosphericGlowControls, 'fade', 0, 50 ).onChange( function ( value ) {
+
+			earth.getObjectByName( 'atmosphericGlow' ).material.uniforms[ 'p' ].value = value;
+
+		} );
+
+		guiAtmosphericGlow.addColor( atmosphericGlowControls, 'color' ).onChange( function( value ) {
+
+			earth.getObjectByName( 'atmosphericGlow' ).material.uniforms.glowColor.value.setHex( value );
+
+		} );
+
+	    const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+		const snapshotParams = {
+
+            // Snapshot width.
+            width: 400,
+            // width: 2200,
+
+            // Snapshot height.
+            height: 250,
+            // height: 1329,
+
+            // Download snapshot.
+            takeShot: function () {
+
+                const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                snapshotRenderer.setSize( snapshotParams.width, snapshotParams.height );
+
+                const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                snapshotRenderer.dispose();
+
+            },
+
+        };
+
+        snapshotFolder.add( snapshotParams, 'width', 0, 2200, 50 );
+        snapshotFolder.add( snapshotParams, 'height', 0, 1329, 50 );
+        snapshotFolder.add( snapshotParams, 'takeShot' );
+
+    </script>
+
+</html>

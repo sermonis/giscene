@@ -30,6 +30,9 @@
     "assets": [
  		"bim_assets_tracker"
  	],
+    "planet": [
+ 		"planet_earth_basic"
+ 	],
     "forge": [
  		"bim_forge_viewer_basic",
  		"bim_forge_viewer_headless",
