@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>Planet Earth Choropleth Countries</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+		<script src="//unpkg.com/d3"></script>
+		<script src="//unpkg.com/globe.gl"></script>
+
+        <style></style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Planet Earth Choropleth Countries.
+            </div>
+
+            <div></div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+        import * as THREE from '../libs/three.js/build/three.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+		// -----------------------------------------------------------------------
+
+		const colorScale = d3.scaleSequentialSqrt( d3.interpolateYlOrRd );
+
+		// GDP per capita (avoiding countries with small pop)
+		const getVal = feat => feat.properties.GDP_MD_EST / Math.max( 1e5, feat.properties.POP_EST );
+
+		fetch( 'data/geo/countries-00.geojson').then( res => res.json() ).then( countries => {
+
+			const maxVal = Math.max( ...countries.features.map( getVal ) );
+			colorScale.domain( [ 0, maxVal ] );
+
+			const world = Globe()
+				// .globeImageUrl( 'textures/planets/earth-map.jpg' )
+				// .globeImageUrl( '../libs/three.js/examples/textures/planets/earth_atmos_2048.jpg' )
+				.globeImageUrl( '../libs/three.js/examples/textures/planets/earth_atmos_4096.jpg' )
+				// .globeImageUrl( '../libs/three.js/examples/textures/planets/earth_specular_2048.jpg' )
+				.bumpImageUrl( 'textures/planets/earth-bump-map.jpg' )
+				.backgroundImageUrl( 'textures/planets/starfield.jpg' )
+				.lineHoverPrecision( 0 )
+				.polygonsData( countries.features.filter( d => d.properties.ISO_A2 !== 'AQ' ) )
+				.polygonAltitude( 0.04 )
+				// .polygonCapColor( feat => colorScale( getVal( feat ) ) )
+				// .polygonSideColor( () => 'rgba(0, 100, 0, 0.15)' )
+				// .polygonStrokeColor( () => '#111' )
+				.polygonCapColor( feat => 'rgba(1, 111, 210, 0.15)' )
+				.polygonSideColor( () => 'rgba(1, 111, 210, 0.1)' )
+				.polygonStrokeColor( () => 'rgba(1, 111, 210, 0.7)' )
+				// .polygonLabel( ( { properties: d } ) => `
+				// 	<b>${ d.ADMIN } (${ d.ISO_A2 }):</b> <br />
+				// 	GDP: <i>${ d.GDP_MD_EST }</i> M$<br/>
+				// 	Population: <i>${ d.POP_EST }</i>
+				// `)
+				.polygonLabel( ( { properties: d } ) => `
+					<b>${ d.ADMIN } (${ d.ISO_A2 }):</b>
+				`)
+				.onPolygonHover( hoverD => world
+					// .polygonAltitude( d => d === hoverD ? 0.12 : 0.06 )
+					// .polygonCapColor( d => d === hoverD ? 'steelblue' : colorScale( getVal( d ) ) )
+					.polygonAltitude( d => d === hoverD ? 0.12 : 0.04 )
+					.polygonCapColor( d => d === hoverD ? 'rgba(1, 111, 210, 0.35)' : 'rgba(1, 111, 210, 0.01)' )
+        		)
+        		.polygonsTransitionDuration( 300 )
+				( document.getElementById( 'container') );
+
+				// Custom globe material
+				const globeMaterial = world.globeMaterial();
+
+				globeMaterial.bumpScale = 10;
+				globeMaterial.color = new THREE.Color( '#efefef' );
+
+				// new THREE.TextureLoader().load( 'textures/planets/earth-specular-map.jpg', texture => {
+				new THREE.TextureLoader().load( '../libs/three.js/examples/textures/planets/earth_specular_2048.jpg', texture => {
+
+					globeMaterial.specularMap = texture;
+					globeMaterial.specular = new THREE.Color( 'grey' );
+					globeMaterial.shininess = 15;
+
+				} );
+
+				new THREE.TextureLoader().load( '../libs/three.js/examples/textures/planets/earth_normal_2048.jpg', texture => {
+
+					globeMaterial.normalMap = texture;
+
+					// Y-scale is negated to compensate for normal map handedness.
+					globeMaterial.normalScale = new THREE.Vector2( 0.85, - 0.85 );
+
+				} );
+
+				// new THREE.TextureLoader().load( '../libs/three.js/examples/textures/planets/earth_normal_2048.jpg', texture => {
+				new THREE.TextureLoader().load( 'textures/planets/earth-bump-map.jpg', texture => {
+
+					globeMaterial.displacementMap = texture;
+
+					globeMaterial.displacementScale = 2.436143;
+					globeMaterial.displacementBias = -0.428408; // from original model
+
+				} );
+
+		} );
+
+		// dat.gui
+		const gui = new GUI();
+
+	    const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+		const snapshotParams = {
+
+            // Snapshot width.
+            width: 400,
+            // width: 2200,
+
+            // Snapshot height.
+            height: 250,
+            // height: 1329,
+
+            // Download snapshot.
+            takeShot: function () {
+
+                const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                snapshotRenderer.setSize( snapshotParams.width, snapshotParams.height );
+
+                const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                snapshotRenderer.dispose();
+
+            },
+
+        };
+
+        snapshotFolder.add( snapshotParams, 'width', 0, 2200, 50 );
+        snapshotFolder.add( snapshotParams, 'height', 0, 1329, 50 );
+        snapshotFolder.add( snapshotParams, 'takeShot' );
+
+    </script>
+
+</html>

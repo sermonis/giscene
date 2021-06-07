@@ -31,7 +31,13 @@
  		"bim_assets_tracker"
  	],
     "planet": [
- 		"planet_earth_basic"
+ 		"planet_earth_basic",
+ 		"planet_earth_highres",
+ 		"planet_earth_choropleth_countries",
+ 		"planet_earth_countries",
+ 		"planet_earth_custom_styling",
+ 		"planet_earth_sauron_eye",
+ 		"planet_earth_rebuild"
  	],
     "forge": [
  		"bim_forge_viewer_basic",

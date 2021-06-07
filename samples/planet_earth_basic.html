@@ -227,7 +227,7 @@
 		// ---------------------------------------------------------------------
 
 		// Scene, Camera, Renderer.
-		const renderer = new THREE.WebGLRenderer();
+		const renderer = new THREE.WebGLRenderer( { antialias: true } );
 		const scene = new THREE.Scene();
 		const aspect = window.innerWidth / window.innerHeight;
 
@@ -235,7 +235,8 @@
 
 		let cameraRotation = 0;
 		let cameraRotationSpeed = 0.001;
-		let cameraAutoRotation = true;
+		// let cameraAutoRotation = true;
+		let cameraAutoRotation = false;
 
 		const orbitControls = new OrbitControls( camera, renderer.domElement );
 
@@ -246,7 +247,7 @@
 		const textureLoader = new THREE.TextureLoader();
 
 		// Planet Proto.
-		const planetProto = {
+		const Planet = {
 
 			sphere: function ( size ) {
 
@@ -311,27 +312,26 @@
 					},
 
 					vertexShader: `
-					uniform vec3 viewVector;
-					uniform float c;
-					uniform float p;
-					varying float intensity;
-					void main() {
-					vec3 vNormal = normalize( normalMatrix * normal );
-					vec3 vNormel = normalize( normalMatrix * viewVector );
-					intensity = pow( c - dot(vNormal, vNormel), p );
-					gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-					}`
-					,
+						uniform vec3 viewVector;
+						uniform float c;
+						uniform float p;
+						varying float intensity;
+						void main() {
+							vec3 vNormal = normalize( normalMatrix * normal );
+							vec3 vNormel = normalize( normalMatrix * viewVector );
+							intensity = pow( c - dot(vNormal, vNormel), p );
+							gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+						}
+					`,
 
 					fragmentShader: `
-					uniform vec3 glowColor;
-					varying float intensity;
-					void main()
-					{
-					vec3 glow = glowColor * intensity;
-					gl_FragColor = vec4( glow, 1.0 );
-					}`
-					,
+						uniform vec3 glowColor;
+						varying float intensity;
+						void main()	{
+							vec3 glow = glowColor * intensity;
+							gl_FragColor = vec4( glow, 1.0 );
+						}
+					`,
 
 					side: THREE.BackSide,
 					blending: THREE.AdditiveBlending,
@@ -363,12 +363,12 @@
 		const createPlanet = function ( options ) {
 
 			// Create the planet's Surface.
-			const surfaceGeometry = planetProto.sphere( options.surface.size );
-			const surfaceMaterial = planetProto.material( options.surface.material );
+			const surfaceGeometry = Planet.sphere( options.surface.size );
+			const surfaceMaterial = Planet.material( options.surface.material );
 			const surface = new THREE.Mesh( surfaceGeometry, surfaceMaterial );
 
-			// Create the planet's Atmosphere
-			const atmosphereGeometry = planetProto.sphere( options.surface.size + options.atmosphere.size );
+			// Create the planet's Atmosphere.
+			const atmosphereGeometry = Planet.sphere( options.surface.size + options.atmosphere.size );
 
 			const atmosphereMaterialDefaults = {
 
@@ -378,15 +378,15 @@
 			};
 
 			const atmosphereMaterialOptions = Object.assign( atmosphereMaterialDefaults, options.atmosphere.material );
-			const atmosphereMaterial = planetProto.material( atmosphereMaterialOptions );
+			const atmosphereMaterial = Planet.material( atmosphereMaterialOptions );
 			const atmosphere = new THREE.Mesh( atmosphereGeometry, atmosphereMaterial );
 
 			// Create the planet's Atmospheric glow.
-			const atmosphericGlowGeometry = planetProto.sphere( options.surface.size + options.atmosphere.size + options.atmosphere.glow.size );
-			const atmosphericGlowMaterial = planetProto.glowMaterial( options.atmosphere.glow.intensity, options.atmosphere.glow.fade, options.atmosphere.glow.color );
-			const atmosphericGlow = new THREE.Mesh(atmosphericGlowGeometry, atmosphericGlowMaterial);
+			const atmosphericGlowGeometry = Planet.sphere( options.surface.size + options.atmosphere.size + options.atmosphere.glow.size );
+			const atmosphericGlowMaterial = Planet.glowMaterial( options.atmosphere.glow.intensity, options.atmosphere.glow.fade, options.atmosphere.glow.color );
+			const atmosphericGlow = new THREE.Mesh( atmosphericGlowGeometry, atmosphericGlowMaterial );
 
-			// Nest the planet's Surface and Atmosphere into a planet object
+			// Nest the planet's Surface and Atmosphere into a planet object.
 			const planet = new THREE.Object3D();
 
 			surface.name = 'surface';
@@ -397,10 +397,10 @@
 			planet.add( atmosphere );
 			planet.add( atmosphericGlow );
 
-			// Load the Surface's textures
+			// Load the Surface's textures.
 			for ( let textureProperty in options.surface.textures ) {
 
-				planetProto.texture(
+				Planet.texture(
 					surfaceMaterial,
 					textureProperty,
 					options.surface.textures[ textureProperty ]
@@ -408,14 +408,13 @@
 
 			}
 
-			// Load the Atmosphere's texture
+			// Load the Atmosphere's texture.
 			for ( let textureProperty in options.atmosphere.textures ) {
 
-				planetProto.texture(
+				Planet.texture(
 					atmosphereMaterial,
 					textureProperty,
 					options.atmosphere.textures[ textureProperty ]
-
 				);
 
 			}
@@ -440,9 +439,9 @@
 
 				textures: {
 
-					map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthmap1k.jpg',
-					bumpMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthbump1k.jpg',
-					specularMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthspec1k.jpg',
+					map: 'textures/planets/earth-map.jpg',
+					bumpMap: 'textures/planets/earth-bump-map.jpg',
+					specularMap: 'textures/planets/earth-specular-map.jpg',
 
 				},
 
@@ -461,8 +460,8 @@
 
 				textures: {
 
-					map: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmap.jpg',
-					alphaMap: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/earthcloudmaptrans.jpg',
+					map: 'textures/planets/earth-cloud-map.jpg',
+					alphaMap: 'textures/planets/earth-cloud-alpha-map.jpg',
 
 				},
 
@@ -480,9 +479,9 @@
 		} );
 
 		// Marker Proto.
-		const markerProto = {
+		const Marker = {
 
-			latLongToVector3: function latLongToVector3 ( latitude, longitude, radius, height ) {
+			latLngToVec3: function latLngToVec3 ( latitude, longitude, radius, height ) {
 
 				const phi = ( latitude ) * Math.PI / 180;
 				const theta = ( longitude - 180 ) * Math.PI / 180;
@@ -495,7 +494,8 @@
 
 			},
 
-			marker: function marker ( size, color, vector3Position ) {
+			// marker: function marker ( size, color, vector3Position ) {
+			create: function create ( size, color, vector3Position ) {
 
 				const markerGeometry = new THREE.SphereGeometry( size );
 
@@ -518,10 +518,11 @@
 		// Place Marker.
 		const placeMarker = function ( object, options ) {
 
-			const position = markerProto.latLongToVector3( options.latitude, options.longitude, options.radius, options.height );
-			const marker = markerProto.marker( options.size, options.color, position );
+			const position = Marker.latLngToVec3( options.latitude, options.longitude, options.radius, options.height );
+			// const item = Marker.marker( options.size, options.color, position );
+			const item = Marker.create( options.size, options.color, position );
 
-			object.add( marker );
+			object.add( item );
 
 		};
 
@@ -568,8 +569,6 @@
 		// Create Galaxy (sic!))).
 		const galaxyGeometry = new THREE.SphereGeometry( 100, 32, 32 );
 
-		// ------------------------------------
-
 		const galaxyMaterial = new THREE.MeshBasicMaterial( {
 
 			side: THREE.BackSide,
@@ -581,24 +580,12 @@
 		// Load Galaxy Textures.
 		textureLoader.crossOrigin = true;
 
-		textureLoader.load( 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/141228/starfield.png', function ( texture ) {
+		textureLoader.load( 'textures/planets/starfield.jpg', function ( texture ) {
 
 			galaxyMaterial.map = texture;
 			scene.add( galaxy );
 
 		} );
-
-		// const galaxyMaterial = new THREE.MeshBasicMaterial( {
-		//
-		// 	side: THREE.BackSide,
-		// 	color: new THREE.Color( 'black' ),
-		//
-		// } );
-		//
-		// const galaxy = new THREE.Mesh( galaxyGeometry, galaxyMaterial );
-		// scene.add( galaxy );
-
-		// ------------------------------------
 
 		// Scene, Camera, Renderer Configuration.
 		renderer.setSize( window.innerWidth, window.innerHeight );
@@ -646,13 +633,19 @@
 
 			}
 
-			// requestAnimationFrame( render );
-			renderer.setAnimationLoop( render );
 			renderer.render( scene, camera );
 
 		};
 
-		render();
+		const animate = () => {
+
+			// camera.lookAt( scene.position );
+			camera.lookAt( earth.position );
+			renderer.setAnimationLoop( render );
+
+		};
+
+		animate();
 
 		// dat.gui
 		const gui = new GUI();
