@@ -57,14 +57,14 @@
 		tune();
         animate();
 
-		function init() {
+		function init () {
 
 			scene = new THREE.Scene();
 			scene.background = new THREE.Color( 0xa0a0a0 );
 			scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
 
 			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 250 );
-			camera.position.set( 10, 10, 30 );
+			// camera.position.set( 10, 10, 30 );
 
 			//
 
@@ -132,12 +132,12 @@
 			controls.enablePan = false;
 			controls.minDistance = 10;
 			controls.maxDistance = 50;
-			controls.target.set( 0.5, 8, 2.5 );
+			// controls.target.set( 0.5, 8, 2.5 );
 			controls.update();
 
 		}
 
-		function onWindowResize() {
+		function onWindowResize () {
 
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
@@ -146,13 +146,13 @@
 
 		}
 
-		function onTransitionEnd( event ) {
+		function onTransitionEnd ( event ) {
 
 			event.target.remove();
 
 		}
 
-		function animate() {
+		function animate () {
 
 			requestAnimationFrame( animate );
 			renderer.render( scene, camera );
@@ -160,6 +160,88 @@
 			stats.update();
 
 		}
+
+		// ---------------------------------------------------------------------------
+		// https://docs.google.com/document/d/1Uz_g3DSwGkrXy_TyTqFQ9TcWFedB3uiwElHe3EEhwkQ/edit#
+		// https://threejs.org/docs/#api/en/extras/Earcut
+		// https://github.com/sermonis/three-threex-planets/blob/master/examples/earth.html
+		// https://threejs.org/docs/?q=lamb#api/en/materials/MeshLambertMaterial
+		// https://alteredqualia.com/xg/examples/earth_bathymetry.html
+		// ---------------------------------------------------------------------------
+
+
+		const Galaxy = {};
+
+		Galaxy.Planets = {};
+
+		Galaxy.Planets.baseURL	= 'textures/planets/';
+
+		Galaxy.Planets.createEarth = function () {
+
+			// const geometry = new THREE.SphereGeometry( 0.5, 32, 32 );
+			// const geometry = new THREE.SphereGeometry( 3.0, 32, 32 );
+			// const geometry = new THREE.SphereGeometry( 3.5, 128, 128 );
+			const geometry = new THREE.SphereGeometry( 3.5, 256, 256 );
+
+			const loader = new THREE.TextureLoader();
+
+			const material = new THREE.MeshPhongMaterial( {
+			// const material = new THREE.MeshLambertMaterial( {
+
+				color: new THREE.Color( 'grey' ),
+
+				// map: loader.load( Galaxy.Planets.baseURL + 'earth-map.jpg' ),
+				map: loader.load( Galaxy.Planets.baseURL + '8081_earthmap4k.jpg' ),
+
+				// bumpMap: loader.load( Galaxy.Planets.baseURL + 'earth-bump-map.jpg' ),
+				// bumpScale: 0.05,
+
+				normalMap: loader.load( '../libs/three.js/examples/textures/planets/earth_normal_2048.jpg' ),
+
+				// displacementMap: loader.load( Galaxy.Planets.baseURL + 'earth-displacenment-map.jpg' ),
+				displacementMap: loader.load( Galaxy.Planets.baseURL + '8081_earthbump4k.jpg' ),
+				displacementScale: 0.136143,
+				// displacementScale: 2.436143,
+				// displacementBias: -0.428408,
+				// displacementBias: 0.128408,
+
+				// specularMap: loader.load( Galaxy.Planets.baseURL + 'earth-specular-map.jpg' ),
+				specularMap: loader.load( '../libs/three.js/examples/textures/planets/earth_specular_2048.jpg' ),
+				specular: new THREE.Color( 'grey' ),
+
+			} );
+
+			// material.displacementScale = 2.436143;
+			// material.displacementBias = -0.428408;
+			// material.displacementMap.format = THREE.RGBFormat;
+			// material.displacementMap.minFilter = THREE.LinearFilter;
+			// material.displacementMap.needsUpdate = true;
+
+			material.needsUpdate = true;
+			// material.wireframe = true;
+			console.log( material );
+
+			var mesh = new THREE.Mesh( geometry, material );
+
+			return mesh;
+
+		};
+
+		const earthMesh = Galaxy.Planets.createEarth();
+
+		earthMesh.receiveShadow	= true;
+		earthMesh.castShadow = true;
+
+		// mesh.position.set(100, 100, 100);
+
+		// mesh.position.setX( 200 );
+		// mesh.position.setY( 200 );
+		// mesh.position.setZ( 200 );
+
+		// earthMesh.position.setY( 10 );
+
+		scene.add( earthMesh );
+		camera.lookAt( earthMesh.position );
 
 		// ---------------------------------------------------------------------------
 
