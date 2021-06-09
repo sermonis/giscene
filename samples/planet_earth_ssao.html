@@ -3,7 +3,7 @@
 
     <head>
 
-        <title>Planet Earth Rebuild</title>
+        <title>Screen Space Ambient Occlusion (SSAO)</title>
         <meta charset="utf-8">
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
@@ -12,7 +12,7 @@
 
 			body {
 
-				/* background-color: #F2F5FA; */
+				background-color: #F2F5FA;
 				color: #000;
 			}
 
@@ -31,7 +31,7 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Planet Earth Basic.
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Postprocessing - Screen Space Ambient Occlusion (<a href="https://sermonis.github.io/sandbox/?q=ssao#webgl_postprocessing_ssao" target="_blank">SSAO</a>).
             </div>
 
             <div></div>
@@ -49,29 +49,17 @@
         import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
 
         import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
-	    // import { GLTFLoader } from '../../lib/GLTFLoader.module.js';
 
-		// import { EffectComposer } from '../libs/three.js/examples/jsm/postprocessing/EffectComposer.js';
-		// import { SSAOPass } from '../libs/three.js/examples/jsm/postprocessing/SSAOPass.js';
-		//
-		// import { RenderPass } from '../libs/three.js/examples/jsm/postprocessing/RenderPass.js';
-		// import { SAOPass } from '../libs/three.js/examples/jsm/postprocessing/SAOPass.js';
+		import { EffectComposer } from '../libs/three.js/examples/jsm/postprocessing/EffectComposer.js';
+		import { SSAOPass } from '../libs/three.js/examples/jsm/postprocessing/SSAOPass.js';
 
         import Snapshot from './jsm/libs/snapshot.module.js';
-        // import { createBackground } from './jsm/libs/vignette/index.js';
-		import { ShaderPass } from '../libs/three.js/examples/jsm/postprocessing/ShaderPass.js';
-		import { VignetteShader } from './jsm/postprocessing/VignetteShader.js';
-        import { isIOS } from './jsm/libs/detectors/index.js';
 
         // ---------------------------------------------------------------------------
 
-		let renderer, scene, camera, controls, vignette;
+		let renderer, scene, camera, controls;
+		let composer, ssaoPass;
 		let helper, stats;
-		// let composer, SSAOPass;
-		// let composer, renderPass, saoPass;
-
-		// const windowWidth = window.innerWidth;
-		// const windowHeight = window.innerHeight;
 
 		// GUI props.
 		const props = {
@@ -106,20 +94,14 @@
 
 		};
 
-
-		// ---------------------------------------------------------------------------
-		// https://threejsfundamentals.org/threejs/lessons/threejs-shadertoy.html
-		// https://github.com/sermonis/three-gltf-viewer
 		// ---------------------------------------------------------------------------
 		// https://docs.google.com/document/d/1Uz_g3DSwGkrXy_TyTqFQ9TcWFedB3uiwElHe3EEhwkQ/edit#
-		// https://sermonis.github.io/sandbox/?q=tone#webgl_shaders_tonemapping
 		// https://codepen.io/kuxazoso/pen/GVYMda?editors=0010
 		// https://threejs.org/docs/#api/en/extras/Earcut
 		// https://github.com/sermonis/three-threex-planets/blob/master/examples/earth.html
 		// https://threejs.org/docs/?q=lamb#api/en/materials/MeshLambertMaterial
 		// https://alteredqualia.com/xg/examples/earth_bathymetry.html
 		// ---------------------------------------------------------------------------
-
 
 		const Galaxy = {};
 
@@ -130,19 +112,11 @@
 		Galaxy.Planets.createEarth = function () {
 
 			// https://threejs.org/docs/?q=sphe#api/en/geometries/SphereGeometry
-			// const geometry = new THREE.SphereGeometry( 0.5, 32, 32 );
-			// const geometry = new THREE.SphereGeometry( 3.0, 32, 32 );
-			// const geometry = new THREE.SphereGeometry( 3.5, 128, 128 );
 			const geometry = new THREE.SphereGeometry( props.radius, props.widthSegments, props.heightSegments );
 
 			const loader = new THREE.TextureLoader();
 
 			const material = new THREE.MeshPhongMaterial( {
-			// const material = new THREE.MeshLambertMaterial( {
-			// const material = new THREE.MeshToonMaterial( {
-			// const material = new THREE.MeshStandardMaterial( {
-			// const material = new THREE.MeshPhysicalMaterial( {
-			// const material = new THREE.MeshNormalMaterial( {
 
 				// color: new THREE.Color( 'grey' ),
 				color: new THREE.Color( '#F2F5FA' ),
@@ -150,7 +124,7 @@
 				// Diffuse map.
 				// https://wiki.splashdamage.com/index.php/Basic_Texture_Overview
 				// map: loader.load( Galaxy.Planets.baseURL + 'earth-map.jpg' ),
-				// map: loader.load( Galaxy.Planets.baseURL + '8081_earthmap4k.jpg' ),
+				map: loader.load( Galaxy.Planets.baseURL + '8081_earthmap4k.jpg' ),
 
 				// bumpMap: loader.load( Galaxy.Planets.baseURL + 'earth-bump-map.jpg' ),
 				// bumpScale: 0.05,
@@ -298,24 +272,6 @@
 			// scene.background = new THREE.Color( '#F2F5FA' );
 			// scene.fog = new THREE.Fog( scene.background, 20, 200 );
 
-			// vignette = new ShaderPass( VignetteShader );
-
-			// const vignette = new THREE.ShaderMaterial( VignetteShader );
-			// vignette.uniforms[ "resolution" ].value = new THREE.Vector2( window.innerWidth, window.innerHeight );
-			// // vignette.uniforms[ "horizontal" ].value = true; // default is false
-			// vignette.uniforms[ "radius" ].value = .8; // default is 0.75
-			// vignette.uniforms[ "softness" ].value = .3; // default is 0.3
-			// vignette.uniforms[ "gain" ].value = .3; // default is 0.9
-			//
-			// // scene.background = vignette;
-			// // scene.add( vignette );
-			//
-			// const quad = new THREE.Mesh( new THREE.PlaneBufferGeometry( 200, 200, 100, 100 ), vignette );
-    		// scene.add( quad );
-
-			// https://github.com/search?q=three-vignette
-			// glsify for import shaders
-
 			camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 250 );
 			// camera.position.set( 10, 10, 30 );
 
@@ -392,19 +348,6 @@
 			// THREE.BasicDepthPacking
 			// THREE.RGBADepthPacking
 
-			// vignette = createBackground( {
-			//
-			// 	aspect: this.defaultCamera.aspect,
-			// 	grainScale: IS_IOS ? 0 : 0.001, // mattdesl/three-vignette-background#1
-			// 	colors: [ '#ffffff', '#353535' ]
-			//
-			// } );
-			//
-			// vignette.name = 'Vignette';
-			// vignette.renderOrder = -1;
-			//
-			// scene.add( vignette );
-
 			renderer = new THREE.WebGLRenderer( { alpha: true, antialias: true } );
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
@@ -412,28 +355,25 @@
 			renderer.shadowMap.enabled = true;
 			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 			renderer.shadowMapSoft = true;
-			renderer.physicallyBasedShading = true;
 			// renderer.gammaInput = false;
   			// renderer.gammaOutput = false;
-
-			// renderer.setClearColor( 0xffffff, 0);
 
 			document.body.appendChild( renderer.domElement );
 
 			// // https://sermonis.github.io/sandbox/?q=sao#webgl_postprocessing_ssao
 			// // https://sermonis.github.io/sandbox/#webgl_postprocessing_sao
-			// composer = new EffectComposer( renderer );
-			// ssaoPass = new SSAOPass( scene, camera, window.innerWidth, window.innerHeight );
-			// ssaoPass.kernelRadius = 16;
-			//
-			// ssaoPass.output = parseInt( SSAOPass.OUTPUT.Default );
-			// // ssaoPass.output = parseInt( SSAOPass.OUTPUT.SSAO );
-			// // ssaoPass.output = parseInt( SSAOPass.OUTPUT.Blur );
-			// // ssaoPass.output = parseInt( SSAOPass.OUTPUT.Beauty );
-			// // ssaoPass.output = parseInt( SSAOPass.OUTPUT.Depth );
-			// // ssaoPass.output = parseInt( SSAOPass.OUTPUT.Normal );
-			//
-			// composer.addPass( ssaoPass );
+			composer = new EffectComposer( renderer );
+			ssaoPass = new SSAOPass( scene, camera, window.innerWidth, window.innerHeight );
+			ssaoPass.kernelRadius = 16;
+
+			ssaoPass.output = parseInt( SSAOPass.OUTPUT.Default );
+			// ssaoPass.output = parseInt( SSAOPass.OUTPUT.SSAO );
+			// ssaoPass.output = parseInt( SSAOPass.OUTPUT.Blur );
+			// ssaoPass.output = parseInt( SSAOPass.OUTPUT.Beauty );
+			// ssaoPass.output = parseInt( SSAOPass.OUTPUT.Depth );
+			// ssaoPass.output = parseInt( SSAOPass.OUTPUT.Normal );
+
+			composer.addPass( ssaoPass );
 
 			// composer = new EffectComposer( renderer );
 			// renderPass = new RenderPass( scene, camera );
@@ -467,32 +407,32 @@
 			scene.add( earthMesh );
 			camera.lookAt( earthMesh.position );
 
-			// const group = new THREE.Group();
-			// scene.add( group );
-			//
-			// const geometry = new THREE.BoxGeometry( 10, 10, 10 );
-			//
-			// for ( let i = 0; i < 100; i ++ ) {
-			//
-			// 	const material = new THREE.MeshLambertMaterial( {
-			//
-			// 		color: Math.random() * 0xffffff,
-			//
-			// 	} );
-			//
-			// 	const mesh = new THREE.Mesh( geometry, material );
-			//
-			// 	mesh.position.x = Math.random() * 400 - 200;
-			// 	mesh.position.y = Math.random() * 400 - 200;
-			// 	mesh.position.z = Math.random() * 400 - 200;
-			// 	mesh.rotation.x = Math.random();
-			// 	mesh.rotation.y = Math.random();
-			// 	mesh.rotation.z = Math.random();
-			//
-			// 	mesh.scale.setScalar( Math.random() * 10 + 2 );
-			// 	group.add( mesh );
-			//
-			// }
+			const group = new THREE.Group();
+			scene.add( group );
+
+			const geometry = new THREE.BoxGeometry( 10, 10, 10 );
+
+			for ( let i = 0; i < 100; i ++ ) {
+
+				const material = new THREE.MeshLambertMaterial( {
+
+					color: Math.random() * 0xffffff,
+
+				} );
+
+				const mesh = new THREE.Mesh( geometry, material );
+
+				mesh.position.x = Math.random() * 400 - 200;
+				mesh.position.y = Math.random() * 400 - 200;
+				mesh.position.z = Math.random() * 400 - 200;
+				mesh.rotation.x = Math.random();
+				mesh.rotation.y = Math.random();
+				mesh.rotation.z = Math.random();
+
+				mesh.scale.setScalar( Math.random() * 10 + 2 );
+				group.add( mesh );
+
+			}
 
 			// const geometry = new THREE.SphereGeometry( 3, 48, 24 );
 			//
@@ -574,8 +514,7 @@
 			// earthMesh.geometry.normalsNeedUpdate = true;
 
 			// renderer.render( scene, camera );
-			renderer.render( scene, camera );
-			// composer.render();
+			composer.render();
 			controls.update();
 
 			stats.update();
@@ -638,6 +577,27 @@
 
 			} );
 
+            const ssaoFolder = gui.addFolder( 'SSAO' );
+
+			ssaoFolder.add( ssaoPass, 'output', {
+
+				'Default': SSAOPass.OUTPUT.Default,
+				'SSAO Only': SSAOPass.OUTPUT.SSAO,
+				'SSAO Only + Blur': SSAOPass.OUTPUT.Blur,
+				'Beauty': SSAOPass.OUTPUT.Beauty,
+				'Depth': SSAOPass.OUTPUT.Depth,
+				'Normal': SSAOPass.OUTPUT.Normal
+
+			} ).onChange( function ( value ) {
+
+				ssaoPass.output = parseInt( value );
+
+			} );
+
+			ssaoFolder.add( ssaoPass, 'kernelRadius' ).min( 0 ).max( 32 );
+			ssaoFolder.add( ssaoPass, 'minDistance' ).min( 0.001 ).max( 0.02 );
+			ssaoFolder.add( ssaoPass, 'maxDistance' ).min( 0.01 ).max( 0.3 );
+
             const snapshotFolder = gui.addFolder( 'Snapshot' );
 
             snapshotFolder.add( props, 'width', 0, 2200, 50 );
@@ -648,7 +608,7 @@
 			materialFolder.open();
 			snapshotFolder.close();
 
-            gui.close();
+            // gui.close();
 
         }
 

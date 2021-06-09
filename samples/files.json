@@ -37,6 +37,8 @@
  		"planet_earth_countries",
  		"planet_earth_custom_styling",
  		"planet_earth_sauron_eye",
+ 		"planet_earth_ssao",
+ 		"planet_earth_sao",
  		"planet_earth_rebuild"
  	],
     "forge": [

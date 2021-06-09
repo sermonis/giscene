@@ -30,5 +30,7 @@
 	"planet_earth_custom_styling": [ "planet", "earth", "globe" ],
 	"planet_earth_sauron_eye": [ "planet", "earth", "globe", "choropleth", "countries" ],
 	"planet_earth_countries": [ "planet", "earth", "globe", "choropleth", "countries" ],
-	"planet_earth_rebuild": [ "planet", "earth", "globe" ]
+	"planet_earth_rebuild": [ "planet", "earth", "globe" ],
+	"planet_earth_ssao": [ "planet", "earth", "globe", "ssao" ],
+	"planet_earth_sao": [ "planet", "earth", "globe", "sao" ]
 }
