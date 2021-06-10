@@ -642,12 +642,12 @@
 
 			// ------------------------------------------------
 			// Color to grayscale conversion.
-			// const renderPass = new RenderPass( scene, camera );
-			// composer.addPass( renderPass );
-			//
-			// const effectGrayScale = new ShaderPass( LuminosityShader );
-			// effectGrayScale.renderToScreen = true;
-			// composer.addPass( effectGrayScale );
+			const renderPass = new RenderPass( scene, camera );
+			composer.addPass( renderPass );
+
+			const effectGrayScale = new ShaderPass( LuminosityShader );
+			effectGrayScale.renderToScreen = true;
+			composer.addPass( effectGrayScale );
 			// ------------------------------------------------
 
 			document.body.appendChild( renderer.domElement );

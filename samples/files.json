@@ -39,7 +39,9 @@
  		"planet_earth_sauron_eye",
  		"planet_earth_ssao",
  		"planet_earth_sao",
- 		"planet_earth_rebuild"
+ 		"planet_earth_rebuild",
+ 		"planet_earth_rebuild_grayscale",
+ 		"planet_earth_xg"
  	],
     "forge": [
  		"bim_forge_viewer_basic",
