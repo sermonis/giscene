@@ -24,6 +24,7 @@
 	"bim_controls_firstperson_3": [ "bim", "collision", "intersection", "controls", "firstperson", "fps" ],
 	"bim_controls_firstperson_4": [ "bim", "collision", "intersection", "controls", "firstperson", "fps", "stairs" ],
 	"bim_controls_platformer_1": [ "bim", "collision", "intersection", "controls", "firstperson", "fps", "stairs" ],
+
 	"planet_earth_basic": [ "planet", "earth", "globe" ],
 	"planet_earth_highres": [ "planet", "earth", "globe" ],
 	"planet_earth_choropleth_countries": [ "planet", "earth", "globe", "choropleth", "countries", "population", "gdp" ],
@@ -34,5 +35,6 @@
 	"planet_earth_rebuild_grayscale": [ "planet", "earth", "globe", "grayscale" ],
 	"planet_earth_ssao": [ "planet", "earth", "globe", "ssao" ],
 	"planet_earth_sao": [ "planet", "earth", "globe", "sao" ],
-	"planet_earth_xg": [ "planet", "earth", "globe", "xg" ]
+	"planet_earth_xg": [ "planet", "earth", "globe", "xg" ],
+	"avs_track_race": [ "avs", "track", "race" ]
 }

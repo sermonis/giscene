@@ -43,6 +43,9 @@
  		"planet_earth_rebuild_grayscale",
  		"planet_earth_xg"
  	],
+    "avs": [
+ 		"avs_track_race"
+ 	],
     "forge": [
  		"bim_forge_viewer_basic",
  		"bim_forge_viewer_headless",
