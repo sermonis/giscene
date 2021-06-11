@@ -46,6 +46,7 @@
     "avs": [
  		"avs_track_race",
  		"avs_wall_track_race",
+ 		"avs_track_race_model",
  		"avs_car_control_ferrari",
  		"avs_car_control_ford-focus",
  		"avs_car_control_hyundai-solaris",

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>AVS - Track Race Model</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+		<style></style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates track path following.
+            </div>
+
+            <div></div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+        import * as THREE from '../libs/three.js/build/three.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+
+        import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
+        import { RoomEnvironment } from '../libs/three.js/examples/jsm/environments/RoomEnvironment.js';
+        import { RoadBufferGeometry } from './jsm/geometries/RoadBufferGeometry.js';
+
+		import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
+		import { DRACOLoader } from '../libs/three.js/examples/jsm/loaders/DRACOLoader.js';
+
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+        // ---------------------------------------------------------------------------
+
+		const scene = new THREE.Scene();
+		// scene.background = new THREE.Color( 0xa0a0a0 );
+		// scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
+
+		const camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.01, 200 );
+		camera.position.set( 0, 8, 16 );
+
+		const groundGeometry = new THREE.PlaneBufferGeometry( 500, 500 );
+		// const groundMaterial = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
+		const groundMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.15, depthWrite: false } );
+
+		// const groundMesh = new THREE.Mesh( groundGeometry, groundMaterial );
+		// groundMesh.rotation.x = - Math.PI / 2;
+		// groundMesh.matrixAutoUpdate = false;
+		// groundMesh.receiveShadow = true;
+		// groundMesh.updateMatrix();
+		// scene.add( groundMesh );
+
+		const groundMesh = new THREE.Mesh( groundGeometry, groundMaterial );
+		groundMesh.rotation.x = - Math.PI / 2;
+		groundMesh.matrixAutoUpdate = false;
+		groundMesh.receiveShadow = true;
+		groundMesh.updateMatrix();
+		scene.add( groundMesh );
+
+		const gridHelper = new THREE.GridHelper( 60, 30, 0x000000, 0x000000 );
+		gridHelper.material.opacity = 0.1;
+		gridHelper.material.depthWrite = false;
+		gridHelper.material.transparent = true;
+		scene.add( gridHelper );
+
+		const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
+		hemiLight.position.set( 0, 100, 0 );
+		hemiLight.matrixAutoUpdate = false;
+		hemiLight.updateMatrix();
+		scene.add( hemiLight );
+
+		const ambientLight = new THREE.AmbientLight( 0xffffff );
+		scene.add( ambientLight );
+
+		const renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setClearColor( new THREE.Color( '#F2F5FA' ), 1 );
+		// renderer.outputEncoding = THREE.sRGBEncoding;
+		// renderer.shadowMap.enabled = true;
+		// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.setAnimationLoop( render );
+		renderer.outputEncoding = THREE.sRGBEncoding;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 0.85;
+
+		const environment = new RoomEnvironment();
+		const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
+		scene.background = new THREE.Color( 0xeeeeee );
+		scene.environment = pmremGenerator.fromScene( environment ).texture;
+		scene.fog = new THREE.Fog( 0xeeeeee, 10, 60 );
+
+		const container = document.createElement( 'div' );
+		document.body.appendChild( container );
+		container.appendChild( renderer.domElement );
+
+		const controls = new OrbitControls( camera, renderer.domElement );
+
+		const clock = new THREE.Clock();
+
+		const stats = new Stats();
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.bottom = '0px';
+		stats.domElement.style.zIndex = 100;
+		document.body.appendChild( stats.domElement );
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
+
+		const curvePoints =  [
+
+			-6, 0, 10,
+			-1, 0, 10,
+			3, 0,  4,
+			6, 0,  1,
+			11, 0,  2,
+			13, 0,  6,
+			9, 0,  9,
+			4, 0,  7,
+			1, 0,  1,
+			0, 0, -5,
+			2, 0, -9,
+			8, 0,-10,
+			13, 0, -5,
+			14, 0,  2,
+			10, 0,  7,
+			2, 0,  8,
+			-4, 0,  7,
+			-8, 0,  1,
+			-9, 0, -4,
+			-6, 0, -9,
+			0, 0,-10,
+			7, 0, -7,
+			5, 0,  0,
+			0, 0,  2,
+			-5, 0,  0,
+			-7, 0, -5,
+			-8, 0, -9,
+			-11, 0, -10,
+			-14, 0, -7,
+			-13, 0, -2,
+			-14, 0,  3,
+			-11, 0, 10,
+			-6, 0, 10
+
+		];
+
+		const lengthSegments = 1000;
+		const trackDistances = [ -0.31, -0.3, -0.01, 0.01, 0.3, 0.31 ];
+
+		const gRoad = new RoadBufferGeometry( curvePoints, lengthSegments, trackDistances );
+
+		const texture = new THREE.TextureLoader().load( 'textures/roads/road-central-marking.png' );
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.repeat.set( lengthSegments * 2 );
+
+		// Multimaterial.
+		const roadMaterial = [
+
+			new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide  } ),
+			new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide  } ),
+			new THREE.MeshBasicMaterial( { map: texture, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } ),
+
+		];
+
+		const roadMesh = new THREE.Mesh( gRoad, roadMaterial );
+		scene.add( roadMesh );
+
+		const h = 0.08;
+		var redCar = new THREE.Mesh(
+			new THREE.BoxBufferGeometry( 0.1, h * 1.9 , 0.3 ),
+			new THREE.MeshBasicMaterial( { color: new THREE.Color( 'red' ), side: THREE.DoubleSide, wireframe: true } )
+		);
+
+		scene.add( redCar );
+
+		let redCarIdx = 0;
+		let redCarX, redCarY, redCarZ;
+
+		const greenCar = new THREE.Mesh(
+			new THREE.BoxBufferGeometry( 0.12, h * 1.9, 0.4 ),
+			new THREE.MeshBasicMaterial( { color: new THREE.Color( 'green' ), side: THREE.DoubleSide, wireframe: true  } )
+		);
+
+		scene.add( greenCar );
+
+		let greenCarIdx = gRoad.points.length - 1;
+		let greenCarX, greenCarY, greenCarZ;
+
+		// tangent
+		const gTngt = new THREE.BufferGeometry();
+		gTngt.positions = new Float32Array( 6 );
+		gTngt.setAttribute( 'position', new THREE.BufferAttribute( gTngt.positions, 3 ).setUsage( THREE.DynamicDrawUsage ) );
+
+		const lineTngt = new THREE.Line( gTngt, new THREE.LineBasicMaterial( { color: 0x00ffff, side: THREE.DoubleSide } ) );
+		scene.add( lineTngt );
+
+		// normal
+		const gNorm = new THREE.BufferGeometry();
+		gNorm.positions = new Float32Array( 6 );
+		gNorm.setAttribute( 'position', new THREE.BufferAttribute( gNorm.positions, 3 ).setUsage( THREE.DynamicDrawUsage ) );
+
+		const lineNorm = new THREE.Line( gNorm, new THREE.LineBasicMaterial( { color: 0xff0000, side: THREE.DoubleSide } ) );
+		scene.add( lineNorm );
+
+		// binormal
+		const gBino = new THREE.BufferGeometry();
+		gBino.positions = new Float32Array( 6 );
+		gBino.setAttribute( 'position', new THREE.BufferAttribute( gBino.positions, 3 ).setUsage( THREE.DynamicDrawUsage ) );
+
+		const lineBino = new THREE.Line( gBino, new THREE.LineBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide } ) );
+		scene.add( lineBino );
+
+		let sysIdx = 8;
+
+		let t1 = 0;
+		let t2;
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
+
+		const shadow = new THREE.TextureLoader().load( 'models/gltf/ferrari_ao.png' );
+		const dracoLoader = new DRACOLoader();
+		dracoLoader.setDecoderPath( 'js/libs/draco/gltf/' );
+
+		const loader = new GLTFLoader();
+		loader.setDRACOLoader( dracoLoader );
+
+		setGUI();
+		// animate();
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
+
+		// function animate () {
+		//
+		// 	renderer.setAnimationLoop( render );
+		//
+		// }
+
+		function render () {
+
+			t2 = clock.getElapsedTime();
+
+			if ( t2 - t1 > 0.04 ) {
+
+				redCarX = gRoad.points[ redCarIdx ].x + gRoad.n[ redCarIdx ].x * trackDistances[ 4 ] * 0.6;
+				redCarY = gRoad.points[ redCarIdx ].y + h;
+				redCarZ = gRoad.points[ redCarIdx ].z + gRoad.n[ redCarIdx ].z * trackDistances[ 4 ] * 0.6;
+
+				redCar.position.set( redCarX, redCarY, redCarZ );
+
+				redCar.rotation.y = 1.57 + Math.atan2( -gRoad.t[ redCarIdx ].z, gRoad.t[ redCarIdx ].x );
+				// TODO: take tangent, binormal for calculation.
+
+				redCarIdx ++;
+
+				if ( redCarIdx === gRoad.points.length  ) {
+
+					redCarIdx = 0;
+
+				}
+
+				greenCarX = gRoad.points[ greenCarIdx ].x + gRoad.n[ greenCarIdx ].x * trackDistances[ 1 ] * 0.6;
+				greenCarY = gRoad.points[ greenCarIdx ].y + h;
+				greenCarZ = gRoad.points[ greenCarIdx ].z + gRoad.n[ greenCarIdx ].z * trackDistances[ 1 ] * 0.6;
+
+				greenCar.position.set( greenCarX, greenCarY, greenCarZ );
+
+				greenCar.rotation.y = 1.57 + Math.atan2( -gRoad.t[ greenCarIdx ].z, gRoad.t[ greenCarIdx ].x );
+				// TODO: take tangent, binormal for calculation.
+
+				greenCarIdx --;
+
+				if ( greenCarIdx === -1  ) {
+
+					greenCarIdx = gRoad.points.length - 1;
+
+				}
+
+				gTngt.positions[ 0 ] = gRoad.points[ sysIdx ].x;  // tangent
+				gTngt.positions[ 1 ] = gRoad.points[ sysIdx ].y;
+				gTngt.positions[ 2 ] = gRoad.points[ sysIdx ].z;
+
+				gTngt.positions[ 3 ] = gRoad.points[ sysIdx ].x + gRoad.t[ sysIdx ].x;
+				gTngt.positions[ 4 ] = gRoad.points[ sysIdx ].y + gRoad.t[ sysIdx ].y;
+				gTngt.positions[ 5 ] = gRoad.points[ sysIdx ].z + gRoad.t[ sysIdx ].z;
+
+				gTngt.attributes.position.needsUpdate = true;
+
+				gNorm.positions[ 0 ] = gRoad.points[ sysIdx ].x; // normal
+				gNorm.positions[ 1 ] = gRoad.points[ sysIdx ].y;
+				gNorm.positions[ 2 ] = gRoad.points[ sysIdx ].z;
+
+				gNorm.positions[ 3 ] = gRoad.points[ sysIdx ].x + gRoad.n[ sysIdx ].x;
+				gNorm.positions[ 4 ] = gRoad.points[ sysIdx ].y + gRoad.n[ sysIdx ].y;
+				gNorm.positions[ 5 ] = gRoad.points[ sysIdx ].z + gRoad.n[ sysIdx ].z;
+
+				gNorm.attributes.position.needsUpdate = true;
+
+				gBino.positions[ 0 ] = gRoad.points[ sysIdx ].x; // binormal
+				gBino.positions[ 1 ] = gRoad.points[ sysIdx ].y;
+				gBino.positions[ 2 ] = gRoad.points[ sysIdx ].z;
+
+				gBino.positions[ 3 ] = gRoad.points[ sysIdx ].x + gRoad.b[ sysIdx ].x;
+				gBino.positions[ 4 ] = gRoad.points[ sysIdx ].y + gRoad.b[ sysIdx ].y;
+				gBino.positions[ 5 ] = gRoad.points[ sysIdx ].z + gRoad.b[ sysIdx ].z;
+
+				gBino.attributes.position.needsUpdate = true;
+
+				sysIdx ++;
+
+				if ( sysIdx === gRoad.points.length  ) {
+
+					sysIdx = 0;
+
+				}
+
+				t1 = t2;
+
+			}
+
+			controls.update();
+			stats.update();
+			renderer.render( scene, camera );
+
+		}
+
+		function setGUI () {
+
+            // GUI params.
+        	const params = {
+
+                // Snapshot width.
+                width: 400,
+
+                // Snapshot height.
+                height: 250,
+
+                // Download snapshot.
+                takeShot: function () {
+
+                    const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                    snapshotRenderer.setSize( params.width, params.height );
+
+                    const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                    snapshotRenderer.dispose();
+
+                },
+
+            };
+
+            const gui = new GUI();
+
+            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+            snapshotFolder.add( params, 'width', 0, 2200, 50 );
+            snapshotFolder.add( params, 'height', 0, 1329, 50 );
+            snapshotFolder.add( params, 'takeShot' );
+
+        	snapshotFolder.open();
+
+            gui.close();
+
+        }
+
+    </script>
+
+</html>

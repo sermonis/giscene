@@ -38,6 +38,7 @@
 	"planet_earth_xg": [ "planet", "earth", "globe", "xg" ],
 	"avs_track_race": [ "avs", "track", "race" ],
 	"avs_wall_track_race": [ "avs", "track", "race", "wall" ],
+	"avs_track_race_model": [ "avs", "track", "race", "model" ],
 	"avs_car_control_ferrari": [ "avs", "car", "control", "ferrari" ],
 	"avs_car_control_ford-focus": [ "avs", "car", "control", "ford", "focus" ],
 	"avs_car_control_hyundai-solaris": [ "avs", "car", "hyundai", "solaris" ],
