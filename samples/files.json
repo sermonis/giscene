@@ -44,7 +44,12 @@
  		"planet_earth_xg"
  	],
     "avs": [
- 		"avs_track_race"
+ 		"avs_track_race",
+ 		"avs_wall_track_race",
+ 		"avs_car_control_ferrari",
+ 		"avs_car_control_ford-focus",
+ 		"avs_car_control_hyundai-solaris",
+ 		"avs_car_control_lada-vesta"
  	],
     "forge": [
  		"bim_forge_viewer_basic",

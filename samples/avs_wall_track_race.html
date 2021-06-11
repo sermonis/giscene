@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <title>AVS - Wall Track Race</title>
+        <meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
+        <style></style>
+
+    </head>
+
+    <body>
+
+        <div id="container"></div>
+
+        <div id="info">
+
+            <div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates wall track path following.
+            </div>
+
+            <div></div>
+
+            <div id="message"></div>
+
+        </div>
+
+    </body>
+
+    <script type="module">
+
+        import * as THREE from '../libs/three.js/build/three.module.js';
+        import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+        import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
+
+        import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
+		import { RoomEnvironment } from '../libs/three.js/examples/jsm/environments/RoomEnvironment.js';
+        import { WallBufferGeometry } from './jsm/geometries/WallBufferGeometry.js';
+
+        import Snapshot from './jsm/libs/snapshot.module.js';
+
+        // ---------------------------------------------------------------------------
+
+		const scene = new THREE.Scene();
+		// scene.background = new THREE.Color( 0xa0a0a0 );
+		// scene.fog = new THREE.Fog( 0xa0a0a0, 20, 200 );
+
+		const camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.01, 200 );
+		camera.position.set( 0, 8, 16 );
+
+		const groundGeometry = new THREE.PlaneBufferGeometry( 500, 500 );
+		// const groundMaterial = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
+		const groundMaterial = new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.15, depthWrite: false } );
+
+		// const groundMesh = new THREE.Mesh( groundGeometry, groundMaterial );
+		// groundMesh.rotation.x = - Math.PI / 2;
+		// groundMesh.matrixAutoUpdate = false;
+		// groundMesh.receiveShadow = true;
+		// groundMesh.updateMatrix();
+		// scene.add( groundMesh );
+
+		const groundMesh = new THREE.Mesh( groundGeometry, groundMaterial );
+		groundMesh.rotation.x = - Math.PI / 2;
+		groundMesh.matrixAutoUpdate = false;
+		groundMesh.receiveShadow = true;
+		groundMesh.updateMatrix();
+		scene.add( groundMesh );
+
+		const gridHelper = new THREE.GridHelper( 60, 30, 0x000000, 0x000000 );
+		gridHelper.material.opacity = 0.1;
+		gridHelper.material.depthWrite = false;
+		gridHelper.material.transparent = true;
+		scene.add( gridHelper );
+
+		const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
+		hemiLight.position.set( 0, 100, 0 );
+		hemiLight.matrixAutoUpdate = false;
+		hemiLight.updateMatrix();
+		scene.add( hemiLight );
+
+		const ambientLight = new THREE.AmbientLight( 0xffffff );
+		scene.add( ambientLight );
+
+		const renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setClearColor( new THREE.Color( '#F2F5FA' ), 1 );
+		// renderer.outputEncoding = THREE.sRGBEncoding;
+		// renderer.shadowMap.enabled = true;
+		// renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.setAnimationLoop( render );
+		renderer.outputEncoding = THREE.sRGBEncoding;
+		renderer.toneMapping = THREE.ACESFilmicToneMapping;
+		renderer.toneMappingExposure = 0.85;
+
+		const environment = new RoomEnvironment();
+		const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
+		scene.background = new THREE.Color( 0xeeeeee );
+		scene.environment = pmremGenerator.fromScene( environment ).texture;
+		scene.fog = new THREE.Fog( 0xeeeeee, 10, 100 );
+
+		const container = document.createElement( 'div' );
+		document.body.appendChild( container );
+		container.appendChild( renderer.domElement );
+
+		const controls = new OrbitControls( camera, renderer.domElement );
+
+		const clock = new THREE.Clock();
+
+		const stats = new Stats();
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.bottom = '0px';
+		stats.domElement.style.zIndex = 100;
+		document.body.appendChild( stats.domElement );
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
+
+		const curvePoints =  [
+
+			-16, 0, 24,
+			-2, 0, 24,
+			10, 3, 16,
+			14, 2, 6,
+			28, 0, 4,
+			22, 1, -8,
+			10, 2, -14,
+			0, 5, -12,
+			-4, 2, -6,
+			-16, 0, 0,
+			-20, 3, 8,
+			-24, 0, 24,
+			-16, 0, 24
+
+		];
+
+		const lengthSegments = 400;
+		const sidesDistances = [ [ -0.9, -0.3, 0.3, 0.9 ], [ -0.4, 0, 0.4 ], [ -0.9, -0.3, 0.3, 0.9 ], [ -0.9, 1.1 ] ];
+
+		const gWall = new WallBufferGeometry( curvePoints, lengthSegments, sidesDistances );
+
+		const wallTexture = new THREE.TextureLoader().load( '../libs/three.js/examples/textures/brick_diffuse.jpg' );
+		wallTexture.wrapS = THREE.RepeatWrapping;
+		wallTexture.wrapT = THREE.RepeatWrapping;
+		wallTexture.repeat.set( lengthSegments / 2, 4 );
+
+		// Multimaterial.
+		const wallMaterial = [
+
+			new THREE.MeshBasicMaterial( { map: wallTexture, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { color: 0xff8844, side: THREE.DoubleSide, wireframe: true } ),
+			new THREE.MeshBasicMaterial( { color: 0xffff00, side: THREE.DoubleSide, wireframe: true } ),
+			new THREE.MeshBasicMaterial( { color: 0x000000, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { color: 0x128821, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { map: wallTexture, side: THREE.DoubleSide } ),
+			new THREE.MeshBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide, wireframe: true } ),
+			new THREE.MeshBasicMaterial( { color: 0x004400, side: THREE.DoubleSide } ),
+
+		];
+
+		const wallMesh = new THREE.Mesh( gWall, wallMaterial );
+		scene.add( wallMesh );
+
+		const ball = new THREE.Mesh(
+			new THREE.SphereBufferGeometry( 0.25 ),
+			new THREE.MeshBasicMaterial( { color: 0xff0000, side: THREE.DoubleSide, wireframe: true } )
+		);
+
+		scene.add( ball );
+
+		let ballIdx = 0;
+		let ballX, ballY, ballZ;
+
+		// tangent
+		const gTngt = new THREE.BufferGeometry();
+		gTngt.positions = new Float32Array( 6 );
+		gTngt.addAttribute( 'position', new THREE.BufferAttribute( gTngt.positions, 3 ).setDynamic( true ) );
+
+		const lineTngt = new THREE.Line( gTngt, new THREE.LineBasicMaterial( { color: 0xff00ff, side: THREE.DoubleSide } ) );
+		scene.add( lineTngt );
+
+		// normal
+		const gNorm = new THREE.BufferGeometry();
+		gNorm.positions = new Float32Array( 6 );
+		gNorm.addAttribute( 'position', new THREE.BufferAttribute( gNorm.positions, 3 ).setDynamic( true ) );
+
+		const lineNorm = new THREE.Line( gNorm, new THREE.LineBasicMaterial( { color: 0xff0000, side: THREE.DoubleSide } ) );
+		scene.add( lineNorm );
+
+		// binormal
+		const gBino = new THREE.BufferGeometry();
+		gBino.positions = new Float32Array( 6 );
+		gBino.addAttribute( 'position', new THREE.BufferAttribute( gBino.positions, 3 ).setDynamic( true ) );
+
+		const lineBino = new THREE.Line( gBino, new THREE.LineBasicMaterial( { color: 0x0000ff, side: THREE.DoubleSide } ) );
+		scene.add( lineBino );
+
+		let sysIdx = 0;
+
+		let t1 = 0;
+		let t2;
+
+		setGUI();
+		animate();
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
+
+		function animate () {
+
+			renderer.setAnimationLoop( render );
+
+		}
+
+		function render () {
+
+			t2 = clock.getElapsedTime();
+
+			if ( t2 - t1 > 0.04 ) {
+
+				ballX = gWall.points[ ballIdx ].x + gWall.n[ ballIdx ].x * 0.8;
+				ballY = gWall.points[ ballIdx ].y - 0.6;
+				ballZ = gWall.points[ ballIdx ].z + gWall.n[ ballIdx ].z * 0.8;
+
+				ball.position.set( ballX, ballY, ballZ );
+
+				ballIdx ++;
+
+				if ( ballIdx === gWall.points.length  ) {
+
+					ballIdx = 0;
+
+				}
+
+				gTngt.positions[ 0 ] = gWall.points[ sysIdx ].x; // tangent
+				gTngt.positions[ 1 ] = gWall.points[ sysIdx ].y;
+				gTngt.positions[ 2 ] = gWall.points[ sysIdx ].z;
+
+				gTngt.positions[ 3 ] = gWall.points[ sysIdx ].x + gWall.t[ sysIdx ].x * 2;
+				gTngt.positions[ 4 ] = gWall.points[ sysIdx ].y + gWall.t[ sysIdx ].y * 2;
+				gTngt.positions[ 5 ] = gWall.points[ sysIdx ].z + gWall.t[ sysIdx ].z * 2;
+
+				gTngt.attributes.position.needsUpdate = true;
+
+				gNorm.positions[ 0 ] = gWall.points[ sysIdx ].x; // normal
+				gNorm.positions[ 1 ] = gWall.points[ sysIdx ].y;
+				gNorm.positions[ 2 ] = gWall.points[ sysIdx ].z;
+
+				gNorm.positions[ 3 ] = gWall.points[ sysIdx ].x + gWall.n[ sysIdx ].x * 2;
+				gNorm.positions[ 4 ] = gWall.points[ sysIdx ].y + gWall.n[ sysIdx ].y * 2;
+				gNorm.positions[ 5 ] = gWall.points[ sysIdx ].z + gWall.n[ sysIdx ].z * 2;
+
+				gNorm.attributes.position.needsUpdate = true;
+
+				gBino.positions[ 0 ] = gWall.points[ sysIdx ].x; // binormal
+				gBino.positions[ 1 ] = gWall.points[ sysIdx ].y;
+				gBino.positions[ 2 ] = gWall.points[ sysIdx ].z;
+
+				gBino.positions[ 3 ] = gWall.points[ sysIdx ].x + gWall.b[ sysIdx ].x * 2;
+				gBino.positions[ 4 ] = gWall.points[ sysIdx ].y + gWall.b[ sysIdx ].y * 2;
+				gBino.positions[ 5 ] = gWall.points[ sysIdx ].z + gWall.b[ sysIdx ].z * 2;
+
+				gBino.attributes.position.needsUpdate = true;
+
+				sysIdx ++;
+
+				if ( sysIdx === gWall.points.length  ) {
+
+					sysIdx = 0;
+
+				}
+
+				t1 = t2;
+
+			}
+
+			controls.update();
+			stats.update();
+			renderer.render( scene, camera );
+
+		}
+
+		function setGUI () {
+
+            // GUI params.
+        	const params = {
+
+                // Snapshot width.
+                width: 400,
+
+                // Snapshot height.
+                height: 250,
+
+                // Download snapshot.
+                takeShot: function () {
+
+                    const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+                    snapshotRenderer.setSize( params.width, params.height );
+
+                    const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+                    snapshotRenderer.dispose();
+
+                },
+
+            };
+
+            const gui = new GUI();
+
+            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+            snapshotFolder.add( params, 'width', 0, 2200, 50 );
+            snapshotFolder.add( params, 'height', 0, 1329, 50 );
+            snapshotFolder.add( params, 'takeShot' );
+
+        	snapshotFolder.open();
+
+            gui.close();
+
+        }
+
+    </script>
+
+</html>
