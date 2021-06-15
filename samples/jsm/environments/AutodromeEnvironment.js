@@ -1,7 +1,3 @@
-/**
- * https://github.com/google/model-viewer/blob/master/packages/model-viewer/src/three-components/EnvironmentScene.ts
- */
-
 import * as THREE from '../../../libs/three.js/build/three.module.js';
 
 function AutodromeEnvironment () {
@@ -58,7 +54,6 @@ function AutodromeEnvironment () {
 	box6.rotation.set( 0, 0.516, 0 );
 	box6.scale.set( 3.875, 3.487, 2.986 );
 	scene.add( box6 );
-
 
 	// -x right
 	const light1 = new THREE.Mesh( geometry, createAreaLightMaterial( 50 ) );
