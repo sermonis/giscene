@@ -120,6 +120,12 @@
 		stats.domElement.style.zIndex = 100;
 		document.body.appendChild( stats.domElement );
 
+		const props = {
+
+			play: true,
+
+		};
+
 		// -----------------------------
 		// -----------------------------
 		// -----------------------------
@@ -188,7 +194,16 @@
 		const h = 0.08;
 		var redCar = new THREE.Mesh(
 			new THREE.BoxBufferGeometry( 0.1, h * 1.9 , 0.3 ),
-			new THREE.MeshBasicMaterial( { color: new THREE.Color( 'red' ), side: THREE.DoubleSide, wireframe: true } )
+			new THREE.MeshBasicMaterial( {
+
+				color: new THREE.Color( 'red' ),
+				side: THREE.DoubleSide,
+				wireframe: true,
+
+				transparent: true,
+				opacity: 0.01,
+
+			} )
 		);
 
 		scene.add( redCar );
@@ -198,7 +213,16 @@
 
 		const greenCar = new THREE.Mesh(
 			new THREE.BoxBufferGeometry( 0.12, h * 1.9, 0.4 ),
-			new THREE.MeshBasicMaterial( { color: new THREE.Color( 'green' ), side: THREE.DoubleSide, wireframe: true  } )
+			new THREE.MeshBasicMaterial( {
+
+				color: new THREE.Color( 'green' ),
+				side: THREE.DoubleSide,
+				wireframe: true,
+
+				transparent: true,
+				opacity: 0.01,
+
+			} )
 		);
 
 		scene.add( greenCar );
@@ -238,13 +262,92 @@
 		// -----------------------------
 		// -----------------------------
 		// -----------------------------
+		// let alpha = 0;
+		// let delta;
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
 
-		const shadow = new THREE.TextureLoader().load( 'models/gltf/ferrari_ao.png' );
+		// const shadow = new THREE.TextureLoader().load( 'models/gltf/ferrari_ao.png' );
+		// const dracoLoader = new DRACOLoader();
+		// dracoLoader.setDecoderPath( 'js/libs/draco/gltf/' );
+		//
+		// const loader = new GLTFLoader();
+		// loader.setDRACOLoader( dracoLoader );
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
+
 		const dracoLoader = new DRACOLoader();
-		dracoLoader.setDecoderPath( 'js/libs/draco/gltf/' );
+		dracoLoader.setDecoderPath( '../libs/three.js/examples/js/libs/draco/gltf/' );
 
-		const loader = new GLTFLoader();
-		loader.setDRACOLoader( dracoLoader );
+		const gltfLoader = new GLTFLoader();
+		gltfLoader.setDRACOLoader( dracoLoader );
+
+		// gltfLoader.load( '../libs/three.js/examples/models/gltf/ferrari.glb', function ( gltf ) {
+		gltfLoader.load( './models/gltf/vehicles/cars/lada/vesta/lada-vesta.glb', function ( gltf ) {
+
+			// carModel = gltf.scene.children[ 0 ];
+			// carControls.setModel( carModel );
+
+			// carModel.traverse( function ( child ) {
+			//
+			// 	if ( child.isMesh ) {
+			//
+			// 		// child.material.envMap = envMap;
+			//
+			// 	}
+			//
+			// } );
+
+			const carModel = gltf.scene.children[ 0 ];
+			// carModel.rotation.y = - Math.PI / 2;
+			carModel.receiveShadow = true;
+			carModel.castShadow = true;
+
+			carModel.rotation.y = Math.PI;
+			carModel.position.y = -0.08;
+			carModel.scale.set( 0.14, 0.14, 0.14 );
+
+			redCar.add( carModel );
+
+			// redCar.add( camera );
+			// camera.lookAt( redCar );
+
+		} );
+
+		gltfLoader.load( './models/gltf/vehicles/cars/ford/focus/ford-focus.glb', function ( gltf ) {
+
+			// carModel = gltf.scene.children[ 0 ];
+			// carControls.setModel( carModel );
+
+			// carModel.traverse( function ( child ) {
+			//
+			// 	if ( child.isMesh ) {
+			//
+			// 		// child.material.envMap = envMap;
+			//
+			// 	}
+			//
+			// } );
+
+			const carModel = gltf.scene.children[ 0 ];
+			// carModel.rotation.y = - Math.PI / 2;
+			carModel.receiveShadow = true;
+			carModel.castShadow = true;
+
+			// carModel.rotation.y = Math.PI;
+			carModel.position.y = -0.08;
+			carModel.scale.set( 0.14, 0.14, 0.14 );
+
+			greenCar.add( carModel );
+
+		} );
+
+		// -----------------------------
+		// -----------------------------
+		// -----------------------------
 
 		setGUI();
 		// animate();
@@ -259,17 +362,41 @@
 		//
 		// }
 
+		// let maxFrames = 10;
+
+		// let alpha = 0;
+		// let delta;
+
 		function render () {
 
 			t2 = clock.getElapsedTime();
 
-			if ( t2 - t1 > 0.04 ) {
+			// -----------------------------
+			// -----------------------------
+			// -----------------------------
+			// delta = clock.getDelta();
+			// alpha += delta;
+
+			// console.log( alpha )
+			// let damping = 5.0;
+			// let distance = 5;
+			// let cameraTarget = new THREE.Vector3();
+			// -----------------------------
+			// -----------------------------
+			// -----------------------------
+
+			// maxFrames--;
+
+			if ( t2 - t1 > 0.04 && props.play ) {
+			// if ( t2 - t1 > 0.04 && maxFrames > 0 ) {
 
 				redCarX = gRoad.points[ redCarIdx ].x + gRoad.n[ redCarIdx ].x * trackDistances[ 4 ] * 0.6;
 				redCarY = gRoad.points[ redCarIdx ].y + h;
 				redCarZ = gRoad.points[ redCarIdx ].z + gRoad.n[ redCarIdx ].z * trackDistances[ 4 ] * 0.6;
 
 				redCar.position.set( redCarX, redCarY, redCarZ );
+				// redCar.position.lerp( new THREE.Vector3( redCarX, redCarY, redCarZ ), delta );
+				// redCar.position.lerp( new THREE.Vector3( redCarX, redCarY, redCarZ ), 0.1 );
 
 				redCar.rotation.y = 1.57 + Math.atan2( -gRoad.t[ redCarIdx ].z, gRoad.t[ redCarIdx ].x );
 				// TODO: take tangent, binormal for calculation.
@@ -281,6 +408,18 @@
 					redCarIdx = 0;
 
 				}
+
+				// camera.position.lerp( redCar.position, delta * damping );
+				// camera.target = redCar.position;
+				// camera.position.set( redCarX, ( redCarY + 0.24 ), redCarZ );
+				// camera.rotation.y = redCar.rotation.y;
+				// camera.lookAt(redCar);
+
+				// redCar.getWorldPosition( cameraTarget );
+				// cameraTarget.y = 2.5;
+				// cameraTarget.z += distance;
+				//
+				// camera.position.lerp( cameraTarget, delta * damping );
 
 				greenCarX = gRoad.points[ greenCarIdx ].x + gRoad.n[ greenCarIdx ].x * trackDistances[ 1 ] * 0.6;
 				greenCarY = gRoad.points[ greenCarIdx ].y + h;
@@ -372,6 +511,12 @@
             };
 
             const gui = new GUI();
+
+			gui.add( props, 'play' ).onChange( value => {
+
+				props.play = value;
+
+			} ).name( 'Play' );
 
             const snapshotFolder = gui.addFolder( 'Snapshot' );
 
