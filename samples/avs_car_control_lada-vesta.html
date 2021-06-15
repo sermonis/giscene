@@ -1,132 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
+
 	<head>
-		<title>three.js webgl - materials - car - LADA Vesta</title>
+
+		<title>AVS - Car Model Controls</title>
+
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
+
+		<link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
+
 		<style>
 			body {
 				color: #444;
 			}
 			a {
-				color: #08f;
+				color: #049EF4;
 			}
 		</style>
+
 	</head>
 
 	<body>
-		<div id="info">
-			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> car materials demo<br/>
-			LADA Vesta model by <a href="http://www.mgtniip.ru" target="_blank" rel="noopener">http://www.mgtniip.ru</a>
-			<br><br>
-			<!-- <span>Body: <select id="body-mat"></select></span>
-			<span>Details: <select id="rim-mat"></select></span>
-			<span>Glass: <select id="glass-mat"></select></span>
-			<br><br> -->
-			<span>Follow camera: <input type="checkbox" id="camera-toggle"></span>
-		</div>
 
-		<div id="container"></div>
+		<div id="info">
+
+			<div>
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates car model controls.
+            </div>
+
+			<div>
+                Up/Down arrows: move forward/backward (global Z-direction). Left/Right arrows: turn left/right (global X-direction). SPACE key is for brake.
+            </div>
+
+			<div>
+				Lada Vesta glTF-model by <a href="http://www.mgtniip.ru" target="_blank" rel="noopener">MosTransProekt</a>.
+			</div>
+
+		</div>
 
 		<script type="module">
 
-			import * as THREE from '../build/three.module.js';
+			import * as THREE from '../libs/three.js/build/three.module.js';
+			import Stats from '../libs/three.js/examples/jsm/libs/stats.module.js';
+			import { GUI } from '../libs/three.js/examples/jsm/libs/dat.gui.module.js';
 
-			import Stats from './jsm/libs/stats.module.js';
+			import { GLTFLoader } from '../libs/three.js/examples/jsm/loaders/GLTFLoader.js';
+			import { DRACOLoader } from '../libs/three.js/examples/jsm/loaders/DRACOLoader.js';
 
-			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
-			import { DRACOLoader } from './jsm/loaders/DRACOLoader.js';
+			import { AutodromeEnvironment } from './jsm/environments/AutodromeEnvironment.js';
 
 			import { CarControls } from './jsm/misc/CarControls.js';
 
-			import { PMREMGenerator } from './jsm/pmrem/PMREMGenerator.js';
-			import { PMREMCubeUVPacker } from './jsm/pmrem/PMREMCubeUVPacker.js';
+			import Snapshot from './jsm/libs/snapshot.module.js';
 
-			var camera, scene, renderer, stats, carModel, materialsLib, envMap;
+			let scene, camera, renderer;
 
-			var bodyMatSelect = document.getElementById( 'body-mat' );
-			var rimMatSelect = document.getElementById( 'rim-mat' );
-			var glassMatSelect = document.getElementById( 'glass-mat' );
+			let carModel, carParts;
 
-			var followCamera = document.getElementById( 'camera-toggle' );
-
-			var clock = new THREE.Clock();
-			var carControls = new CarControls();
+			let carControls = new CarControls();
 			carControls.turningRadius = 75;
 
-			var carParts = {
-				body: [],
-				rims: [],
-				glass: [],
+			const damping = 5.0;
+			const distance = 5;
+
+			const clock = new THREE.Clock();
+			const cameraTarget = new THREE.Vector3();
+
+			// -----------------------------
+			// -----------------------------
+			// -----------------------------
+			const props = {
+
+				camera: {
+
+					'follow': false,
+
+				},
+
+				materials: {
+
+					body: {
+
+						color: '#ff0000',
+
+					},
+
+					details: {
+
+						color: '#ffffff',
+
+					},
+
+					glass: {
+
+						color: '#ffffff',
+
+					},
+
+				},
+
+				meshes: {},
+
+				snapshot: {
+
+					// Snapshot width.
+					width: 400,
+
+					// Snapshot height.
+					height: 250,
+
+					// Download snapshot.
+					takeShot: function () {
+
+						const snapshotRenderer = new THREE.WebGLRenderer( { antialias: true } );
+						snapshotRenderer.setSize( this.width, this.height );
+
+						const snapshot = new Snapshot( snapshotRenderer ).capture( scene, camera );
+						snapshotRenderer.dispose();
+
+					},
+
+				}
+
 			};
+			// -----------------------------
+			// -----------------------------
+			// -----------------------------
 
-			var damping = 5.0;
-			var distance = 5;
-			var cameraTarget = new THREE.Vector3();
+			const bodyMaterial = new THREE.MeshPhysicalMaterial( {
 
-			function init() {
+				color: 0xff0000,
+				metalness: 0.6,
+				roughness: 0.4,
+				clearcoat: 0.05,
+				clearcoatRoughness: 0.05,
 
-				var container = document.getElementById( 'container' );
+			} );
+
+			const detailsMaterial = new THREE.MeshStandardMaterial( {
+
+				color: 0xffffff,
+				metalness: 1.0,
+				roughness: 0.5,
+
+			} );
+
+			const glassMaterial = new THREE.MeshPhysicalMaterial( {
+
+				color: 0xffffff,
+				metalness: 0,
+				roughness: 0.1,
+				transmission: 0.9,
+				transparent: true,
+
+			} );
+
+			// -----------------------------
+			// -----------------------------
+			// -----------------------------
+
+			const stats = new Stats();
+			document.body.appendChild( stats.dom );
+
+			// -----------------------------
+			// -----------------------------
+			// -----------------------------
+
+			async function init () {
 
 				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 200 );
 				camera.position.set( 3.25, 2.0, - 5 );
 				camera.lookAt( 0, 0.5, 0 );
 
-				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0xd7cbb1, 1, 80 );
-
-				var urls = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
-				var loader = new THREE.CubeTextureLoader().setPath( 'textures/cube/skyboxsun25deg/' );
-				loader.load( urls, function ( texture ) {
-
-					scene.background = texture;
-
-					var pmremGenerator = new PMREMGenerator( texture );
-					pmremGenerator.update( renderer );
-
-					var pmremCubeUVPacker = new PMREMCubeUVPacker( pmremGenerator.cubeLods );
-					pmremCubeUVPacker.update( renderer );
-
-					envMap = pmremCubeUVPacker.CubeUVRenderTarget.texture;
-
-					pmremGenerator.dispose();
-					pmremCubeUVPacker.dispose();
-
-					//
-
-					initCar();
-					initMaterials();
-					initMaterialSelectionMenus();
-
-				} );
-
-				var ground = new THREE.Mesh(
-					new THREE.PlaneBufferGeometry( 2400, 2400 ),
-					new THREE.ShadowMaterial( { color: 0x000000, opacity: 0.15, depthWrite: false }
-					) );
-				ground.rotation.x = - Math.PI / 2;
-				ground.receiveShadow = true;
-				ground.renderOrder = 1;
-				scene.add( ground );
-
-				var grid = new THREE.GridHelper( 400, 40, 0x000000, 0x000000 );
-				grid.material.opacity = 0.2;
-				grid.material.depthWrite = false;
-				grid.material.transparent = true;
-				scene.add( grid );
-
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.gammaOutput = true;
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
-				container.appendChild( renderer.domElement );
-
-				stats = new Stats();
-				container.appendChild( stats.dom );
-
-				window.addEventListener( 'resize', onWindowResize, false );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.toneMappingExposure = 0.85;
 
 				renderer.setAnimationLoop( function () {
 
@@ -136,139 +188,154 @@
 
 				} );
 
+				document.body.appendChild( renderer.domElement );
+
+				const environment = new AutodromeEnvironment();
+				const pmremGenerator = new THREE.PMREMGenerator( renderer );
+
+				scene = new THREE.Scene();
+				scene.fog = new THREE.Fog( 0xd7cbb1, 1, 80 );
+				// scene.fog = new THREE.Fog( 0xeeeeee, 10, 50 );
+
+				scene.background = new THREE.Color( 0xeeeeee );
+				scene.environment = pmremGenerator.fromScene( environment ).texture;
+
+				const cubeTextureURLs = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
+				const cubeTexturePath = '../libs/three.js/examples/textures/cube/skyboxsun25deg/';
+				const cubeTextureLoader = new THREE.CubeTextureLoader().setPath( cubeTexturePath );
+				cubeTextureLoader.load( cubeTextureURLs, function ( texture ) {
+
+					// https://sermonis.github.io/sandbox/?q=env#webgl_materials_envmaps
+					// https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_envmaps.html
+					texture.encoding = THREE.sRGBEncoding;
+					scene.background = texture;
+					// scene.environment = pmremGenerator.fromScene( environment ).texture;
+					// scene.environment = pmremGenerator.fromScene( scene ).texture;
+
+				} );
+
+				const ground = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry( 2400, 2400 ),
+					new THREE.ShadowMaterial( {
+
+						color: 0x000000,
+						opacity: 0.15,
+						depthWrite: false
+
+					} )
+				);
+				ground.rotation.x = - Math.PI / 2;
+				ground.receiveShadow = true;
+				ground.renderOrder = 1;
+				scene.add( ground );
+
+				const grid = new THREE.GridHelper( 400, 40, 0x000000, 0x000000 );
+				grid.material.opacity = 0.2;
+				grid.material.depthWrite = false;
+				grid.material.transparent = true;
+				scene.add( grid );
+
+				const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
+				hemiLight.position.set( 0, 100, 0 );
+				hemiLight.matrixAutoUpdate = false;
+				hemiLight.updateMatrix();
+				scene.add( hemiLight );
+
+				const ambientLight = new THREE.AmbientLight( 0xffffff );
+				scene.add( ambientLight );
+
+				await initCar();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
 			}
 
-			function initCar() {
+			function initCar () {
 
-				var dracoLoader = new DRACOLoader();
-				dracoLoader.setDecoderPath( 'js/libs/draco/gltf/' );
+				return new Promise ( resolve => {
 
-				var loader = new GLTFLoader();
-				loader.setDRACOLoader( dracoLoader );
+					const dracoLoader = new DRACOLoader();
+					dracoLoader.setDecoderPath( '../libs/three.js/examples/js/libs/draco/gltf/' );
 
-				loader.load( 'models/gltf/lada-vesta.glb', function ( gltf ) {
+					const gltfLoader = new GLTFLoader();
+					gltfLoader.setDRACOLoader( dracoLoader );
 
-					carModel = gltf.scene.children[ 0 ];
+					gltfLoader.load( './models/gltf/vehicles/cars/lada/vesta/lada-vesta.glb', function ( gltf ) {
 
-					carControls.setModel( carModel );
+						// TODO: Reorganize model layers (RootNode).
+						// carModel = gltf.scene.children[ 0 ];
+						carModel = gltf.scene;
 
-					carModel.traverse( function ( child ) {
+						// carModel.getObjectByName( 'body' ).material = bodyMaterial;
 
-						if ( child.isMesh ) {
+						//
+						// carModel.getObjectByName( 'rim_fl' ).material = detailsMaterial;
+						// carModel.getObjectByName( 'rim_fr' ).material = detailsMaterial;
+						// carModel.getObjectByName( 'rim_rr' ).material = detailsMaterial;
+						// carModel.getObjectByName( 'rim_rl' ).material = detailsMaterial;
+						// carModel.getObjectByName( 'trim' ).material = detailsMaterial;
 
-							child.material.envMap = envMap;
+						// carModel.getObjectByName( 'glass' ).material = glassMaterial;
+						// carModel.getObjectByName( 'Glass' ).material = glassMaterial;
 
-						}
+						carControls.setModel( carModel );
+
+						carModel.traverse( function ( child ) {
+
+							if ( child.isMesh ) {
+
+								child.castShadow = true;
+
+								console.log( 'mesh', child.name, child );
+								// console.log( 'mesh', child.name );
+								props.meshes[ child.name ] = true;
+
+								// child.material.envMap = envMap;
+								// child.material.envMap = scene.background;
+								// child.material.needsUpdate = true;
+
+							}
+
+							// if ( child.isGroup ) {
+							//
+							// 	console.log( 'group', child.name );
+							//
+							// }
+
+						} );
+
+						// Car shadow.
+						const shadowTexture = new THREE.TextureLoader().load( './models/gltf/vehicles/cars/lada/vesta/lada-vesta_ao.png' );
+						const shadowMesh = new THREE.Mesh(
+							// new THREE.PlaneBufferGeometry( 0.655 * 4, 1.3 * 4 ).rotateX( - Math.PI / 2 ),
+							new THREE.PlaneBufferGeometry( 0.655 * 4, 1.3 * 4 ),
+							new THREE.MeshBasicMaterial( {
+
+								map: shadowTexture,
+								transparent: true,
+								blending: THREE.MultiplyBlending,
+								toneMapped: false,
+
+							} )
+						);
+
+						shadowMesh.position.z -= 0.32;
+						shadowMesh.rotateX( - Math.PI / 2 );
+						shadowMesh.renderOrder = 2;
+
+						carModel.add( shadowMesh );
+
+						scene.add( carModel );
+
+						resolve();
 
 					} );
 
-					// shadow
-					var texture = new THREE.TextureLoader().load( 'models/gltf/ferrari_ao.png' );
-					var shadow = new THREE.Mesh(
-						new THREE.PlaneBufferGeometry( 0.655 * 4, 1.3 * 4 ).rotateX( - Math.PI / 2 ),
-						new THREE.MeshBasicMaterial( { map: texture, opacity: 0.8, transparent: true } )
-					);
-					shadow.renderOrder = 2;
-					carModel.add( shadow );
-
-					scene.add( carModel );
-
-					// car parts for material selection
-					carParts.body.push( carModel.getObjectByName( 'body' ) );
-
-					carParts.rims.push(
-						carModel.getObjectByName( 'rim_fl' ),
-						carModel.getObjectByName( 'rim_fr' ),
-						carModel.getObjectByName( 'rim_rr' ),
-						carModel.getObjectByName( 'rim_rl' ),
-						carModel.getObjectByName( 'trim' ),
-					);
-
-					carParts.glass.push(
-						carModel.getObjectByName( 'glass' ),
-					 );
-
-					updateMaterials();
-
 				} );
 
 			}
 
-			function initMaterials() {
-
-				materialsLib = {
-
-					main: [
-
-						new THREE.MeshStandardMaterial( { color: 0xff4400, envMap: envMap, metalness: 0.9, roughness: 0.2, name: 'orange' } ),
-						new THREE.MeshStandardMaterial( { color: 0x001166, envMap: envMap, metalness: 0.9, roughness: 0.2, name: 'blue' } ),
-						new THREE.MeshStandardMaterial( { color: 0x990000, envMap: envMap, metalness: 0.9, roughness: 0.2, name: 'red' } ),
-						new THREE.MeshStandardMaterial( { color: 0x000000, envMap: envMap, metalness: 0.9, roughness: 0.5, name: 'black' } ),
-						new THREE.MeshStandardMaterial( { color: 0xffffff, envMap: envMap, metalness: 0.9, roughness: 0.5, name: 'white' } ),
-						new THREE.MeshStandardMaterial( { color: 0x555555, envMap: envMap, envMapIntensity: 2.0, metalness: 1.0, roughness: 0.2, name: 'metallic' } ),
-
-					],
-
-					glass: [
-
-						new THREE.MeshStandardMaterial( { color: 0xffffff, envMap: envMap, metalness: 1, roughness: 0, opacity: 0.2, transparent: true, premultipliedAlpha: true, name: 'clear' } ),
-						new THREE.MeshStandardMaterial( { color: 0x000000, envMap: envMap, metalness: 1, roughness: 0, opacity: 0.2, transparent: true, premultipliedAlpha: true, name: 'smoked' } ),
-						new THREE.MeshStandardMaterial( { color: 0x001133, envMap: envMap, metalness: 1, roughness: 0, opacity: 0.2, transparent: true, premultipliedAlpha: true, name: 'blue' } ),
-
-					],
-
-				};
-
-			}
-
-			function initMaterialSelectionMenus() {
-
-				function addOption( name, menu ) {
-
-					var option = document.createElement( 'option' );
-					option.text = name;
-					option.value = name;
-					menu.add( option );
-
-				}
-
-				materialsLib.main.forEach( function ( material ) {
-
-					addOption( material.name, bodyMatSelect );
-					addOption( material.name, rimMatSelect );
-
-				} );
-
-				materialsLib.glass.forEach( function ( material ) {
-
-					addOption( material.name, glassMatSelect );
-
-				} );
-
-				bodyMatSelect.selectedIndex = 3;
-				rimMatSelect.selectedIndex = 5;
-				glassMatSelect.selectedIndex = 0;
-
-				bodyMatSelect.addEventListener( 'change', updateMaterials );
-				rimMatSelect.addEventListener( 'change', updateMaterials );
-				glassMatSelect.addEventListener( 'change', updateMaterials );
-
-			}
-
-			// set materials to the current values of the selection menus
-			function updateMaterials() {
-
-				var bodyMat = materialsLib.main[ bodyMatSelect.selectedIndex ];
-				var rimMat = materialsLib.main[ rimMatSelect.selectedIndex ];
-				var glassMat = materialsLib.glass[ glassMatSelect.selectedIndex ];
-
-				carParts.body.forEach( part => part.material = bodyMat );
-				carParts.rims.forEach( part => part.material = rimMat );
-				carParts.glass.forEach( part => part.material = glassMat );
-
-			}
-
-			function onWindowResize() {
+			function onWindowResize () {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
@@ -277,7 +344,7 @@
 
 			}
 
-			function update() {
+			function update () {
 
 				var delta = clock.getDelta();
 
@@ -292,7 +359,7 @@
 
 					}
 
-					if ( followCamera.checked ) {
+					if ( props.camera.follow ) {
 
 						carModel.getWorldPosition( cameraTarget );
 						cameraTarget.y = 2.5;
@@ -317,9 +384,64 @@
 
 			}
 
-			init();
+			await init();
+
+			( function () {
+
+	            const gui = new GUI();
+
+				const cameraFolder = gui.addFolder( 'Camera' );
+
+				cameraFolder.add( props.camera, 'follow' ).name( 'Follow' );
+
+				const materialFolder = gui.addFolder( 'Materials' );
+
+				materialFolder.addColor( props.materials.body, 'color' ).onChange( value => {
+
+					bodyMaterial.color.set( value );
+
+
+				} ).name( 'Body' );
+
+				materialFolder.addColor( props.materials.details, 'color' ).onChange( value => {
+
+					detailsMaterial.color.set( value );
+
+				} ).name( 'Details' );
+
+				materialFolder.addColor( props.materials.glass, 'color' ).onChange( value => {
+
+					glassMaterial.color.set( value );
+
+				} ).name( 'Glass' );
+
+	            const meshesFolder = gui.addFolder( 'Meshes' );
+
+				Object.keys( props.meshes ).forEach( key => {
+
+					meshesFolder.add( props.meshes, key ).onChange( value => {
+
+						carModel.getObjectByName( key ).visible = value;
+
+					} );
+
+				} );
+
+
+	            const snapshotFolder = gui.addFolder( 'Snapshot' );
+
+	            snapshotFolder.add( props.snapshot, 'width', 0, 2200, 50 );
+	            snapshotFolder.add( props.snapshot, 'height', 0, 1329, 50 );
+	            snapshotFolder.add( props.snapshot, 'takeShot' );
+
+	        	snapshotFolder.close();
+
+	            // gui.open();
+
+	        } )();
 
 		</script>
 
 	</body>
+
 </html>

@@ -5,7 +5,7 @@
  * The model is expected to follow real world car proportions. You can try unusual car types
  * but your results may be unexpected. Scaled models are also not supported.
  *
- * Defaults are rough estimates for a real world scale car model
+ * Defaults are rough estimates for a real world scale car model.
  *
  */
 import {
@@ -13,43 +13,43 @@ import {
 	Box3,
 	Group,
 	Math as _Math,
-	Vector3
+	Vector3,
 
 } from '../../../libs/three.js/build/three.module.js';
 
-var CarControls = ( function ( ) {
+const CarControls = ( function ( ) {
 
-	// private variables
-	var steeringWheelSpeed = 1.5;
-	var maxSteeringRotation = 0.6;
+	// Private variables.
+	let steeringWheelSpeed = 1.5;
+	let maxSteeringRotation = 0.6;
 
-	var acceleration = 0;
+	let acceleration = 0;
 
-	var maxSpeedReverse, accelerationReverse, deceleration;
+	let maxSpeedReverse, accelerationReverse, deceleration;
 
-	var controlKeys = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, BRAKE: 32 };
+	let controlKeys = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, BRAKE: 32 };
 
-	var wheelOrientation = 0;
-	var carOrientation = 0;
+	let wheelOrientation = 0;
+	let carOrientation = 0;
 
-	var root = null;
+	let root = null;
 
-	var frontLeftWheelRoot = null;
-	var frontRightWheelRoot = null;
+	let frontLeftWheelRoot = null;
+	let frontRightWheelRoot = null;
 
-	var frontLeftWheel = new Group();
-	var frontRightWheel = new Group();
-	var backLeftWheel = null;
-	var backRightWheel = null;
+	let frontLeftWheel = new Group();
+	let frontRightWheel = new Group();
+	let backLeftWheel = null;
+	let backRightWheel = null;
 
-	var steeringWheel = null;
+	let steeringWheel = null;
 
-	var wheelDiameter = 1;
-	var length = 1;
+	let wheelDiameter = 1;
+	let length = 1;
 
-	var loaded = false;
+	let loaded = false;
 
-	var controls = {
+	let controls = {
 
 		brake: false,
 		moveForward: false,
@@ -59,16 +59,20 @@ var CarControls = ( function ( ) {
 
 	};
 
-	function CarControls( maxSpeed, acceleration, brakePower, turningRadius, keys ) {
+	function CarControls ( maxSpeed, acceleration, brakePower, turningRadius, keys ) {
 
 		this.enabled = true;
 
 		this.elemNames = {
+
 			flWheel: 'wheel_fl',
 			frWheel: 'wheel_fr',
 			rlWheel: 'wheel_rl',
 			rrWheel: 'wheel_rr',
-			steeringWheel: 'steering_wheel', // set to null to disable
+
+			// Set to null to disable.
+			steeringWheel: 'steering_wheel',
+
 		};
 
 		// km/hr
@@ -85,16 +89,20 @@ var CarControls = ( function ( ) {
 		// m/s
 		deceleration = this.acceleration * 2;
 
-		// multiplied with deceleration, so breaking deceleration = ( acceleration * 2 * brakePower ) m/s
+		// Multiplied with deceleration,
+		// so breaking deceleration = ( acceleration * 2 * brakePower ) m/s
 		this.brakePower = brakePower || 10;
 
-		// exposed so that a user can use this for various effect, e.g blur
+		// Exposed so that a user can use this
+		// for various effect, e.g blur.
 		this.speed = 0;
 
-		// keys used to control car - by default the arrow keys and space to brake
+		// Keys used to control car - by default
+		// the arrow keys and space to brake.
 		controlKeys = keys || controlKeys;
 
-		// local axes of rotation - these are likely to vary between models
+		// local axes of rotation - these are
+		// likely to vary between models.
 		this.wheelRotationAxis = 'x';
 		this.wheelTurnAxis = 'z';
 		this.steeringWheelTurnAxis = 'y';
@@ -118,13 +126,21 @@ var CarControls = ( function ( ) {
 					controls.moveBackward = false;
 					break;
 
-				case controlKeys.UP: controls.moveForward = true; break;
+				case controlKeys.UP:
+					controls.moveForward = true;
+					break;
 
-				case controlKeys.DOWN: controls.moveBackward = true; break;
+				case controlKeys.DOWN:
+					controls.moveBackward = true;
+					break;
 
-				case controlKeys.LEFT: controls.moveLeft = true; break;
+				case controlKeys.LEFT:
+					controls.moveLeft = true;
+					break;
 
-				case controlKeys.RIGHT: controls.moveRight = true; break;
+				case controlKeys.RIGHT:
+					controls.moveRight = true;
+					break;
 
 			}
 
@@ -134,15 +150,25 @@ var CarControls = ( function ( ) {
 
 			switch ( event.keyCode ) {
 
-				case controlKeys.BRAKE: controls.brake = false; break;
+				case controlKeys.BRAKE:
+					controls.brake = false;
+					break;
 
-				case controlKeys.UP: controls.moveForward = false; break;
+				case controlKeys.UP:
+					controls.moveForward = false;
+					break;
 
-				case controlKeys.DOWN: controls.moveBackward = false; break;
+				case controlKeys.DOWN:
+					controls.moveBackward = false;
+					break;
 
-				case controlKeys.LEFT: controls.moveLeft = false; break;
+				case controlKeys.LEFT:
+					controls.moveLeft = false;
+					break;
 
-				case controlKeys.RIGHT: controls.moveRight = false; break;
+				case controlKeys.RIGHT:
+					controls.moveRight = false;
+					break;
 
 			}
 
@@ -157,11 +183,19 @@ var CarControls = ( function ( ) {
 
 		update: function ( delta ) {
 
-			if ( ! loaded || ! this.enabled ) return;
+			if ( ! loaded || ! this.enabled ) {
 
-			var brakingDeceleration = 1;
+				return;
 
-			if ( controls.brake ) brakingDeceleration = this.brakePower;
+			}
+
+			let brakingDeceleration = 1;
+
+			if ( controls.brake ) {
+
+				brakingDeceleration = this.brakePower;
+
+			}
 
 			if ( controls.moveForward ) {
 
@@ -194,14 +228,14 @@ var CarControls = ( function ( ) {
 
 				if ( this.speed > 0 ) {
 
-					var k = exponentialEaseOut( this.speed / this.maxSpeed );
+					let k = exponentialEaseOut( this.speed / this.maxSpeed );
 
 					this.speed = _Math.clamp( this.speed - k * delta * deceleration * brakingDeceleration, 0, this.maxSpeed );
 					acceleration = _Math.clamp( acceleration - k * delta, 0, 1 );
 
 				} else {
 
-					var k = exponentialEaseOut( this.speed / maxSpeedReverse );
+					let k = exponentialEaseOut( this.speed / maxSpeedReverse );
 
 					this.speed = _Math.clamp( this.speed + k * delta * accelerationReverse * brakingDeceleration, maxSpeedReverse, 0 );
 					acceleration = _Math.clamp( acceleration + k * delta, - 1, 0 );
@@ -225,21 +259,21 @@ var CarControls = ( function ( ) {
 
 			}
 
-			var forwardDelta = - this.speed * delta;
+			const forwardDelta = - this.speed * delta;
 
 			carOrientation -= ( forwardDelta * this.turningRadius * 0.02 ) * wheelOrientation;
 
-			// movement of car
+			// Movement of car.
 			root.position.x += Math.sin( carOrientation ) * forwardDelta * length;
 			root.position.z += Math.cos( carOrientation ) * forwardDelta * length;
 
-			// angle of car
+			// Angle of car.
 			root.rotation.y = carOrientation;
 
-			// wheels rolling
-			var angularSpeedRatio = - 2 / wheelDiameter;
+			// Wheels rolling.
+			const angularSpeedRatio = - 2 / wheelDiameter;
 
-			var wheelDelta = forwardDelta * angularSpeedRatio * length;
+			const wheelDelta = forwardDelta * angularSpeedRatio * length;
 
 			frontLeftWheel.rotation[ this.wheelRotationAxis ] -= wheelDelta;
 			frontRightWheel.rotation[ this.wheelRotationAxis ] -= wheelDelta;
@@ -256,7 +290,11 @@ var CarControls = ( function ( ) {
 
 		setModel: function ( model, elemNames ) {
 
-			if ( elemNames ) this.elemNames = elemNames;
+			if ( elemNames ) {
+
+				this.elemNames = elemNames;
+
+			}
 
 			root = model;
 
@@ -271,13 +309,27 @@ var CarControls = ( function ( ) {
 
 			frontLeftWheelRoot = root.getObjectByName( this.elemNames.flWheel );
 			frontRightWheelRoot = root.getObjectByName( this.elemNames.frWheel );
+
 			backLeftWheel = root.getObjectByName( this.elemNames.rlWheel );
 			backRightWheel = root.getObjectByName( this.elemNames.rrWheel );
 
-			if ( this.elemNames.steeringWheel !== null ) steeringWheel = root.getObjectByName( this.elemNames.steeringWheel );
+			if ( this.elemNames.steeringWheel !== null ) {
 
-			while ( frontLeftWheelRoot.children.length > 0 ) frontLeftWheel.add( frontLeftWheelRoot.children[ 0 ] );
-			while ( frontRightWheelRoot.children.length > 0 ) frontRightWheel.add( frontRightWheelRoot.children[ 0 ] );
+				steeringWheel = root.getObjectByName( this.elemNames.steeringWheel );
+
+			}
+
+			while ( frontLeftWheelRoot.children.length > 0 ) {
+
+				frontLeftWheel.add( frontLeftWheelRoot.children[ 0 ] );
+
+			}
+
+			while ( frontRightWheelRoot.children.length > 0 ) {
+
+				frontRightWheel.add( frontRightWheelRoot.children[ 0 ] );
+
+			}
 
 			frontLeftWheelRoot.add( frontLeftWheel );
 			frontRightWheelRoot.add( frontRightWheel );
@@ -286,16 +338,16 @@ var CarControls = ( function ( ) {
 
 		computeDimensions: function () {
 
-			var bb = new Box3().setFromObject( frontLeftWheelRoot );
+			const bbox = new Box3().setFromObject( frontLeftWheelRoot );
 
-			var size = new Vector3();
-			bb.getSize( size );
+			let size = new Vector3();
+			bbox.getSize( size );
 
 			wheelDiameter = Math.max( size.x, size.y, size.z );
 
-			bb.setFromObject( root );
+			bbox.setFromObject( root );
 
-			size = bb.getSize( size );
+			size = bbox.getSize( size );
 			length = Math.max( size.x, size.y, size.z );
 
 		}

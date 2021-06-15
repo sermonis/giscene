@@ -8,7 +8,14 @@
     	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link type="text/css" rel="stylesheet" href="../libs/three.js/examples/main.css">
 
-		<style></style>
+		<style>
+			body {
+				color: #444;
+			}
+			a {
+				color: #049EF4;
+			}
+		</style>
 
     </head>
 
@@ -19,7 +26,7 @@
         <div id="info">
 
             <div>
-                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates track path following.
+                <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a> - Demonstrates model track path following.
             </div>
 
             <div></div>
@@ -111,6 +118,12 @@
 		container.appendChild( renderer.domElement );
 
 		const controls = new OrbitControls( camera, renderer.domElement );
+		controls.maxPolarAngle = ( Math.PI / 2 ) * 0.98;
+		// controls.minPolarAngle = ( Math.PI / 2 ) * 0.98;
+		// controls.maxAzimuthAngle = ( Math.PI / 2 );
+		controls.minDistance = 0.5;
+		controls.maxZoom = 1.5;
+		// controls.enablePan = false;
 
 		const clock = new THREE.Clock();
 
@@ -397,6 +410,7 @@
 				redCar.position.set( redCarX, redCarY, redCarZ );
 				// redCar.position.lerp( new THREE.Vector3( redCarX, redCarY, redCarZ ), delta );
 				// redCar.position.lerp( new THREE.Vector3( redCarX, redCarY, redCarZ ), 0.1 );
+				// redCar.position.lerpVector( new THREE.Vector3( redCarX, redCarY, redCarZ ), 0.1 );
 
 				redCar.rotation.y = 1.57 + Math.atan2( -gRoad.t[ redCarIdx ].z, gRoad.t[ redCarIdx ].x );
 				// TODO: take tangent, binormal for calculation.
