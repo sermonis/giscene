@@ -164,19 +164,20 @@
 			}
 
 			const normalMapWater = loader.load( 'textures/planets/earth/water-normal-map.jpg' );
+			const maxAnisotropy = new THREE.WebGLRenderer().capabilities.getMaxAnisotropy();
 
 			normalMapWater.wrapS = normalMapWater.wrapT = THREE.RepeatWrapping;
 			specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
 			bumpMap.wrapS = bumpMap.wrapT = THREE.RepeatWrapping;
 			diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
 
-			specularMap.anisotropy = 16;
-			diffuseMap.anisotropy = 16;
+			specularMap.anisotropy = maxAnisotropy;
+			diffuseMap.anisotropy = maxAnisotropy;
 
 			if ( ! isSafari ) {
 
-				bumpMap.anisotropy = 16;
-				normalMapWater.anisotropy = 16;
+				bumpMap.anisotropy = maxAnisotropy;
+				normalMapWater.anisotropy = maxAnisotropy;
 
 			}
 
@@ -251,13 +252,13 @@
 
 			} );
 
-			waterMaterial.specularMap.anisotropy = 16;
-			waterMaterial.map.anisotropy = 16;
+			waterMaterial.specularMap.anisotropy = maxAnisotropy;
+			waterMaterial.map.anisotropy = maxAnisotropy;
 
 			if ( ! isSafari ) {
 
-				waterMaterial.bumpMap.anisotropy = 16;
-				waterMaterial.normalMap.anisotropy = 16;
+				waterMaterial.bumpMap.anisotropy = maxAnisotropy;
+				waterMaterial.normalMap.anisotropy = maxAnisotropy;
 
 			}
 			// const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );;
@@ -627,6 +628,7 @@
 			renderer.shadowMap.enabled = true;
 			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 			renderer.shadowMapSoft = true;
+
 			// renderer.physicallyBasedShading = true;
 			// renderer.gammaInput = false;
   			// renderer.gammaOutput = false;
