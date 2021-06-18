@@ -50,7 +50,8 @@
 
 			import { AutodromeEnvironment } from './jsm/environments/AutodromeEnvironment.js';
 
-			import { CarControls } from './jsm/misc/CarControls.js';
+			// import { CarControls } from './jsm/misc/CarControls.js';
+			import { CarControls } from './jsm/misc/CarControlsAvs.js';
 
 			import Snapshot from './jsm/libs/snapshot.module.js';
 
@@ -279,6 +280,21 @@
 						// carModel.getObjectByName( 'Glass' ).material = glassMaterial;
 
 						carControls.setModel( carModel );
+
+						carControls.moveForward();
+						carControls.moveRight();
+
+						// setTimeout( () => {
+						//
+						//
+						//
+						// }, 600 );
+
+						setTimeout( () => {
+
+							carControls.brake();
+
+						}, 800 );
 
 						carModel.traverse( function ( child ) {
 

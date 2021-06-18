@@ -150,10 +150,6 @@ const CarControls = ( function ( ) {
 
 			switch ( event.keyCode ) {
 
-				case controlKeys.BRAKE:
-					controls.brake = false;
-					break;
-
 				case controlKeys.UP:
 					controls.moveForward = false;
 					break;
@@ -170,7 +166,32 @@ const CarControls = ( function ( ) {
 					controls.moveRight = false;
 					break;
 
+				case controlKeys.BRAKE:
+					controls.brake = false;
+					break;
+
+
 			}
+
+		},
+
+		moveForward: function () {
+
+			controls.moveForward = true;
+
+		},
+
+		moveRight: function () {
+
+			controls.moveRight = true;
+
+		},
+
+		// brake: function () {
+		brake: function () {
+
+			controls.moveForward = false;
+			controls.brake = true;
 
 		},
 
@@ -200,14 +221,14 @@ const CarControls = ( function ( ) {
 			if ( controls.moveForward ) {
 
 				this.speed = _Math.clamp( this.speed + delta * this.acceleration, maxSpeedReverse, this.maxSpeed );
-				acceleration = _Math.clamp( acceleration + delta, - 1, 1 );
+				// acceleration = _Math.clamp( acceleration + delta, - 1, 1 );
 
 			}
 
 			if ( controls.moveBackward ) {
 
 				this.speed = _Math.clamp( this.speed - delta * accelerationReverse, maxSpeedReverse, this.maxSpeed );
-				acceleration = _Math.clamp( acceleration - delta, - 1, 1 );
+				// acceleration = _Math.clamp( acceleration - delta, - 1, 1 );
 
 			}
 
@@ -231,14 +252,14 @@ const CarControls = ( function ( ) {
 					let k = exponentialEaseOut( this.speed / this.maxSpeed );
 
 					this.speed = _Math.clamp( this.speed - k * delta * deceleration * brakingDeceleration, 0, this.maxSpeed );
-					acceleration = _Math.clamp( acceleration - k * delta, 0, 1 );
+					// acceleration = _Math.clamp( acceleration - k * delta, 0, 1 );
 
 				} else {
 
 					let k = exponentialEaseOut( this.speed / maxSpeedReverse );
 
 					this.speed = _Math.clamp( this.speed + k * delta * accelerationReverse * brakingDeceleration, maxSpeedReverse, 0 );
-					acceleration = _Math.clamp( acceleration + k * delta, - 1, 0 );
+					// acceleration = _Math.clamp( acceleration + k * delta, - 1, 0 );
 
 				}
 
@@ -286,10 +307,14 @@ const CarControls = ( function ( ) {
 
 			steeringWheel.rotation[ this.steeringWheelTurnAxis ] = - wheelOrientation * 6;
 
-			// console.log(
-			// 	'speed:', this.speed,
-			// 	'acceleration:', acceleration
-			// );
+			console.log(
+				'speed:', this.speed,
+				// 'acceleration:', acceleration,
+				'forwardDelta:', forwardDelta,
+				'carOrientation:', carOrientation,
+				'angularSpeedRatio:', angularSpeedRatio,
+				'wheelDelta:', wheelDelta,
+			);
 
 		},
 
