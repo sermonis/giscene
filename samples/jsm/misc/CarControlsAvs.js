@@ -288,6 +288,9 @@ const CarControls = ( function ( ) {
 			root.position.x += Math.sin( carOrientation ) * forwardDelta * length;
 			root.position.z += Math.cos( carOrientation ) * forwardDelta * length;
 
+			// console.log( 'length', length );
+			// console.log( 'wheelDiameter', wheelDiameter );
+
 			// Angle of car.
 			root.rotation.y = carOrientation;
 
@@ -307,14 +310,14 @@ const CarControls = ( function ( ) {
 
 			steeringWheel.rotation[ this.steeringWheelTurnAxis ] = - wheelOrientation * 6;
 
-			console.log(
-				'speed:', this.speed,
-				// 'acceleration:', acceleration,
-				'forwardDelta:', forwardDelta,
-				'carOrientation:', carOrientation,
-				'angularSpeedRatio:', angularSpeedRatio,
-				'wheelDelta:', wheelDelta,
-			);
+			// console.log(
+			// 	'speed:', this.speed,
+			// 	// 'acceleration:', acceleration,
+			// 	'forwardDelta:', forwardDelta,
+			// 	'carOrientation:', carOrientation,
+			// 	'angularSpeedRatio:', angularSpeedRatio,
+			// 	'wheelDelta:', wheelDelta,
+			// );
 
 		},
 
