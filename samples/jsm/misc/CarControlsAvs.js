@@ -25,7 +25,7 @@ const CarControls = ( function ( ) {
 
 	let acceleration = 0;
 
-	let maxSpeedReverse, accelerationReverse, deceleration;
+	let maxSpeedReverse, accelerationReverse, deceleration; 
 
 	let controlKeys = { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40, BRAKE: 32 };
 
@@ -39,6 +39,7 @@ const CarControls = ( function ( ) {
 
 	let frontLeftWheel = new Group();
 	let frontRightWheel = new Group();
+
 	let backLeftWheel = null;
 	let backRightWheel = null;
 
@@ -187,7 +188,6 @@ const CarControls = ( function ( ) {
 
 		},
 
-		// brake: function () {
 		brake: function () {
 
 			controls.moveForward = false;
@@ -220,27 +220,27 @@ const CarControls = ( function ( ) {
 
 			if ( controls.moveForward ) {
 
-				this.speed = _Math.clamp( this.speed + delta * this.acceleration, maxSpeedReverse, this.maxSpeed );
+				this.speed = _Math.clamp( ( this.speed + delta * this.acceleration ), maxSpeedReverse, this.maxSpeed );
 				// acceleration = _Math.clamp( acceleration + delta, - 1, 1 );
 
 			}
 
 			if ( controls.moveBackward ) {
 
-				this.speed = _Math.clamp( this.speed - delta * accelerationReverse, maxSpeedReverse, this.maxSpeed );
+				this.speed = _Math.clamp( ( this.speed - delta * accelerationReverse ), maxSpeedReverse, this.maxSpeed );
 				// acceleration = _Math.clamp( acceleration - delta, - 1, 1 );
 
 			}
 
 			if ( controls.moveLeft ) {
 
-				wheelOrientation = _Math.clamp( wheelOrientation + delta * steeringWheelSpeed, - maxSteeringRotation, maxSteeringRotation );
+				wheelOrientation = _Math.clamp( ( wheelOrientation + delta * steeringWheelSpeed ), - maxSteeringRotation, maxSteeringRotation );
 
 			}
 
 			if ( controls.moveRight ) {
 
-				wheelOrientation = _Math.clamp( wheelOrientation - delta * steeringWheelSpeed, - maxSteeringRotation, maxSteeringRotation );
+				wheelOrientation = _Math.clamp( ( wheelOrientation - delta * steeringWheelSpeed ), - maxSteeringRotation, maxSteeringRotation );
 
 			}
 
@@ -343,6 +343,8 @@ const CarControls = ( function ( ) {
 			frontLeftWheelRoot = root.getObjectByName( this.elemNames.flWheel );
 			frontRightWheelRoot = root.getObjectByName( this.elemNames.frWheel );
 
+			// console.log( 'frontLeftWheelRoot', frontLeftWheelRoot );
+
 			backLeftWheel = root.getObjectByName( this.elemNames.rlWheel );
 			backRightWheel = root.getObjectByName( this.elemNames.rrWheel );
 
@@ -366,6 +368,9 @@ const CarControls = ( function ( ) {
 
 			frontLeftWheelRoot.add( frontLeftWheel );
 			frontRightWheelRoot.add( frontRightWheel );
+
+			// console.log( 'frontLeftWheelRoot', frontLeftWheelRoot );
+			// console.log( 'frontRightWheelRoot', frontRightWheelRoot );
 
 		},
 
